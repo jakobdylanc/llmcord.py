@@ -21,10 +21,10 @@ pip install -r requirements.txt
 
 2. Create _.env_ from _.env.example_ and set it up:
 
-| Option | Description |
+| Option | Instructions |
 | --- | --- |
-| DISCORD\_BOT_TOKEN | Create a new Discord application [here](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "message content intent". |
-| OPENAI\_API_KEY | Generate an OpenAI API key [here](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account [here](https://platform.openai.com/account/billing/payment-methods).|
+| DISCORD\_BOT_TOKEN | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "message content intent". |
+| OPENAI\_API_KEY | Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | GPT_MODEL | Choose between "gpt-4", "gpt-4-32k", "gpt-3.5-turbo", or "gpt-3.5-turbo-16k". Make sure your OpenAI account has access to the model you choose. |
 | CUSTOM\_SYSTEM_PROMPT | Write practically anything you want to customize the bot's behavior! |
 
@@ -37,5 +37,3 @@ https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=41231
 ```bash
 python gpt_discord.py
 ```
-
-

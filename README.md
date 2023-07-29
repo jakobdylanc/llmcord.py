@@ -13,6 +13,8 @@ The bot's replies generate gradually rather than having to wait for it to send i
 ### ULTRA REFINED
 1 Python file, 100 lines of code.
 
+![](https://github.com/jakobdylanc/gpt_discord/assets/38699060/e496bb18-616a-40ac-93f4-42fe09488747)
+
 # Instructions
 1. Install Python requirements:
 ```bash

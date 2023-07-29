@@ -30,8 +30,7 @@ def count_tokens(msg):
     num_tokens = EXTRA_TOKENS_PER["message"]
     for key, value in msg.items():
         num_tokens += len(encoding.encode(value))
-        if key == "name":
-            num_tokens += EXTRA_TOKENS_PER["name"]
+        if key == "name": num_tokens += EXTRA_TOKENS_PER["name"]
     return num_tokens
 MAX_PROMPT_TOKENS_ADJUSTED = MAX_TOTAL_TOKENS[os.environ["GPT_MODEL"]] - MAX_COMPLETION_TOKENS - EXTRA_TOKENS_PER["reply"] - count_tokens(SYSTEM_PROMPT)
 

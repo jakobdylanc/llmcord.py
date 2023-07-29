@@ -1,5 +1,5 @@
 # gpt_discord by jakobdylanc
-An OpenAI GPT Discord bot.
+
 ![](https://github.com/jakobdylanc/gpt_discord/assets/38699060/e496bb18-616a-40ac-93f4-42fe09488747)
 
 # Features

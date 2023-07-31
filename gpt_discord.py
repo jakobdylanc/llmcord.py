@@ -1,5 +1,6 @@
 import openai, tiktoken, discord, asyncio, os, time
 from dotenv import load_dotenv; load_dotenv()
+os.environ["EDITS_PER_SECOND"] = str(max(float(os.environ["EDITS_PER_SECOND"]), 1))
 openai.api_key = os.environ["OPENAI_API_KEY"]
 encoding = tiktoken.get_encoding("cl100k_base")
 SYSTEM_PROMPT = {"role": "system", "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as <@ID>. Knowledge cutoff: Sep 2021."}

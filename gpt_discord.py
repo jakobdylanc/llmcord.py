@@ -100,7 +100,7 @@ async def on_message(message):
                     
                     if response_message_contents[-1] != previous_delta_content:
                         final_message_edit = True if len(response_message_contents[-1]+current_delta_content) > EMBED_MAX_LENGTH or current_delta == {} else False
-                        if final_message_edit or ("edit_message_task" not in locals() or edit_message_task.done()) and time.time()-last_message_task_time >= len(in_progress_message_ids) / float(os.environ["EDITS_PER_SECOND"]):
+                        if final_message_edit or ("edit_message_task" not in locals() or edit_message_task.done()) and time.time()-last_message_task_time >= len(in_progress_message_ids)/float(os.environ["EDITS_PER_SECOND"]):
                             while "edit_message_task" in locals() and not edit_message_task.done(): await asyncio.sleep(0)
                             embed_color = EMBED_COLOR["complete"] if final_message_edit else EMBED_COLOR["incomplete"]
                             edit_message_task = asyncio.create_task(response_messages[-1].edit(embed=discord.Embed(description=response_message_contents[-1], color=embed_color)))

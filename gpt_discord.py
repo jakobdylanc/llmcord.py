@@ -3,7 +3,7 @@ from dotenv import load_dotenv; load_dotenv()
 os.environ["EDITS_PER_SECOND"] = str(max(float(os.environ["EDITS_PER_SECOND"]), 1))
 openai.api_key = os.environ["OPENAI_API_KEY"]
 encoding = tiktoken.get_encoding("cl100k_base")
-SYSTEM_PROMPT = {"role": "system", "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as <@ID>. Knowledge cutoff: Sep 2021."}
+SYSTEM_PROMPT = {"role": "system", "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'. Knowledge cutoff: Sep 2021."}
 EXTRA_TOKENS_PER = {"message": 3, "name": 1, "reply": 3}
 MAX_TOTAL_TOKENS = {"gpt-4": 8192, "gpt-4-32k": 32768, "gpt-3.5-turbo": 4096, "gpt-3.5-turbo-16k": 16384}
 MAX_COMPLETION_TOKENS = 1024

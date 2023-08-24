@@ -4,8 +4,8 @@
 
 # Features
 ### INTUITIVE REPLY-BASED CHAT SYSTEM
-To start a new conversation, @ the bot. To continue a conversation, reply to the message. The conversation context is dynamically built from reply chains.
-Works in DMs too, no @ necessary.
+To start a new conversation, @ the bot in your Discord server. To continue a conversation, reply to the message. The conversation context is dynamically built from reply chains. 
+Works in DMs, no @ necessary.
 
 ### STREAMED RESPONSES
 The bot's replies generate gradually rather than having to wait for it to send in one big chunk.

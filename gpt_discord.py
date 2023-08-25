@@ -75,7 +75,7 @@ async def on_message(message):
             else:
                 try:
                     previous_ref_msg_id = current_ref_msg.id
-                    current_ref_msg = await message.channel.fetch_message(current_ref_msg.reference.message_id)
+                    current_ref_msg = current_ref_msg.reference.resolved if isinstance(current_ref_msg.reference.resolved, discord.Message) else await message.channel.fetch_message(current_ref_msg.reference.message_id)
                     current_ref_msg_content = current_ref_msg.embeds[0].description if current_ref_msg.author == bot.user else current_ref_msg.content
                     if not current_ref_msg_content or current_ref_msg.id in msg_nodes: break
                     current_ref_msg_author_role = "assistant" if current_ref_msg.author == bot.user else "user"

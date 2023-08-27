@@ -1,6 +1,6 @@
-# gpt_discord by jakobdylanc
+# gpt-discord by jakobdylanc
 
-![](https://github.com/jakobdylanc/gpt_discord/assets/38699060/e496bb18-616a-40ac-93f4-42fe09488747)
+![](https://github.com/jakobdylanc/gpt-discord/assets/38699060/e496bb18-616a-40ac-93f4-42fe09488747)
 
 # Features
 ### INTUITIVE REPLY-BASED CHAT SYSTEM
@@ -37,5 +37,5 @@ https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=41231
 
 4. Run the bot:
 ```bash
-python gpt_discord.py
+python gpt-discord.py
 ```

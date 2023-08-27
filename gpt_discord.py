@@ -81,7 +81,7 @@ async def on_message(message):
                     current_ref_msg_author_role = "assistant" if current_ref_msg.author == bot.user else "user"
                     msg_nodes[current_ref_msg.id] = MsgNode({"role": current_ref_msg_author_role, "content": current_ref_msg_content, "name": str(current_ref_msg.author.id)})
                     msg_nodes[previous_ref_msg_id].reference = msg_nodes[current_ref_msg.id]
-                except discord.DiscordException: break
+                except (discord.NotFound, discord.HTTPException): break
  
         response_messages, response_message_contents = [], []
         msgs = [SYSTEM_PROMPT] + msg_nodes[message.id].get_reference_chain()

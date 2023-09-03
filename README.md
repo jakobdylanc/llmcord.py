@@ -15,6 +15,7 @@ The bot's replies generate gradually rather than having to wait for it to send i
 1 Python file, 100 lines of code.
 
 # Instructions
+### Before you start, install Python and clone this git repo.
 1. Install Python requirements:
 ```bash
 pip install -r requirements.txt

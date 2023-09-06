@@ -37,20 +37,20 @@ MAX_PROMPT_TOKENS_ADJUSTED = MAX_TOTAL_TOKENS[os.environ["GPT_MODEL"]] - MAX_COM
 
 
 class MsgNode:
-    def __init__(self, msg, reference=None):
+    def __init__(self, msg, reference_node=None):
         self.msg = msg
         self.tokens = count_tokens(msg)
-        self.reference = reference
+        self.reference_node = reference_node
 
     def get_reference_chain(self, max_tokens=MAX_PROMPT_TOKENS_ADJUSTED):
         reference_chain = []
         num_tokens = 0
-        current_ref_msg = self
-        while current_ref_msg != None:
-            num_tokens += current_ref_msg.tokens
+        current_node = self
+        while current_node != None:
+            num_tokens += current_node.tokens
             if num_tokens > max_tokens: break
-            reference_chain.append(current_ref_msg.msg)
-            current_ref_msg = current_ref_msg.reference
+            reference_chain.append(current_node.msg)
+            current_node = current_node.reference_node
         return reference_chain[::-1]
     
 
@@ -58,29 +58,29 @@ class MsgNode:
 async def on_message(message):
     if (message.channel.type != discord.ChannelType.private and bot.user not in message.mentions) or message.author.bot: return
     
-    user_prompt_content = message.content.replace(bot.user.mention, "", 1).strip()
-    if not user_prompt_content: return
+    user_message_content = message.content.replace(bot.user.mention, "", 1).strip()
+    if not user_message_content: return
     
     while message.reference and message.reference.message_id in in_progress_message_ids: await asyncio.sleep(0)
     
     async with message.channel.typing():
-        print(f"Generating GPT response for prompt:\n{user_prompt_content}")
-        msg_nodes[message.id] = MsgNode({"role": "user", "content": user_prompt_content, "name": str(message.author.id)})
+        print(f"Generating GPT response for prompt:\n{user_message_content}")
+        msg_nodes[message.id] = MsgNode({"role": "user", "content": user_message_content, "name": str(message.author.id)})
         
-        current_ref_msg = message
-        while current_ref_msg.reference:
-            if current_ref_msg.id in msg_nodes and current_ref_msg.reference.message_id in msg_nodes:
-                msg_nodes[current_ref_msg.id].reference = msg_nodes[current_ref_msg.reference.message_id]
+        current_msg = message
+        while current_msg.reference:
+            if current_msg.id in msg_nodes and current_msg.reference.message_id in msg_nodes:
+                msg_nodes[current_msg.id].reference_node = msg_nodes[current_msg.reference.message_id]
                 break
             else:
                 try:
-                    previous_ref_msg_id = current_ref_msg.id
-                    current_ref_msg = current_ref_msg.reference.resolved if isinstance(current_ref_msg.reference.resolved, discord.Message) else await message.channel.fetch_message(current_ref_msg.reference.message_id)
-                    current_ref_msg_content = current_ref_msg.embeds[0].description if current_ref_msg.author == bot.user else current_ref_msg.content
-                    if not current_ref_msg_content or current_ref_msg.id in msg_nodes: break
-                    current_ref_msg_author_role = "assistant" if current_ref_msg.author == bot.user else "user"
-                    msg_nodes[current_ref_msg.id] = MsgNode({"role": current_ref_msg_author_role, "content": current_ref_msg_content, "name": str(current_ref_msg.author.id)})
-                    msg_nodes[previous_ref_msg_id].reference = msg_nodes[current_ref_msg.id]
+                    previous_msg_id = current_msg.id
+                    current_msg = current_msg.reference.resolved if isinstance(current_msg.reference.resolved, discord.Message) else await message.channel.fetch_message(current_msg.reference.message_id)
+                    current_msg_content = current_msg.embeds[0].description if current_msg.author == bot.user else current_msg.content
+                    if not current_msg_content or current_msg.id in msg_nodes: break
+                    current_msg_author_role = "assistant" if current_msg.author == bot.user else "user"
+                    msg_nodes[current_msg.id] = MsgNode({"role": current_msg_author_role, "content": current_msg_content, "name": str(current_msg.author.id)})
+                    msg_nodes[previous_msg_id].reference_node = msg_nodes[current_msg.id]
                 except (discord.NotFound, discord.HTTPException): break
  
         response_messages, response_message_contents = [], []
@@ -109,7 +109,7 @@ async def on_message(message):
             previous_delta = current_delta
 
         for response_message in response_messages:
-            msg_nodes[response_message.id] = MsgNode({"role": "assistant", "content": ''.join(response_message_contents), "name": str(bot.user.id)}, reference=msg_nodes[message.id])
+            msg_nodes[response_message.id] = MsgNode({"role": "assistant", "content": ''.join(response_message_contents), "name": str(bot.user.id)}, reference_node=msg_nodes[message.id])
             in_progress_message_ids.remove(response_message.id)
 
 

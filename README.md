@@ -4,11 +4,12 @@
 
 # Features
 ### INTUITIVE REPLY-BASED CHAT SYSTEM
-To start a new conversation, @ the bot in your Discord server. To continue a conversation, reply to the message. The conversation context is dynamically built from reply chains. 
-Works in DMs, no @ necessary.
+Mention (@) the bot in your Discord server and it will reply to you. To continue a conversation, reply to the message.
+gpt-discord builds the conversation context dynamically from reply chains.
+This gives you (and your friends) ultimate effortless control over the conversation history.
 
 ### STREAMED RESPONSES
-The bot's replies generate gradually rather than having to wait for it to send in one big chunk.
+The bot's replies start generating instantly rather than having to wait longer for one big chunk.
 >As of writing this no other OpenAI GPT Discord bot has successfully implemented this. Feel free to prove me wrong :)
 
 ### ULTRA REFINED

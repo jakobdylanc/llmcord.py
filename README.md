@@ -4,7 +4,7 @@
 
 # Features
 ### INTUITIVE REPLY-BASED CHAT SYSTEM
-Mention (@) the bot in your Discord server and it will reply to you. To continue a conversation, reply to the message.
+Mention (@) the bot in your Discord server and it will reply to you. Continue a conversation by replying to the message.
 gpt-discord builds the conversation context dynamically from reply chains.
 This gives you (and your friends) ultimate effortless control over the conversation history.
 

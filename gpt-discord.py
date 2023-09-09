@@ -56,17 +56,23 @@ class MsgNode:
 
 @bot.event
 async def on_message(message):
+
+    # Filter out messages we don't want
     if (message.channel.type != discord.ChannelType.private and bot.user not in message.mentions) or message.author.bot: return
-    
     user_message_content = message.content.replace(bot.user.mention, "", 1).strip()
     if not user_message_content: return
-    
+
+    # If user replied to a message that's still generating, wait until it's done
     while message.reference and message.reference.message_id in in_progress_message_ids: await asyncio.sleep(0)
-    
+
+    print(f"Generating GPT response for prompt:\n{user_message_content}")
+
     async with message.channel.typing():
-        print(f"Generating GPT response for prompt:\n{user_message_content}")
+
+        # Create MsgNode for user message
         msg_nodes[message.id] = MsgNode({"role": "user", "content": user_message_content, "name": str(message.author.id)})
         
+        # Loop through message reply chain and create MsgNodes
         current_msg = message
         while current_msg.reference:
             if current_msg.id in msg_nodes and current_msg.reference.message_id in msg_nodes:
@@ -83,8 +89,11 @@ async def on_message(message):
                     msg_nodes[previous_msg_id].reference_node = msg_nodes[current_msg.id]
                 except (discord.NotFound, discord.HTTPException): break
  
-        response_messages, response_message_contents = [], []
+        # Build conversation history from reply chain
         msgs = [SYSTEM_PROMPT] + msg_nodes[message.id].get_reference_chain()
+
+        # Generate and send bot reply
+        response_messages, response_message_contents = [], []
         async for current_delta in chat_completion_stream(msgs):
             if "previous_delta" in locals():
                 current_delta_content = current_delta.get("content", "")
@@ -108,6 +117,7 @@ async def on_message(message):
                             last_message_task_time = time.time()
             previous_delta = current_delta
 
+        # Create MsgNode(s) for bot reply message(s) (can be multiple if bot reply was long)
         for response_message in response_messages:
             msg_nodes[response_message.id] = MsgNode({"role": "assistant", "content": ''.join(response_message_contents), "name": str(bot.user.id)}, reference_node=msg_nodes[message.id])
             in_progress_message_ids.remove(response_message.id)

@@ -10,13 +10,13 @@ This gives you (and your friends) ultimate effortless control over the conversat
 
 ### STREAMED RESPONSES
 The bot's replies start generating instantly rather than having to wait longer for one big chunk.
->As of writing this no other OpenAI GPT Discord bot has successfully implemented this. Feel free to prove me wrong :)
+> As of writing this no other OpenAI GPT Discord bot has successfully implemented this. Feel free to prove me wrong :)
 
 ### ULTRA REFINED
 1 Python file, 100 lines of code.
 
 # Instructions
-### Before you start, install Python and clone this git repo.
+> Before you start, install Python and clone this git repo.
 1. Install Python requirements:
 ```bash
 pip install -r requirements.txt

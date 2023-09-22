@@ -1,19 +1,21 @@
 # gpt-discord by jakobdylanc
-
+The best ChatGPT experience for your Discord server.
 ![](https://github.com/jakobdylanc/gpt-discord/assets/38699060/e496bb18-616a-40ac-93f4-42fe09488747)
 
 # Features
-### INTUITIVE REPLY-BASED CHAT SYSTEM
-Mention (@) the bot in your Discord server and it will reply to you. Continue a conversation by replying to the message.
-gpt-discord builds the conversation context dynamically from reply chains.
-This gives you (and your friends) ultimate effortless control over the conversation history.
+### REPLY-BASED CHAT HISTORY
+Mention (@) the bot and it will reply to you. Reply to any message to continue the conversation from that point. 
+The chat history is built dynamically from reply chains.
 
 ### STREAMED RESPONSES
 The bot's replies start generating instantly rather than having to wait longer for one big chunk.
-> As of writing this no other OpenAI GPT Discord bot has successfully implemented this. Feel free to prove me wrong :)
+> As of writing this no other GPT Discord bot has successfully implemented this. Feel free to prove me wrong :)
 
-### ULTRA REFINED
-1 Python file, 100 lines of code.
+### AND MORE...
+- Easily set a custom personality
+- User identity aware
+- Fully asynchronous
+- 1 Python file, ~100 lines of code
 
 # Instructions
 > Before you start, install Python and clone this git repo.
@@ -24,7 +26,7 @@ pip install -r requirements.txt
 
 2. Create _.env_ from _.env.example_ and set it up:
 
-| Option | Instructions |
+| Setting | Instructions |
 | --- | --- |
 | DISCORD\_BOT_TOKEN | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "message content intent". |
 | OPENAI\_API_KEY | Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|

@@ -31,7 +31,6 @@ pip install -r requirements.txt
 | DISCORD\_BOT_TOKEN | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "message content intent". |
 | OPENAI\_API_KEY | Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | GPT_MODEL | Choose between "gpt-4", "gpt-4-32k", "gpt-3.5-turbo", or "gpt-3.5-turbo-16k". Make sure your OpenAI account has access to the model you choose. |
-| EDITS\_PER_SECOND | Set to a higher value for smoother streamed responses. Higher values will also cause the bot to get ratelimited by Discord more often. (Default: 1.3, minimum: 1)
 | CUSTOM\_SYSTEM_PROMPT | Write practically anything you want to customize the bot's behavior! |
 
 3. Invite the bot to your Discord server with this URL (replace <CLIENT_ID> with your Discord application's client ID found under the "OAuth2" tab):

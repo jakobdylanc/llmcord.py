@@ -1,6 +1,5 @@
 import openai, tiktoken, discord, asyncio, os, time
 from dotenv import load_dotenv; load_dotenv()
-os.environ["EDITS_PER_SECOND"] = str(max(float(os.environ["EDITS_PER_SECOND"]), 1))
 openai.api_key = os.environ["OPENAI_API_KEY"]
 encoding = tiktoken.get_encoding("cl100k_base")
 SYSTEM_PROMPT = {"role": "system", "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'. Knowledge cutoff: Sep 2021."}
@@ -12,8 +11,9 @@ intents.message_content = True
 bot = discord.Client(intents=intents)
 msg_nodes = {}
 in_progress_message_ids = []
-EMBED_MAX_LENGTH = 4096
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
+EMBED_MAX_LENGTH = 4096
+EDITS_PER_SECOND = 1.3
 
 
 async def chat_completion_stream(msgs):
@@ -110,7 +110,7 @@ async def on_message(message):
                     
                     if response_message_contents[-1] != previous_delta_content:
                         final_message_edit = True if len(response_message_contents[-1]+current_delta_content) > EMBED_MAX_LENGTH or current_delta == {} else False
-                        if final_message_edit or ("edit_message_task" not in locals() or edit_message_task.done()) and time.time()-last_message_task_time >= len(in_progress_message_ids)/float(os.environ["EDITS_PER_SECOND"]):
+                        if final_message_edit or ("edit_message_task" not in locals() or edit_message_task.done()) and time.time()-last_message_task_time >= len(in_progress_message_ids)/EDITS_PER_SECOND:
                             while "edit_message_task" in locals() and not edit_message_task.done(): await asyncio.sleep(0)
                             embed_color = EMBED_COLOR["complete"] if final_message_edit else EMBED_COLOR["incomplete"]
                             edit_message_task = asyncio.create_task(response_messages[-1].edit(embed=discord.Embed(description=response_message_contents[-1], color=embed_color)))

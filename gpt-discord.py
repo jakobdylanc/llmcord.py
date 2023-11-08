@@ -3,9 +3,9 @@ dotenv.load_dotenv()
 
 openai_client = openai.AsyncOpenAI()
 encoding = tiktoken.get_encoding("cl100k_base")
-SYSTEM_PROMPT = {"role": "system", "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'. Knowledge cutoff: Sep 2021."}
+SYSTEM_PROMPT = {"role": "system", "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'."}
 EXTRA_TOKENS_PER = {"message": 3, "name": 1, "reply": 3}
-MAX_TOTAL_TOKENS = {"gpt-4": 8192, "gpt-4-32k": 32768, "gpt-3.5-turbo": 4096, "gpt-3.5-turbo-16k": 16384}
+MAX_TOTAL_TOKENS = {"gpt-4-1106-preview": 128000, "gpt-4": 8192, "gpt-4-32k": 32768, "gpt-3.5-turbo": 4096, "gpt-3.5-turbo-16k": 16384}
 MAX_COMPLETION_TOKENS = 1024
 
 discord_client = discord.Client(intents=discord.Intents.all())

@@ -1,5 +1,5 @@
 # gpt-discord (by jakobdylanc)
-The best ChatGPT experience for your Discord server.
+Forked from @jakobdylanc and optimized for use with Docker by @somewheresy
 ![](https://github.com/jakobdylanc/gpt-discord/assets/38699060/e496bb18-616a-40ac-93f4-42fe09488747)
 
 # Features

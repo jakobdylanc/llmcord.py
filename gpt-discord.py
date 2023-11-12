@@ -42,46 +42,42 @@ class MsgNode:
             msgs.append(current_node.msg)
             current_node = current_node.reference_node
         return msgs[::-1]
-    
+
 
 @discord_client.event
 async def on_message(message):
 
     # Filter out messages we don't want
-    if (message.channel.type != discord.ChannelType.private and discord_client.user not in message.mentions) or message.author.bot: return
-    user_message_content = message.content.replace(discord_client.user.mention, "", 1).strip()
-    if not user_message_content: return
+    if (message.channel.type != discord.ChannelType.private and discord_client.user not in message.mentions) or not message.content.replace(discord_client.user.mention, "", 1) or message.author.bot: return
 
     # If user replied to a message that's still generating, wait until it's done
     while message.reference and message.reference.message_id in in_progress_message_ids: await asyncio.sleep(0)
 
-    logging.info(f"Generating response for prompt:\n{user_message_content}")
-
     async with message.channel.typing():
 
-        # Create MsgNode for user message
-        msg_nodes[message.id] = MsgNode({"role": "user", "content": user_message_content, "name": str(message.author.id)})
-        
         # Loop through message reply chain and create MsgNodes
         current_msg = message
-        while current_msg.reference:
-            if current_msg.id in msg_nodes and current_msg.reference.message_id in msg_nodes:
+        while True:
+            current_msg_content = current_msg.embeds[0].description if current_msg.author == discord_client.user else current_msg.content
+            if current_msg_content.startswith(discord_client.user.mention): current_msg_content = current_msg_content.replace(discord_client.user.mention, "", 1).lstrip()
+            if not current_msg_content: break
+            current_msg_author_role = "assistant" if current_msg.author == discord_client.user else "user"
+            msg_nodes[current_msg.id] = MsgNode({"role": current_msg_author_role, "content": current_msg_content, "name": str(current_msg.author.id)})
+            if "previous_msg_id" in locals(): msg_nodes[previous_msg_id].reference_node = msg_nodes[current_msg.id]
+            if not current_msg.reference: break
+            if current_msg.reference.message_id in msg_nodes:
                 msg_nodes[current_msg.id].reference_node = msg_nodes[current_msg.reference.message_id]
                 break
+            previous_msg_id = current_msg.id
             try:
-                previous_msg_id = current_msg.id
                 current_msg = current_msg.reference.resolved if isinstance(current_msg.reference.resolved, discord.Message) else await message.channel.fetch_message(current_msg.reference.message_id)
-                current_msg_content = current_msg.embeds[0].description if current_msg.author == discord_client.user else current_msg.content
-                if not current_msg_content or current_msg.id in msg_nodes: break
-                current_msg_author_role = "assistant" if current_msg.author == discord_client.user else "user"
-                msg_nodes[current_msg.id] = MsgNode({"role": current_msg_author_role, "content": current_msg_content, "name": str(current_msg.author.id)})
-                msg_nodes[previous_msg_id].reference_node = msg_nodes[current_msg.id]
             except (discord.NotFound, discord.HTTPException): break
- 
+
         # Build conversation history from reply chain
         msgs = [SYSTEM_PROMPT] + msg_nodes[message.id].get_reference_chain()
 
         # Generate and send bot reply
+        logging.info(f"Generating response for prompt:\n{msgs[-1]['content']}")
         response_messages, response_message_contents = [], []
         async for part in await openai_client.chat.completions.create(model=os.environ["GPT_MODEL"], messages=msgs, max_tokens=MAX_COMPLETION_TOKENS, stream=True):
             current_content = part.choices[0].delta.content or ""

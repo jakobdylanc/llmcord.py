@@ -1,5 +1,6 @@
-import asyncio, discord, dotenv, openai, os, tiktoken, time
+import asyncio, discord, dotenv, logging, openai, os, tiktoken, time
 dotenv.load_dotenv()
+logging.basicConfig(level=logging.INFO, format="%(asctime)s.%(msecs)03d %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 openai_client = openai.AsyncOpenAI()
 encoding = tiktoken.get_encoding("cl100k_base")
@@ -54,7 +55,7 @@ async def on_message(message):
     # If user replied to a message that's still generating, wait until it's done
     while message.reference and message.reference.message_id in in_progress_message_ids: await asyncio.sleep(0)
 
-    print(f"Generating GPT response for prompt:\n{user_message_content}")
+    logging.info(f"Generating response for prompt:\n{user_message_content}")
 
     async with message.channel.typing():
 

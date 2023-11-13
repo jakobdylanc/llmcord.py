@@ -15,7 +15,7 @@ The bot's replies start generating instantly rather than having to wait longer f
 - Easily set a custom personality
 - User identity aware
 - Fully asynchronous
-- 1 Python file, ~100 lines of code
+- 1 Python file, <100 lines of code
 
 # Instructions
 > Before you start, install Python and clone this git repo.

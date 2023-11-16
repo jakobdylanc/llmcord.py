@@ -10,7 +10,9 @@ EXTRA_TOKENS_PER = {"message": 3, "name": 1, "reply": 3}
 MAX_TOTAL_TOKENS = {"gpt-3.5-turbo-1106": 16385, "gpt-4-1106-preview": 128000}
 MAX_COMPLETION_TOKENS = 1024
 
-discord_client = discord.Client(intents=discord.Intents.all())
+intents = discord.Intents.default()
+intents.message_content = True
+discord_client = discord.Client(intents=intents)
 msg_nodes = {}
 in_progress_message_ids = []
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}

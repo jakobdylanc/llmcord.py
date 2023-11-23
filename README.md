@@ -1,18 +1,18 @@
 # gpt-discord (by jakobdylanc)
-The best ChatGPT experience for your Discord server.
-![](https://github.com/jakobdylanc/gpt-discord/assets/38699060/e496bb18-616a-40ac-93f4-42fe09488747)
+Seamless multiplayer ChatGPT in your Discord server.  
+![](https://github.com/jakobdylanc/gpt-discord/assets/38699060/46706bfc-6688-4e58-8a23-c5bed8c9b2b1)
 
 # Features
-### REPLY-BASED CHAT HISTORY
-Mention (@) the bot and it will reply to you. Reply to any message to continue the conversation from that point. The chat history is built from reply chains.
+- ### REPLY-BASED CHAT HISTORY
+  Mention (@) the bot and it will reply to you. Reply to any message to continue the conversation from that point. The chat history is built from reply chains.
 
-### STREAMED RESPONSES
-The bot's replies start generating instantly rather than having to wait longer for one big chunk.
+- ### STREAMED RESPONSES
+  The bot's responses are dynamically generated just like ChatGPT.
 
-### VISION SUPPORT
-The bot can see image attachments when set to the ***gpt-4-turbo-vision*** model.
+- ### VISION SUPPORT
+  The bot can see image attachments, powered by ***GPT-4 Turbo with vision***.
 
-### AND MORE...
+### And more...
 - Easily set a custom personality
 - User identity aware
 - Fully asynchronous
@@ -43,3 +43,12 @@ https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=41231
 ```bash
 python gpt-discord.py
 ```
+
+# Star History
+<a href="https://star-history.com/#jakobdylanc/gpt-discord&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/gpt-discord&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/gpt-discord&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/gpt-discord&type=Date" />
+  </picture>
+</a>

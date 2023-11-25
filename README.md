@@ -1,6 +1,15 @@
-# gpt-discord (by jakobdylanc)
-Seamless multiplayer ChatGPT in your Discord server.  
-![](https://github.com/jakobdylanc/gpt-discord/assets/38699060/46706bfc-6688-4e58-8a23-c5bed8c9b2b1)
+<h1 align="center">
+  gpt-discord<br>
+  (by jakobdylanc)
+</h1>
+
+<p align="center">
+  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
+
+<p align="center">
+  <img src="https://github.com/jakobdylanc/gpt-discord/assets/38699060/46706bfc-6688-4e58-8a23-c5bed8c9b2b1" alt="">
+</p>
 
 # Features
 - ### REPLY-BASED CHAT HISTORY
@@ -16,7 +25,7 @@ Seamless multiplayer ChatGPT in your Discord server.
 - Easily set a custom personality
 - User identity aware
 - Fully asynchronous
-- 1 Python file, <100 lines of code
+- 1 Python file, ~200 lines of code
 
 # Instructions
 > Before you start, install Python and clone this git repo.

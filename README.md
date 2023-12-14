@@ -14,12 +14,14 @@
 # Features
 - ### REPLY-BASED CHAT HISTORY
   Mention (@) the bot and it will reply to you. Reply to any message to continue the conversation from that point. The chat history is built from reply chains.
+  > Works when replying to ANY message in your server. Just mention the bot!
 
 - ### STREAMED RESPONSES
   The bot's responses are dynamically generated just like ChatGPT.
+  > With intuitive color coding: orange = generating, green = done.
 
 - ### VISION SUPPORT
-  The bot can see image attachments, powered by ***GPT-4 Turbo with vision***.
+  The bot can see your image attachments when set to a vision model.
 
 ### And more...
 - Easily set a custom personality

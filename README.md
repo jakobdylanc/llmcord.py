@@ -1,5 +1,5 @@
 <h1 align="center">
-  gpt-discord<br>
+  llmcord<br>
   (by jakobdylanc)
 </h1>
 
@@ -8,13 +8,13 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/jakobdylanc/gpt-discord/assets/38699060/46706bfc-6688-4e58-8a23-c5bed8c9b2b1" alt="">
+  <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/46706bfc-6688-4e58-8a23-c5bed8c9b2b1" alt="">
 </p>
 
 # Features
-- ### REPLY-BASED CHAT HISTORY
-  Mention (@) the bot and it will reply to you. Reply to any message to continue the conversation from that point. The chat history is built from reply chains.
-  > Works when replying to ANY message in your server. Just mention the bot!
+- ### BEST CHAT SYSTEM
+  The chat history is built from reply chains. "@" the bot and it will reply to you. Anyone can reply to the bot's message to continue the conversation from that point.
+  > Works when replying to ANY message in your server. Just "@" the bot!
 
 - ### STREAMED RESPONSES
   The bot's responses are dynamically generated just like ChatGPT.
@@ -41,8 +41,9 @@ pip install -r requirements.txt
 | Setting | Instructions |
 | --- | --- |
 | DISCORD\_BOT_TOKEN | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the ***Bot*** tab. Also enable ***MESSAGE CONTENT INTENT***. |
-| OPENAI\_API_KEY | Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
-| GPT_MODEL | Choose ***gpt-3.5-turbo***, ***gpt-4-turbo*** or ***gpt-4-turbo-vision***. More info on OpenAI models: [platform.openai.com/docs/models](https://platform.openai.com/docs/models) |
+| OPENAI\_API_KEY | **Only required if you select an OpenAI model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
+| MISTRAL\_API_KEY | **Only required if you select a Mistral model.** Generate a Mistral API key at [console.mistral.ai/users/api-keys](https://console.mistral.ai/users/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
+| LLM | [OpenAI models](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo-1106** (latest GPT-3.5 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-1106-preview** (GPT-4 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview** (GPT-4 Turbo with vision)<br />[Mistral models](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype) |
 | CUSTOM\_SYSTEM_PROMPT | Write practically anything you want to customize the bot's behavior! |
 
 3. Invite the bot to your Discord server with this URL (replace <CLIENT_ID> with your Discord application's client ID found under the ***OAuth2*** tab):
@@ -52,14 +53,14 @@ https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=41231
 
 4. Run the bot:
 ```bash
-python gpt-discord.py
+python llmcord.py
 ```
 
 # Star History
-<a href="https://star-history.com/#jakobdylanc/gpt-discord&Date">
+<a href="https://star-history.com/#jakobdylanc/llmcord&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/gpt-discord&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/gpt-discord&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/gpt-discord&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date" />
   </picture>
 </a>

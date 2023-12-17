@@ -7,42 +7,47 @@ import discord
 import openai
 import tiktoken
 
-
 dotenv.load_dotenv()
-os.environ["GPT_MODEL"] = (
-    os.environ["GPT_MODEL"]
-    .replace("gpt-3.5-turbo", "gpt-3.5-turbo-1106", 1)
-    .replace("gpt-4-turbo-vision", "gpt-4-vision-preview", 1)
-    .replace("gpt-4-turbo", "gpt-4-1106-preview", 1)
-)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s.%(msecs)03d %(levelname)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-openai_client = openai.AsyncOpenAI()
-encoding = tiktoken.get_encoding("cl100k_base")
 SYSTEM_PROMPT = {
     "role": "system",
     "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'.",
 }
+if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral-" in os.environ["LLM"]:
+    # Temporary fix until gpt-4-vision-preview and Mistral API support message.name
+    SYSTEM_PROMPT = {
+        "role": "system",
+        "content": os.environ["CUSTOM_SYSTEM_PROMPT"],
+    }
+if "gpt-" in os.environ["LLM"]:
+    LLM_API_KEY = os.environ["OPENAI_API_KEY"]
+    LLM_URL = "https://api.openai.com/v1"
+    if os.environ["LLM"] == "gpt-3.5-turbo-1106":
+        LLM_CONTEXT_WINDOW = 16385
+    elif os.environ["LLM"] in ("gpt-4-1106-preview", "gpt-4-vision-preview"):
+        LLM_CONTEXT_WINDOW = 128000
+elif "mistral-" in os.environ["LLM"]:
+    LLM_API_KEY = os.environ["MISTRAL_API_KEY"]
+    LLM_URL = "https://api.mistral.ai/v1"
+    LLM_CONTEXT_WINDOW = 32768
 EXTRA_TOKENS_PER = {"image_url": 85, "message": 3, "name": 1, "reply": 3}
-MAX_TOTAL_TOKENS = {
-    "gpt-3.5-turbo-1106": 16385,
-    "gpt-4-1106-preview": 128000,
-    "gpt-4-vision-preview": 128000,
-}
 MAX_COMPLETION_TOKENS = 1024
+llm_client = openai.AsyncOpenAI(api_key=LLM_API_KEY, base_url=LLM_URL)
+encoding = tiktoken.get_encoding("cl100k_base")
 
+EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
+EMBED_MAX_LENGTH = 4096
+EDITS_PER_SECOND = 1.3
 intents = discord.Intents.default()
 intents.message_content = True
 discord_client = discord.Client(intents=intents)
 msg_nodes = {}
 in_progress_message_ids = []
-EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
-EMBED_MAX_LENGTH = 4096
-EDITS_PER_SECOND = 1.3
 
 
 def count_tokens(msg, num_tokens=EXTRA_TOKENS_PER["message"]):
@@ -58,7 +63,7 @@ def count_tokens(msg, num_tokens=EXTRA_TOKENS_PER["message"]):
 
 
 MAX_PROMPT_TOKENS_ADJUSTED = (
-    MAX_TOTAL_TOKENS[os.environ["GPT_MODEL"]]
+    LLM_CONTEXT_WINDOW
     - MAX_COMPLETION_TOKENS
     - EXTRA_TOKENS_PER["reply"]
     - count_tokens(SYSTEM_PROMPT)
@@ -114,7 +119,7 @@ async def on_message(message):
             current_msg_content = (
                 [{"type": "text", "text": current_msg_text}] if current_msg_text else []
             )
-            if os.environ["GPT_MODEL"] == "gpt-4-vision-preview":
+            if "vision" in os.environ["LLM"]:
                 current_msg_content += [
                     {
                         "type": "image_url",
@@ -123,6 +128,8 @@ async def on_message(message):
                     for att in current_msg.attachments
                     if "image" in att.content_type
                 ]
+            else:  # Temporary fix until Mistral API supports message.content as a list
+                current_msg_content = current_msg_text
             current_msg_author_role = (
                 "assistant" if current_msg.author == discord_client.user else "user"
             )
@@ -163,13 +170,13 @@ async def on_message(message):
         response_message_contents = []
         previous_content = None
         edit_message_task = None
-        async for part in await openai_client.chat.completions.create(
-            model=os.environ["GPT_MODEL"],
+        async for chunk in await llm_client.chat.completions.create(
+            model=os.environ["LLM"],
             messages=msgs,
             max_tokens=MAX_COMPLETION_TOKENS,
             stream=True,
         ):
-            current_content = part.choices[0].delta.content or ""
+            current_content = chunk.choices[0].delta.content or ""
             if previous_content:
                 if (
                     not response_messages

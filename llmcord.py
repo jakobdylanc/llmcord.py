@@ -142,7 +142,9 @@ async def on_message(message):
         messages = [SYSTEM_PROMPT] + reply_chain[::-1]
 
         # Generate and send bot reply
-        logging.info("Generating response for content: %s", messages[-1])
+        logging.info(
+            f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}"
+        )
         response_messages = []
         response_message_contents = []
         previous_content = None

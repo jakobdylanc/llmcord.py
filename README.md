@@ -7,6 +7,10 @@
   <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
+<h3 align="center"><i>
+  Talk to LLMs with your friends!
+</i></h3>
+
 <p align="center">
   <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/46706bfc-6688-4e58-8a23-c5bed8c9b2b1" alt="">
 </p>

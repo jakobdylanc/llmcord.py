@@ -35,8 +35,15 @@ if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral-" in os.environ["LLM"
         "content": os.environ["CUSTOM_SYSTEM_PROMPT"],
     }
 
-MAX_IMAGES = int(os.environ["MAX_IMAGES"])
+LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
+MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
 MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
+MAX_IMAGE_WARNING = (
+    f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message"
+    if MAX_IMAGES > 0
+    else "⚠️ Can't see images"
+)
+MAX_MESSAGE_WARNING = f"⚠️ Only using last {MAX_MESSAGES} messages"
 MAX_COMPLETION_TOKENS = 1024
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
 EMBED_MAX_LENGTH = 4096
@@ -52,8 +59,9 @@ in_progress_message_ids = []
 
 
 class MessageNode:
-    def __init__(self, message, replied_to=None):
+    def __init__(self, message, too_many_images=False, replied_to=None):
         self.message = message
+        self.too_many_images = too_many_images
         self.replied_to = replied_to
 
 
@@ -89,16 +97,17 @@ async def on_message(message):
                 if current_message_text
                 else []
             )
-            if "vision" in os.environ["LLM"]:
-                current_message_content += [
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": att.url, "detail": "low"},
-                    }
-                    for att in current_message.attachments
-                    if "image" in att.content_type
-                ][:MAX_IMAGES]
-            else:  # Temporary fix until Mistral API supports message.content as a list
+            current_message_images = [
+                {
+                    "type": "image_url",
+                    "image_url": {"url": att.url, "detail": "low"},
+                }
+                for att in current_message.attachments
+                if "image" in att.content_type
+            ]
+            current_message_content += current_message_images[:MAX_IMAGES]
+            if "mistral" in os.environ["LLM"]:
+                # Temporary fix until Mistral API supports message.content as a list
                 current_message_content = current_message_text
             current_message_author_role = (
                 "assistant" if current_message.author == discord_client.user else "user"
@@ -110,6 +119,8 @@ async def on_message(message):
                     "name": str(current_message.author.id),
                 }
             )
+            if len(current_message_images) > MAX_IMAGES:
+                message_nodes[current_message.id].too_many_images = True
             if previous_message_id:
                 message_nodes[previous_message_id].replied_to = message_nodes[
                     current_message.id
@@ -133,11 +144,16 @@ async def on_message(message):
             except (discord.NotFound, discord.HTTPException):
                 break
 
-        # Build conversation history from reply chain
+        # Build conversation history from reply chain and set user warnings
         reply_chain = []
+        user_warnings = set()
         current_node = message_nodes[message.id]
         while current_node is not None and len(reply_chain) < MAX_MESSAGES:
             reply_chain += [current_node.message]
+            if current_node.too_many_images:
+                user_warnings.add(MAX_IMAGE_WARNING)
+            if len(reply_chain) == MAX_MESSAGES and current_node.replied_to:
+                user_warnings.add(MAX_MESSAGE_WARNING)
             current_node = current_node.replied_to
         messages = [SYSTEM_PROMPT] + reply_chain[::-1]
 
@@ -173,6 +189,8 @@ async def on_message(message):
                     embed = discord.Embed(
                         description=previous_content, color=embed_color
                     )
+                    if user_warnings:
+                        embed.set_footer(text="\n".join(sorted(user_warnings)))
                     response_messages += [
                         await reply_message.reply(
                             embed=embed,

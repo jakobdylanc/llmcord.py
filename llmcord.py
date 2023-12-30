@@ -1,7 +1,7 @@
 import asyncio
+from datetime import datetime
 import logging
 import os
-from time import time
 
 import discord
 from dotenv import load_dotenv
@@ -24,17 +24,6 @@ LLM_CONFIG = {
         "base_url": "https://api.mistral.ai/v1",
     },
 }
-SYSTEM_PROMPT = {
-    "role": "system",
-    "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'.",
-}
-if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral-" in os.environ["LLM"]:
-    # Temporary fix until gpt-4-vision-preview and Mistral API support message.name
-    SYSTEM_PROMPT = {
-        "role": "system",
-        "content": os.environ["CUSTOM_SYSTEM_PROMPT"],
-    }
-
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
 MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
 MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
@@ -59,6 +48,23 @@ class MessageNode:
         self.message = message
         self.too_many_images = too_many_images
         self.replied_to = replied_to
+
+
+def get_system_prompt():
+    if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral" in os.environ["LLM"]:
+        # Temporary fix until gpt-4-vision-preview and Mistral API support message.name
+        return [
+            {
+                "role": "system",
+                "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nCurrent date: {datetime.now().strftime('%B %d %Y')}",
+            }
+        ]
+    return [
+        {
+            "role": "system",
+            "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'.\nCurrent date: {datetime.now().strftime('%B %d %Y')}",
+        }
+    ]
 
 
 @discord_client.event
@@ -130,7 +136,7 @@ async def on_message(message):
             if len(reply_chain) == MAX_MESSAGES and current_node.replied_to:
                 user_warnings.add(MAX_MESSAGE_WARNING)
             current_node = current_node.replied_to
-        messages = [SYSTEM_PROMPT] + reply_chain[::-1]
+        messages = get_system_prompt() + reply_chain[::-1]
 
         # Generate and send bot reply
         logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
@@ -159,7 +165,7 @@ async def on_message(message):
                         )
                     ]
                     in_progress_message_ids.append(response_messages[-1].id)
-                    last_message_task_time = time()
+                    last_message_task_time = datetime.now().timestamp()
                     response_message_contents += [""]
                 response_message_contents[-1] += previous_content
                 if response_message_contents[-1] != previous_content:
@@ -167,7 +173,7 @@ async def on_message(message):
                     if (
                         final_message_edit
                         or (not edit_message_task or edit_message_task.done())
-                        and time() - last_message_task_time >= len(in_progress_message_ids) / EDITS_PER_SECOND
+                        and datetime.now().timestamp() - last_message_task_time >= len(in_progress_message_ids) / EDITS_PER_SECOND
                     ):
                         while edit_message_task and not edit_message_task.done():
                             await asyncio.sleep(0)
@@ -175,7 +181,7 @@ async def on_message(message):
                         embed.description = response_message_contents[-1]
                         embed.color = embed_color
                         edit_message_task = asyncio.create_task(response_messages[-1].edit(embed=embed))
-                        last_message_task_time = time()
+                        last_message_task_time = datetime.now().timestamp()
             previous_content = current_content
 
         # Create MessageNode(s) for bot reply message(s) (can be multiple if bot reply was long)

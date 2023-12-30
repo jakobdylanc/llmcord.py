@@ -156,8 +156,8 @@ async def on_message(message):
                     reply_message = message if not response_messages else response_messages[-1]
                     embed_color = EMBED_COLOR["complete"] if current_content == "" else EMBED_COLOR["incomplete"]
                     embed = discord.Embed(description=previous_content, color=embed_color)
-                    if user_warnings:
-                        embed.set_footer(text="\n".join(sorted(user_warnings)))
+                    for warning in sorted(user_warnings):
+                        embed.add_field(name=warning, value="", inline=False)
                     response_messages += [
                         await reply_message.reply(
                             embed=embed,

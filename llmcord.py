@@ -38,11 +38,7 @@ if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral-" in os.environ["LLM"
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
 MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
 MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
-MAX_IMAGE_WARNING = (
-    f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message"
-    if MAX_IMAGES > 0
-    else "⚠️ Can't see images"
-)
+MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
 MAX_MESSAGE_WARNING = f"⚠️ Only using last {MAX_MESSAGES} messages"
 MAX_COMPLETION_TOKENS = 1024
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
@@ -68,10 +64,7 @@ class MessageNode:
 @discord_client.event
 async def on_message(message):
     # Filter out unwanted messages
-    if (
-        message.channel.type != discord.ChannelType.private
-        and discord_client.user not in message.mentions
-    ) or message.author.bot:
+    if (message.channel.type != discord.ChannelType.private and discord_client.user not in message.mentions) or message.author.bot:
         return
 
     # If user replied to a message that's still generating, wait until it's done
@@ -83,20 +76,10 @@ async def on_message(message):
         current_message = message
         previous_message_id = None
         while True:
-            current_message_text = (
-                current_message.embeds[0].description
-                if current_message.author == discord_client.user
-                else current_message.content
-            )
+            current_message_text = current_message.embeds[0].description if current_message.author == discord_client.user else current_message.content
             if current_message_text.startswith(discord_client.user.mention):
-                current_message_text = current_message_text[
-                    len(discord_client.user.mention) :
-                ].lstrip()
-            current_message_content = (
-                [{"type": "text", "text": current_message_text}]
-                if current_message_text
-                else []
-            )
+                current_message_text = current_message_text[len(discord_client.user.mention) :].lstrip()
+            current_message_content = [{"type": "text", "text": current_message_text}] if current_message_text else []
             current_message_images = [
                 {
                     "type": "image_url",
@@ -109,9 +92,7 @@ async def on_message(message):
             if "mistral" in os.environ["LLM"]:
                 # Temporary fix until Mistral API supports message.content as a list
                 current_message_content = current_message_text
-            current_message_author_role = (
-                "assistant" if current_message.author == discord_client.user else "user"
-            )
+            current_message_author_role = "assistant" if current_message.author == discord_client.user else "user"
             message_nodes[current_message.id] = MessageNode(
                 {
                     "role": current_message_author_role,
@@ -122,24 +103,18 @@ async def on_message(message):
             if len(current_message_images) > MAX_IMAGES:
                 message_nodes[current_message.id].too_many_images = True
             if previous_message_id:
-                message_nodes[previous_message_id].replied_to = message_nodes[
-                    current_message.id
-                ]
+                message_nodes[previous_message_id].replied_to = message_nodes[current_message.id]
             if not current_message.reference:
                 break
             if current_message.reference.message_id in message_nodes:
-                message_nodes[current_message.id].replied_to = message_nodes[
-                    current_message.reference.message_id
-                ]
+                message_nodes[current_message.id].replied_to = message_nodes[current_message.reference.message_id]
                 break
             previous_message_id = current_message.id
             try:
                 current_message = (
                     current_message.reference.resolved
                     if isinstance(current_message.reference.resolved, discord.Message)
-                    else await message.channel.fetch_message(
-                        current_message.reference.message_id
-                    )
+                    else await message.channel.fetch_message(current_message.reference.message_id)
                 )
             except (discord.NotFound, discord.HTTPException):
                 break
@@ -158,9 +133,7 @@ async def on_message(message):
         messages = [SYSTEM_PROMPT] + reply_chain[::-1]
 
         # Generate and send bot reply
-        logging.info(
-            f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}"
-        )
+        logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
         response_messages = []
         response_message_contents = []
         previous_content = None
@@ -173,22 +146,10 @@ async def on_message(message):
         ):
             current_content = chunk.choices[0].delta.content or ""
             if previous_content:
-                if (
-                    not response_messages
-                    or len(response_message_contents[-1] + previous_content)
-                    > EMBED_MAX_LENGTH
-                ):
-                    reply_message = (
-                        message if not response_messages else response_messages[-1]
-                    )
-                    embed_color = (
-                        EMBED_COLOR["complete"]
-                        if current_content == ""
-                        else EMBED_COLOR["incomplete"]
-                    )
-                    embed = discord.Embed(
-                        description=previous_content, color=embed_color
-                    )
+                if not response_messages or len(response_message_contents[-1] + previous_content) > EMBED_MAX_LENGTH:
+                    reply_message = message if not response_messages else response_messages[-1]
+                    embed_color = EMBED_COLOR["complete"] if current_content == "" else EMBED_COLOR["incomplete"]
+                    embed = discord.Embed(description=previous_content, color=embed_color)
                     if user_warnings:
                         embed.set_footer(text="\n".join(sorted(user_warnings)))
                     response_messages += [
@@ -202,29 +163,18 @@ async def on_message(message):
                     response_message_contents += [""]
                 response_message_contents[-1] += previous_content
                 if response_message_contents[-1] != previous_content:
-                    final_message_edit = (
-                        len(response_message_contents[-1] + current_content)
-                        > EMBED_MAX_LENGTH
-                        or current_content == ""
-                    )
+                    final_message_edit = len(response_message_contents[-1] + current_content) > EMBED_MAX_LENGTH or current_content == ""
                     if (
                         final_message_edit
                         or (not edit_message_task or edit_message_task.done())
-                        and time() - last_message_task_time
-                        >= len(in_progress_message_ids) / EDITS_PER_SECOND
+                        and time() - last_message_task_time >= len(in_progress_message_ids) / EDITS_PER_SECOND
                     ):
                         while edit_message_task and not edit_message_task.done():
                             await asyncio.sleep(0)
-                        embed_color = (
-                            EMBED_COLOR["complete"]
-                            if final_message_edit
-                            else EMBED_COLOR["incomplete"]
-                        )
+                        embed_color = EMBED_COLOR["complete"] if final_message_edit else EMBED_COLOR["incomplete"]
                         embed.description = response_message_contents[-1]
                         embed.color = embed_color
-                        edit_message_task = asyncio.create_task(
-                            response_messages[-1].edit(embed=embed)
-                        )
+                        edit_message_task = asyncio.create_task(response_messages[-1].edit(embed=embed))
                         last_message_task_time = time()
             previous_content = current_content
 

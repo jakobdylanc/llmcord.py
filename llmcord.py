@@ -154,8 +154,8 @@ async def on_message(message):
             if previous_content:
                 if not response_messages or len(response_message_contents[-1] + previous_content) > EMBED_MAX_LENGTH:
                     reply_message = message if not response_messages else response_messages[-1]
-                    embed_color = EMBED_COLOR["complete"] if current_content == "" else EMBED_COLOR["incomplete"]
-                    embed = discord.Embed(description=previous_content, color=embed_color)
+                    embed = discord.Embed(description=previous_content)
+                    embed.color = EMBED_COLOR["complete"] if current_content == "" else EMBED_COLOR["incomplete"]
                     for warning in sorted(user_warnings):
                         embed.add_field(name=warning, value="", inline=False)
                     response_messages += [
@@ -177,9 +177,8 @@ async def on_message(message):
                     ):
                         while edit_message_task and not edit_message_task.done():
                             await asyncio.sleep(0)
-                        embed_color = EMBED_COLOR["complete"] if final_message_edit else EMBED_COLOR["incomplete"]
                         embed.description = response_message_contents[-1]
-                        embed.color = embed_color
+                        embed.color = EMBED_COLOR["complete"] if final_message_edit else EMBED_COLOR["incomplete"]
                         edit_message_task = asyncio.create_task(response_messages[-1].edit(embed=embed))
                         last_message_task_time = datetime.now().timestamp()
             previous_content = current_content

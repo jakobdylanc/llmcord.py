@@ -28,8 +28,8 @@
   The bot can see your image attachments when set to a vision model.
 
 ### And more...
-- Choose OpenAI or Mistral API
-- Easily set a custom personality
+- Choose your LLM (from OpenAI or Mistral API)
+- Easily set a custom personality (aka system prompt)
 - User identity aware
 - Fully asynchronous
 - 1 Python file, ~200 lines of code

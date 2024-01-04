@@ -24,7 +24,7 @@ LLM_CONFIG = {
         "base_url": "https://api.mistral.ai/v1",
     },
     "local": {
-        "base_url": "http://localhost:1234/v1",
+        "base_url": os.environ["LM_STUDIO_URL"],
     },
 }
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]

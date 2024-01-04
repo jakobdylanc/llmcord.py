@@ -23,6 +23,9 @@ LLM_CONFIG = {
         "api_key": os.environ["MISTRAL_API_KEY"],
         "base_url": "https://api.mistral.ai/v1",
     },
+    "local": {
+        "base_url": "http://localhost:1234/v1",
+    },
 }
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
 MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
@@ -51,8 +54,8 @@ class MessageNode:
 
 
 def get_system_prompt():
-    if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral" in os.environ["LLM"]:
-        # Temporary fix until gpt-4-vision-preview and Mistral API support message.name
+    if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral" in os.environ["LLM"] or "local" in os.environ["LLM"]:
+        # Temporary fix until gpt-4-vision-preview, Mistral API and LM Studio support message.name
         return [
             {
                 "role": "system",
@@ -95,8 +98,8 @@ async def on_message(message):
                 if "image" in att.content_type
             ]
             current_message_content += current_message_images[:MAX_IMAGES]
-            if "mistral" in os.environ["LLM"]:
-                # Temporary fix until Mistral API supports message.content as a list
+            if "mistral" in os.environ["LLM"] or "local" in os.environ["LLM"]:
+                # Temporary fix until Mistral API and LM Studio support message.content as a list
                 current_message_content = current_message_text
             current_message_author_role = "assistant" if current_message.author == discord_client.user else "user"
             message_nodes[current_message.id] = MessageNode(

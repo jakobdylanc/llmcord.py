@@ -157,8 +157,7 @@ async def on_message(message):
             if previous_content:
                 if not response_messages or len(response_message_contents[-1] + previous_content) > EMBED_MAX_LENGTH:
                     reply_message = message if not response_messages else response_messages[-1]
-                    embed = discord.Embed(description=previous_content)
-                    embed.color = EMBED_COLOR["complete"] if current_content == "" else EMBED_COLOR["incomplete"]
+                    embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
                     for warning in sorted(user_warnings):
                         embed.add_field(name=warning, value="", inline=False)
                     response_messages += [
@@ -171,19 +170,18 @@ async def on_message(message):
                     last_message_task_time = datetime.now().timestamp()
                     response_message_contents += [""]
                 response_message_contents[-1] += previous_content
-                if response_message_contents[-1] != previous_content:
-                    final_message_edit = len(response_message_contents[-1] + current_content) > EMBED_MAX_LENGTH or current_content == ""
-                    if (
-                        final_message_edit
-                        or (not edit_message_task or edit_message_task.done())
-                        and datetime.now().timestamp() - last_message_task_time >= len(in_progress_message_ids) / EDITS_PER_SECOND
-                    ):
-                        while edit_message_task and not edit_message_task.done():
-                            await asyncio.sleep(0)
-                        embed.description = response_message_contents[-1]
-                        embed.color = EMBED_COLOR["complete"] if final_message_edit else EMBED_COLOR["incomplete"]
-                        edit_message_task = asyncio.create_task(response_messages[-1].edit(embed=embed))
-                        last_message_task_time = datetime.now().timestamp()
+                final_message_edit = len(response_message_contents[-1] + current_content) > EMBED_MAX_LENGTH or current_content == ""
+                if (
+                    final_message_edit
+                    or (not edit_message_task or edit_message_task.done())
+                    and datetime.now().timestamp() - last_message_task_time >= len(in_progress_message_ids) / EDITS_PER_SECOND
+                ):
+                    while edit_message_task and not edit_message_task.done():
+                        await asyncio.sleep(0)
+                    embed.description = response_message_contents[-1]
+                    embed.color = EMBED_COLOR["complete"] if final_message_edit else EMBED_COLOR["incomplete"]
+                    edit_message_task = asyncio.create_task(response_messages[-1].edit(embed=embed))
+                    last_message_task_time = datetime.now().timestamp()
             previous_content = current_content
 
         # Create MessageNode(s) for bot reply message(s) (can be multiple if bot reply was long)

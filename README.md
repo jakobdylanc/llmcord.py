@@ -1,5 +1,6 @@
 <h1 align="center">
   llmcord<br>
+  A Discord AI chat bot<br>
   (by jakobdylanc)
 </h1>
 
@@ -16,19 +17,19 @@
 </p>
 
 # Features
-- ### CHOOSE YOUR LLM
-  From [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), or your own local model using [LM Studio](https://lmstudio.ai).
+- ### Best multiplayer chat system
+  @ the bot and it will reply to your message. Reply to the bot's message to continue the conversation from that point. Build conversation threads with reply chains!
+  > Start a thread from ANY message in your server. Just reply and @ the bot!
+ 
+- ### Choose your LLM
+  llmcord is cross-compatible with [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), and local models with [LM Studio](https://lmstudio.ai). The choice is yours.
 
-- ### BEST CHAT SYSTEM
-  @ the bot and it will reply to your message. Reply to the bot's message to continue the conversation from that point. Build conversations with reply chains!
-  > Works when replying to ANY message in your server, just @ the bot!
-
-- ### STREAMED RESPONSES
+- ### Streamed responses
   The bot's responses are dynamically generated just like ChatGPT.
-  > With intuitive color coding (orange = generating, green = done).
+  > When the message turns green, it's done.
 
-- ### VISION SUPPORT
-  The bot can see your image attachments when set to a vision model.
+- ### Vision support
+  The bot can see your image attachments when you choose a vision model.
 
 ### And more...
 - Easily set a custom personality (aka system prompt)
@@ -47,14 +48,14 @@ pip install -r requirements.txt
 
 | Setting | Instructions |
 | --- | --- |
-| **DISCORD\_BOT_TOKEN** | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
-| **OPENAI\_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
-| **MISTRAL\_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/user/api-keys](https://console.mistral.ai/user/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
-| **LM_STUDIO_URL** | **Only required if you choose a local model with LM Studio.**<br />(Default: http://localhost:1234/v1) |
-| **LLM** | [OpenAI API models](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo-1106** (latest GPT-3.5 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-1106-preview** (GPT-4 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview** (GPT-4 Turbo with vision)<br /><br />[Mistral API models](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype)<br /><br />[LM Studio](https://lmstudio.ai) (Local Inference Server):<br />&nbsp;&nbsp;&nbsp;**local-model** |
+| **DISCORD_BOT_TOKEN** | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
+| **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
+| **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/user/api-keys](https://console.mistral.ai/user/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
+| **LM_STUDIO_URL** | **Only required if you choose to run a local model with LM Studio's local inference server.**<br />(Default: http://localhost:1234/v1) |
+| **LLM** | [OpenAI API models](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo-1106** (latest GPT-3.5 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-1106-preview** (GPT-4 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview** (GPT-4 Turbo with vision)<br /><br />[Mistral API models](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype)<br /><br />[LM Studio](https://lmstudio.ai) (locally running model):<br />&nbsp;&nbsp;&nbsp;**local-model** |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. Only applicable when using a vision model.<br />(Default: 5) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: 20) |
-| **CUSTOM\_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
+| **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 
 3. Invite the bot to your Discord server with this URL (replace <CLIENT_ID> with your Discord application's client ID found under the ***OAuth2*** tab):
 ```plaintext

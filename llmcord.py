@@ -28,11 +28,14 @@ LLM_CONFIG = {
     },
 }
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
-MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
-MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
-MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
-MAX_MESSAGE_WARNING = f"⚠️ Only using last {MAX_MESSAGES} messages"
 MAX_COMPLETION_TOKENS = 1024
+
+ALLOWED_ROLE_IDS = [int(i) for i in os.environ["ALLOWED_ROLE_IDS"].split(",") if i]
+MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
+MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
+MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
+MAX_MESSAGE_WARNING = f"⚠️ Only using last {MAX_MESSAGES} messages"
+
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
 EMBED_MAX_LENGTH = 4096
 EDITS_PER_SECOND = 1.3
@@ -73,7 +76,11 @@ def get_system_prompt():
 @discord_client.event
 async def on_message(message):
     # Filter out unwanted messages
-    if (message.channel.type != discord.ChannelType.private and discord_client.user not in message.mentions) or message.author.bot:
+    if (
+        (message.channel.type != discord.ChannelType.private and discord_client.user not in message.mentions)
+        or (ALLOWED_ROLE_IDS and (message.channel.type == discord.ChannelType.private or not [role for role in message.author.roles if role.id in ALLOWED_ROLE_IDS]))
+        or message.author.bot
+    ):
         return
 
     # If user replied to a message that's still generating, wait until it's done

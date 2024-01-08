@@ -17,9 +17,9 @@
 </p>
 
 # Features
-- ### Best multiplayer chat system
+- ### Elegant chat system
   @ the bot and it will reply to your message. Reply to the bot's message to continue the conversation from that point. Build conversation threads with reply chains!
-  > Start a thread from ANY message in your server. Just reply and @ the bot!
+  > Start a thread from ANY message in your server, just reply and @ the bot!
  
 - ### Choose your LLM
   llmcord is cross-compatible with [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), and local models with [LM Studio](https://lmstudio.ai). The choice is yours.

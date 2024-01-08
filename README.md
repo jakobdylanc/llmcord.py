@@ -13,8 +13,9 @@
 </i></h3>
 
 <p align="center">
-  <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/46706bfc-6688-4e58-8a23-c5bed8c9b2b1" alt="">
+  <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/fb6c75c4-f972-452e-a197-e70afd6e7d0c" alt="">
 </p>
+
 
 # Features
 - ### Elegant chat system

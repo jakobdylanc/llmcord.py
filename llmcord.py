@@ -62,13 +62,13 @@ def get_system_prompt():
         return [
             {
                 "role": "system",
-                "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nCurrent date: {datetime.now().strftime('%B %d %Y')}",
+                "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nToday's date: {datetime.now().strftime('%B %d %Y')}",
             }
         ]
     return [
         {
             "role": "system",
-            "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'.\nCurrent date: {datetime.now().strftime('%B %d %Y')}",
+            "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'.\nToday's date: {datetime.now().strftime('%B %d %Y')}",
         }
     ]
 

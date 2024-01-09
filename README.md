@@ -16,7 +16,6 @@
   <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/fb6c75c4-f972-452e-a197-e70afd6e7d0c" alt="">
 </p>
 
-
 # Features
 - ### Elegant chat system
   @ the bot and it will reply to your message. Reply to the bot's message to continue the conversation from that point. Build conversation threads with reply chains!
@@ -55,11 +54,11 @@ pip install -r requirements.txt
 | **LM_STUDIO_URL** | **Only required if you choose to run a local model with LM Studio's local inference server.**<br />(Default: http://localhost:1234/v1) |
 | **LLM** | [OpenAI API models](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo-1106** (latest GPT-3.5 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-1106-preview** (GPT-4 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview** (GPT-4 Turbo with vision)<br /><br />[Mistral API models](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype)<br /><br />[LM Studio](https://lmstudio.ai) (locally running model):<br />&nbsp;&nbsp;&nbsp;**local-model** |
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
-| **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone.** |
+| **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone.**<br /><br />When left blank, the bot also allows DMs from mutual server members. |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: 5) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: 20) |
 
-3. Invite the bot to your Discord server with this URL (replace <CLIENT_ID> with your Discord application's client ID found under the ***OAuth2*** tab):
+3. Invite the bot to your Discord server with this URL (replace <CLIENT_ID> with your Discord application's client ID found under the **OAuth2** tab):
 ```plaintext
 https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=412317273088&scope=bot
 ```

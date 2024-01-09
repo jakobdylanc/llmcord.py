@@ -24,6 +24,7 @@ LLM_CONFIG = {
         "base_url": "https://api.mistral.ai/v1",
     },
     "local": {
+        "api_key": "Not used",
         "base_url": os.environ["LM_STUDIO_URL"],
     },
 }
@@ -92,47 +93,47 @@ async def on_message(message):
         current_message = message
         previous_message_id = None
         while True:
-            current_message_text = current_message.embeds[0].description if current_message.author == discord_client.user else current_message.content
-            if current_message_text.startswith(discord_client.user.mention):
-                current_message_text = current_message_text[len(discord_client.user.mention) :].lstrip()
-            current_message_content = [{"type": "text", "text": current_message_text}] if current_message_text else []
-            current_message_images = [
-                {
-                    "type": "image_url",
-                    "image_url": {"url": att.url, "detail": "low"},
-                }
-                for att in current_message.attachments
-                if "image" in att.content_type
-            ]
-            current_message_content += current_message_images[:MAX_IMAGES]
-            if "mistral" in os.environ["LLM"]:
-                # Temporary fix until Mistral API supports message.content as a list
-                current_message_content = current_message_text
-            current_message_author_role = "assistant" if current_message.author == discord_client.user else "user"
-            message_nodes[current_message.id] = MessageNode(
-                {
-                    "role": current_message_author_role,
-                    "content": current_message_content,
-                    "name": str(current_message.author.id),
-                }
-            )
-            if len(current_message_images) > MAX_IMAGES:
-                message_nodes[current_message.id].too_many_images = True
-            if previous_message_id:
-                message_nodes[previous_message_id].replied_to = message_nodes[current_message.id]
-            if not current_message.reference:
-                break
-            if current_message.reference.message_id in message_nodes:
-                message_nodes[current_message.id].replied_to = message_nodes[current_message.reference.message_id]
-                break
-            previous_message_id = current_message.id
             try:
+                current_message_text = current_message.embeds[0].description if current_message.author == discord_client.user else current_message.content
+                if current_message_text.startswith(discord_client.user.mention):
+                    current_message_text = current_message_text[len(discord_client.user.mention) :].lstrip()
+                current_message_content = [{"type": "text", "text": current_message_text}] if current_message_text else []
+                current_message_images = [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": att.url, "detail": "low"},
+                    }
+                    for att in current_message.attachments
+                    if "image" in att.content_type
+                ]
+                current_message_content += current_message_images[:MAX_IMAGES]
+                if "mistral" in os.environ["LLM"]:
+                    # Temporary fix until Mistral API supports message.content as a list
+                    current_message_content = current_message_text
+                current_message_author_role = "assistant" if current_message.author == discord_client.user else "user"
+                message_nodes[current_message.id] = MessageNode(
+                    {
+                        "role": current_message_author_role,
+                        "content": current_message_content,
+                        "name": str(current_message.author.id),
+                    }
+                )
+                if len(current_message_images) > MAX_IMAGES:
+                    message_nodes[current_message.id].too_many_images = True
+                if previous_message_id:
+                    message_nodes[previous_message_id].replied_to = message_nodes[current_message.id]
+                if not current_message.reference:
+                    break
+                if current_message.reference.message_id in message_nodes:
+                    message_nodes[current_message.id].replied_to = message_nodes[current_message.reference.message_id]
+                    break
+                previous_message_id = current_message.id
                 current_message = (
                     current_message.reference.resolved
                     if isinstance(current_message.reference.resolved, discord.Message)
                     else await message.channel.fetch_message(current_message.reference.message_id)
                 )
-            except (discord.NotFound, discord.HTTPException):
+            except (discord.NotFound, discord.HTTPException, IndexError):
                 break
 
         # Build conversation history from reply chain and set user warnings

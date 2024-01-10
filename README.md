@@ -18,11 +18,11 @@
 
 # Features
 - ### Elegant chat system
-  @ the bot and it will reply to your message. Reply to the bot's message to continue the conversation from that point. Build conversation threads with reply chains!
-  > Start a thread from ANY message in your server, just reply and @ the bot!
+  @ the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. The message reply chain is the conversation thread.
+  > Works when replying to ANY message in your server, just @ the bot!
  
 - ### Choose your LLM
-  llmcord is cross-compatible with [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), and local models with [LM Studio](https://lmstudio.ai). The choice is yours.
+  llmcord is cross-compatible with [OpenAI API](https://platform.openai.com/docs/models), [Mistral's La platforme](https://docs.mistral.ai/platform/endpoints), and local models with [LM Studio](https://lmstudio.ai).
 
 - ### Streamed responses
   The bot's responses are dynamically generated just like ChatGPT.

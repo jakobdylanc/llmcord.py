@@ -18,11 +18,11 @@
 
 # Features
 - ### Elegant chat system
-  @ the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. The message reply chain is the conversation thread.
+  @ the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. **The message reply chain is the conversation thread.**
   > Works when replying to ANY message in your server, just @ the bot!
  
 - ### Choose your LLM
-  llmcord is cross-compatible with [OpenAI API](https://platform.openai.com/docs/models), [Mistral's La platforme](https://docs.mistral.ai/platform/endpoints), and local models with [LM Studio](https://lmstudio.ai).
+  llmcord is cross-compatible with [OpenAI API](https://platform.openai.com/docs/models), [Mistral's La plateforme](https://mistral.ai/news/la-plateforme), and local models with [LM Studio](https://lmstudio.ai).
 
 - ### Streamed responses
   The bot's responses are dynamically generated just like ChatGPT.
@@ -51,8 +51,8 @@ pip install -r requirements.txt
 | **DISCORD_BOT_TOKEN** | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
 | **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/user/api-keys](https://console.mistral.ai/user/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
-| **LM_STUDIO_URL** | **Only required if you choose to run a local model with LM Studio's local inference server.**<br />(Default: http://localhost:1234/v1) |
-| **LLM** | [OpenAI API models](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo-1106** (latest GPT-3.5 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-1106-preview** (GPT-4 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview** (GPT-4 Turbo with vision)<br /><br />[Mistral API models](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype)<br /><br />[LM Studio](https://lmstudio.ai) (locally running model):<br />&nbsp;&nbsp;&nbsp;**local-model** |
+| **LM_STUDIO_URL** | **Only required if you choose to run a local model with LM Studio.** Load your desired model and start the Local Inference Server.<br />(Default: http://localhost:1234/v1) |
+| **LLM** | [OpenAI API models](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo-1106** (latest GPT-3.5 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-1106-preview** (GPT-4 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview** (GPT-4 Turbo with vision)<br /><br />[Mistral API models](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype)<br /><br />[LM Studio](https://lmstudio.ai):<br />&nbsp;&nbsp;&nbsp;**local-model** (use this regardless of the model you choose) |
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone.**<br /><br />When left blank, the bot also allows DMs from mutual server members. |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: 5) |

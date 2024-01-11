@@ -31,6 +31,7 @@ LLM_CONFIG = {
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
 MAX_COMPLETION_TOKENS = 1024
 
+ALLOWED_CHANNEL_IDS = [int(i) for i in os.environ["ALLOWED_CHANNEL_IDS"].split(",") if i]
 ALLOWED_ROLE_IDS = [int(i) for i in os.environ["ALLOWED_ROLE_IDS"].split(",") if i]
 MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
 MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
@@ -79,6 +80,7 @@ async def on_message(message):
     # Filter out unwanted messages
     if (
         (message.channel.type != discord.ChannelType.private and discord_client.user not in message.mentions)
+        or (ALLOWED_CHANNEL_IDS and message.channel.id not in ALLOWED_CHANNEL_IDS)
         or (ALLOWED_ROLE_IDS and (message.channel.type == discord.ChannelType.private or not [role for role in message.author.roles if role.id in ALLOWED_ROLE_IDS]))
         or message.author.bot
     ):

@@ -54,7 +54,8 @@ pip install -r requirements.txt
 | **LM_STUDIO_URL** | **Only required if you choose to run a local model with LM Studio.** Load your desired model and start the Local Inference Server.<br />(Default: http://localhost:1234/v1) |
 | **LLM** | [OpenAI API models](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo-1106** (latest GPT-3.5 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-1106-preview** (GPT-4 Turbo)<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview** (GPT-4 Turbo with vision)<br /><br />[Mistral API models](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype)<br /><br />[LM Studio](https://lmstudio.ai):<br />&nbsp;&nbsp;&nbsp;**local-model** (use this regardless of the model you choose) |
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
-| **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone.**<br /><br />When left blank, the bot also allows DMs from mutual server members. |
+| **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
+| **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone.** |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: 5) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: 20) |
 

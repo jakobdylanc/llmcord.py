@@ -1,7 +1,5 @@
 <h1 align="center">
-  llmcord<br>
-  A Discord AI chat bot<br>
-  (by jakobdylanc)
+  "llmcord"
 </h1>
 
 <p align="center">

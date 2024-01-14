@@ -20,7 +20,7 @@
   > Works when replying to ANY message in your server, just @ the bot!
  
 - ### Choose your LLM
-  llmcord is cross-compatible with [OpenAI API](https://platform.openai.com/docs/models), [Mistral's La plateforme](https://mistral.ai/news/la-plateforme), and local models with [LM Studio](https://lmstudio.ai).
+  Supports [OpenAI API](https://platform.openai.com/docs/models) and [La plateforme de Mistral](https://mistral.ai/news/la-plateforme) for remote models, or run a local model with [LM Studio](https://lmstudio.ai).
 
 - ### Streamed responses
   The bot's responses are dynamically generated just like ChatGPT.

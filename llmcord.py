@@ -112,10 +112,10 @@ async def on_message(message):
                 if "mistral" in os.environ["LLM"]:
                     # Temporary fix until Mistral API supports message.content as a list
                     current_message_content = current_message_text
-                current_message_author_role = "assistant" if current_message.author == discord_client.user else "user"
+                current_message_role = "assistant" if current_message.author == discord_client.user else "user"
                 message_nodes[current_message.id] = MessageNode(
                     {
-                        "role": current_message_author_role,
+                        "role": current_message_role,
                         "content": current_message_content,
                         "name": str(current_message.author.id),
                     }

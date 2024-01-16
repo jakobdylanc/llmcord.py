@@ -25,7 +25,7 @@ LLM_CONFIG = {
     },
     "local": {
         "api_key": "Not used",
-        "base_url": os.environ["LM_STUDIO_URL"],
+        "base_url": os.environ["LOCAL_SERVER_URL"],
     },
 }
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]

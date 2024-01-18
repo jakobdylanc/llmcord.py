@@ -16,7 +16,7 @@
 
 # Features
 - ### Elegant chat system
-  @ the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. **The message reply chain is the conversation thread.**
+  Mention (@) the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. **The message reply chain is the conversation thread.**
   > Works when replying to ANY message in your server, just @ the bot!
  
 - ### Choose your LLM
@@ -42,7 +42,7 @@
 pip install -r requirements.txt
 ```
 
-2. Create _.env_ from _.env.example_ and set it up:
+2. Create a copy of _.env.example_, rename it to _.env_ and set it up:
 
 | Setting | Instructions |
 | --- | --- |

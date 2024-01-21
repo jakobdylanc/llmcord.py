@@ -1,5 +1,5 @@
 <h1 align="center">
-  "llmcord"
+  llmcord.py
 </h1>
 
 <p align="center">

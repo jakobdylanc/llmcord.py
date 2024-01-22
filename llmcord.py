@@ -80,7 +80,7 @@ async def on_message(msg):
     # Filter out unwanted messages
     if (
         (msg.channel.type != discord.ChannelType.private and discord_client.user not in msg.mentions)
-        or (ALLOWED_CHANNEL_IDS and msg.channel.id not in ALLOWED_CHANNEL_IDS)
+        or (ALLOWED_CHANNEL_IDS and not any(x in ALLOWED_CHANNEL_IDS for x in {msg.channel.id, getattr(msg.channel, "parent", msg.channel).id}))
         or (ALLOWED_ROLE_IDS and (msg.channel.type == discord.ChannelType.private or not [role for role in msg.author.roles if role.id in ALLOWED_ROLE_IDS]))
         or msg.author.bot
     ):
@@ -123,16 +123,26 @@ async def on_message(msg):
                 msg_nodes[curr_msg.id].too_many_images = True
             if prev_msg_id:
                 msg_nodes[prev_msg_id].replied_to = msg_nodes[curr_msg.id]
-            if not curr_msg.reference:
-                break
-            if curr_msg.reference.message_id in msg_nodes:
-                msg_nodes[curr_msg.id].replied_to = msg_nodes[curr_msg.reference.message_id]
-                break
             prev_msg_id = curr_msg.id
-            try:
-                curr_msg = curr_msg.reference.resolved if isinstance(curr_msg.reference.resolved, discord.Message) else await msg.channel.fetch_message(curr_msg.reference.message_id)
-            except (discord.NotFound, discord.HTTPException):
-                break
+            if not curr_msg.reference and curr_msg.channel.type == discord.ChannelType.public_thread:
+                try:
+                    thread_parent_msg = curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(curr_msg.channel.id)
+                except (discord.NotFound, discord.HTTPException):
+                    break
+                if thread_parent_msg.id in msg_nodes:
+                    msg_nodes[curr_msg.id].replied_to = msg_nodes[thread_parent_msg.id]
+                    break
+                curr_msg = thread_parent_msg
+            else:
+                if not curr_msg.reference:
+                    break
+                if curr_msg.reference.message_id in msg_nodes:
+                    msg_nodes[curr_msg.id].replied_to = msg_nodes[curr_msg.reference.message_id]
+                    break
+                try:
+                    curr_msg = curr_msg.reference.resolved if isinstance(curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(curr_msg.reference.message_id)
+                except (discord.NotFound, discord.HTTPException):
+                    break
 
         # Build reply chain and set user warnings
         reply_chain = []

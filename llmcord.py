@@ -80,7 +80,7 @@ async def on_message(msg):
     # Filter out unwanted messages
     if (
         (msg.channel.type != discord.ChannelType.private and discord_client.user not in msg.mentions)
-        or (ALLOWED_CHANNEL_IDS and not any(x in ALLOWED_CHANNEL_IDS for x in {msg.channel.id, getattr(msg.channel, "parent", msg.channel).id}))
+        or (ALLOWED_CHANNEL_IDS and not any(x in ALLOWED_CHANNEL_IDS for x in (msg.channel.id, getattr(msg.channel, "parent_id", None))))
         or (ALLOWED_ROLE_IDS and (msg.channel.type == discord.ChannelType.private or not [role for role in msg.author.roles if role.id in ALLOWED_ROLE_IDS]))
         or msg.author.bot
         or msg.channel.type == discord.ChannelType.forum

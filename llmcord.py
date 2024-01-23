@@ -83,6 +83,7 @@ async def on_message(msg):
         or (ALLOWED_CHANNEL_IDS and not any(x in ALLOWED_CHANNEL_IDS for x in {msg.channel.id, getattr(msg.channel, "parent", msg.channel).id}))
         or (ALLOWED_ROLE_IDS and (msg.channel.type == discord.ChannelType.private or not [role for role in msg.author.roles if role.id in ALLOWED_ROLE_IDS]))
         or msg.author.bot
+        or msg.channel.type == discord.ChannelType.forum
     ):
         return
 

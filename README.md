@@ -29,7 +29,7 @@
   The bot's responses are dynamically generated just like ChatGPT. When the message turns green, it's done.
 
 - ### Vision support
-  The bot can see your image attachments when you choose a vision model.
+  The bot can see image attachments when you choose a vision model.
 
 ### And more...
 - Easily set a custom personality (aka system prompt)

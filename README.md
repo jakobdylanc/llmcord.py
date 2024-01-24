@@ -16,15 +16,17 @@
 
 # Features
 - ### Elegant chat system
-  Mention (@) the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. **The message reply chain is the conversation thread.**
-  > Works when replying to ANY message in your server, just @ the bot!
- 
+  Mention (@) the bot and it will reply to your message. Reply to the bot's message to continue from that point. The reply chain is the conversation history.
+
+  You can reply to any of the bot's older messages to continue from wherever you want. Or reply to your friend's message and @ the bot to ask a question about it. There are no limits to this functionality.
+
+  Additionally, you can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). When you @ the bot in a thread it will remember the conversation attached outside of it.
+
 - ### Choose your LLM
-  Supports [OpenAI API](https://platform.openai.com/docs/models) and [La plateforme de Mistral](https://mistral.ai/news/la-plateforme) for remote models, or run a local model with [LM Studio](https://lmstudio.ai).
+  Supports models from [OpenAI API](https://platform.openai.com/docs/models) and [La plateforme de Mistral](https://mistral.ai/news/la-plateforme), or run a local model with [LM Studio](https://lmstudio.ai).
 
 - ### Streamed responses
-  The bot's responses are dynamically generated just like ChatGPT.
-  > When the message turns green, it's done.
+  The bot's responses are dynamically generated just like ChatGPT. When the message turns green, it's done.
 
 - ### Vision support
   The bot can see your image attachments when you choose a vision model.
@@ -36,13 +38,14 @@
 - 1 Python file, ~200 lines of code
 
 # Instructions
-> Before you start, install Python and clone this git repo.
+  Before you start, install Python and clone this git repo.
+
 1. Install Python requirements:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Create a copy of _.env.example_, rename it to _.env_ and set it up:
+2. Create a copy of *.env.example*, rename it to *.env* and set it up:
 
 | Setting | Instructions |
 | --- | --- |

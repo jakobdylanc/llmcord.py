@@ -11,7 +11,7 @@
 </i></h3>
 
 <p align="center">
-  <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/fb6c75c4-f972-452e-a197-e70afd6e7d0c" alt="">
+  <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/a9636e09-c89e-42e9-8690-65d52f8236ea" alt="">
 </p>
 
 # Features

@@ -160,7 +160,7 @@ async def on_message(msg):
         # Generate and send bot reply
         logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
         response_msgs = []
-        response_msg_contents = []
+        response_contents = []
         prev_content = None
         edit_msg_task = None
         async for chunk in await llm_client.chat.completions.create(
@@ -171,7 +171,7 @@ async def on_message(msg):
         ):
             curr_content = chunk.choices[0].delta.content or ""
             if prev_content:
-                if not response_msgs or len(response_msg_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
+                if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
                     reply_msg = msg if not response_msgs else response_msgs[-1]
                     embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
                     for warning in sorted(user_warnings):
@@ -184,14 +184,14 @@ async def on_message(msg):
                     ]
                     in_progress_msg_ids.append(response_msgs[-1].id)
                     last_msg_task_time = datetime.now().timestamp()
-                    response_msg_contents += [""]
-                response_msg_contents[-1] += prev_content
-                final_msg_edit = len(response_msg_contents[-1] + curr_content) > EMBED_MAX_LENGTH or curr_content == ""
+                    response_contents += [""]
+                response_contents[-1] += prev_content
+                final_msg_edit = len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH or curr_content == ""
                 if final_msg_edit or (not edit_msg_task or edit_msg_task.done()) and datetime.now().timestamp() - last_msg_task_time >= len(in_progress_msg_ids) / EDITS_PER_SECOND:
                     while edit_msg_task and not edit_msg_task.done():
                         await asyncio.sleep(0)
-                    if response_msg_contents[-1].strip():
-                        embed.description = response_msg_contents[-1]
+                    if response_contents[-1].strip():
+                        embed.description = response_contents[-1]
                     embed.color = EMBED_COLOR["complete"] if final_msg_edit else EMBED_COLOR["incomplete"]
                     edit_msg_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
                     last_msg_task_time = datetime.now().timestamp()
@@ -202,7 +202,7 @@ async def on_message(msg):
             msg_nodes[response_msg.id] = MsgNode(
                 {
                     "role": "assistant",
-                    "content": "".join(response_msg_contents),
+                    "content": "".join(response_contents),
                     "name": str(discord_client.user.id),
                 },
                 replied_to=msg_nodes[msg.id],

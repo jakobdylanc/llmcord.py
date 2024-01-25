@@ -48,7 +48,7 @@ intents.message_content = True
 discord_client = discord.Client(intents=intents)
 
 msg_nodes = {}
-in_progress_msg_ids = []
+active_msg_ids = []
 
 
 class MsgNode:
@@ -88,7 +88,7 @@ async def on_message(msg):
         return
 
     # If user replied to a message that's still generating, wait until it's done
-    while msg.reference and msg.reference.message_id in in_progress_msg_ids:
+    while msg.reference and msg.reference.message_id in active_msg_ids:
         await asyncio.sleep(0)
 
     async with msg.channel.typing():
@@ -162,7 +162,7 @@ async def on_message(msg):
         response_msgs = []
         response_contents = []
         prev_content = None
-        edit_msg_task = None
+        edit_task = None
         async for chunk in await llm_client.chat.completions.create(
             model=os.environ["LLM"],
             messages=get_system_prompt() + reply_chain[::-1],
@@ -182,19 +182,19 @@ async def on_message(msg):
                             silent=True,
                         )
                     ]
-                    in_progress_msg_ids.append(response_msgs[-1].id)
-                    last_msg_task_time = datetime.now().timestamp()
+                    active_msg_ids.append(response_msgs[-1].id)
+                    last_task_time = datetime.now().timestamp()
                     response_contents += [""]
                 response_contents[-1] += prev_content
-                final_msg_edit = len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH or curr_content == ""
-                if final_msg_edit or (not edit_msg_task or edit_msg_task.done()) and datetime.now().timestamp() - last_msg_task_time >= len(in_progress_msg_ids) / EDITS_PER_SECOND:
-                    while edit_msg_task and not edit_msg_task.done():
+                final_edit = len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH or curr_content == ""
+                if final_edit or (not edit_task or edit_task.done()) and datetime.now().timestamp() - last_task_time >= len(active_msg_ids) / EDITS_PER_SECOND:
+                    while edit_task and not edit_task.done():
                         await asyncio.sleep(0)
                     if response_contents[-1].strip():
                         embed.description = response_contents[-1]
-                    embed.color = EMBED_COLOR["complete"] if final_msg_edit else EMBED_COLOR["incomplete"]
-                    edit_msg_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
-                    last_msg_task_time = datetime.now().timestamp()
+                    embed.color = EMBED_COLOR["complete"] if final_edit else EMBED_COLOR["incomplete"]
+                    edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
+                    last_task_time = datetime.now().timestamp()
             prev_content = curr_content
 
         # Create MsgNode(s) for bot reply message(s) (can be multiple if bot reply was long)
@@ -207,7 +207,7 @@ async def on_message(msg):
                 },
                 replied_to=msg_nodes[msg.id],
             )
-            in_progress_msg_ids.remove(response_msg.id)
+            active_msg_ids.remove(response_msg.id)
 
 
 async def main():

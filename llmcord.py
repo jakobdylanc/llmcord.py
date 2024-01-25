@@ -128,7 +128,7 @@ async def on_message(msg):
             if not curr_msg.reference and curr_msg.channel.type == discord.ChannelType.public_thread:
                 try:
                     thread_parent_msg = curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(curr_msg.channel.id)
-                except (discord.NotFound, discord.HTTPException):
+                except (discord.NotFound, discord.HTTPException, AttributeError):
                     break
                 if thread_parent_msg.id in msg_nodes:
                     msg_nodes[curr_msg.id].replied_to = msg_nodes[thread_parent_msg.id]

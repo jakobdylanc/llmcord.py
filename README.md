@@ -14,7 +14,7 @@
   <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/a9636e09-c89e-42e9-8690-65d52f8236ea" alt="">
 </p>
 
-# Features
+## Features
 - ### Elegant chat system
   Mention (@) the bot and it will reply to your message. Reply to the bot's message to continue from that point. Build conversations with reply chains!
 
@@ -39,7 +39,7 @@
 - Fully asynchronous
 - 1 Python file, ~200 lines of code
 
-# Instructions
+## Instructions
   Before you start, install Python and clone this git repo.
 
 1. Install Python requirements:
@@ -72,7 +72,7 @@ https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=41231
 python llmcord.py
 ```
 
-# Star History
+## Star History
 <a href="https://star-history.com/#jakobdylanc/llmcord&Date">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date&theme=dark" />

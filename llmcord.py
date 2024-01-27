@@ -28,11 +28,13 @@ LLM_CONFIG = {
         "base_url": os.environ["LOCAL_SERVER_URL"],
     },
 }
+LLM_PROVIDER = os.environ["LLM"].split("-", 1)[0]
 LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
 MAX_COMPLETION_TOKENS = 1024
 
-ALLOWED_CHANNEL_IDS = [int(i) for i in os.environ["ALLOWED_CHANNEL_IDS"].split(",") if i]
-ALLOWED_ROLE_IDS = [int(i) for i in os.environ["ALLOWED_ROLE_IDS"].split(",") if i]
+ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
+ALLOWED_CHANNEL_IDS = tuple(int(i) for i in os.environ["ALLOWED_CHANNEL_IDS"].split(",") if i)
+ALLOWED_ROLE_IDS = tuple(int(i) for i in os.environ["ALLOWED_ROLE_IDS"].split(",") if i)
 MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
 MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
 MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
@@ -42,7 +44,7 @@ EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.g
 EMBED_MAX_LENGTH = 4096
 EDITS_PER_SECOND = 1.3
 
-llm_client = AsyncOpenAI(**LLM_CONFIG[os.environ["LLM"].split("-", 1)[0]])
+llm_client = AsyncOpenAI(**LLM_CONFIG[LLM_PROVIDER])
 intents = discord.Intents.default()
 intents.message_content = True
 discord_client = discord.Client(intents=intents)
@@ -59,18 +61,13 @@ class MsgNode:
 
 
 def get_system_prompt():
-    if os.environ["LLM"] == "gpt-4-vision-preview" or "mistral" in os.environ["LLM"] or "local" in os.environ["LLM"]:
-        # Temporary fix until gpt-4-vision-preview, Mistral API and LM Studio support message.name
-        return [
-            {
-                "role": "system",
-                "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nToday's date: {datetime.now().strftime('%B %d %Y')}",
-            }
-        ]
+    system_prompt_extras = [f"Today's date: {datetime.now().strftime('%B %d %Y')}"]
+    if LLM_PROVIDER == "gpt" and os.environ["LLM"] != "gpt-4-vision-preview":
+        system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
     return [
         {
             "role": "system",
-            "content": f"{os.environ['CUSTOM_SYSTEM_PROMPT']}\nUser's names are their Discord IDs and should be typed as '<@ID>'.\nToday's date: {datetime.now().strftime('%B %d %Y')}",
+            "content": "\n".join([os.environ["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras),
         }
     ]
 
@@ -79,11 +76,11 @@ def get_system_prompt():
 async def on_message(msg):
     # Filter out unwanted messages
     if (
-        (msg.channel.type != discord.ChannelType.private and discord_client.user not in msg.mentions)
-        or (ALLOWED_CHANNEL_IDS and not any(x in ALLOWED_CHANNEL_IDS for x in (msg.channel.id, getattr(msg.channel, "parent_id", None))))
-        or (ALLOWED_ROLE_IDS and (msg.channel.type == discord.ChannelType.private or not [role for role in msg.author.roles if role.id in ALLOWED_ROLE_IDS]))
+        msg.channel.type not in ALLOWED_CHANNEL_TYPES
+        or (msg.channel.type != discord.ChannelType.private and discord_client.user not in msg.mentions)
+        or (ALLOWED_CHANNEL_IDS and not any(id in ALLOWED_CHANNEL_IDS for id in (msg.channel.id, getattr(msg.channel, "parent_id", None))))
+        or (ALLOWED_ROLE_IDS and (msg.channel.type == discord.ChannelType.private or not any(role.id in ALLOWED_ROLE_IDS for role in msg.author.roles)))
         or msg.author.bot
-        or msg.channel.type == discord.ChannelType.forum
     ):
         return
 
@@ -96,10 +93,10 @@ async def on_message(msg):
         curr_msg = msg
         prev_msg_id = None
         while True:
-            curr_msg_text = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
-            if curr_msg_text.startswith(discord_client.user.mention):
-                curr_msg_text = curr_msg_text[len(discord_client.user.mention) :].lstrip()
-            curr_msg_content = [{"type": "text", "text": curr_msg_text}] if curr_msg_text else []
+            curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
+            curr_msg_content = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
+            if curr_msg_content.startswith(discord_client.user.mention):
+                curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip()
             curr_msg_images = [
                 {
                     "type": "image_url",
@@ -108,20 +105,16 @@ async def on_message(msg):
                 for att in curr_msg.attachments
                 if "image" in att.content_type
             ]
-            curr_msg_content += curr_msg_images[:MAX_IMAGES]
-            if "mistral" in os.environ["LLM"]:
-                # Temporary fix until Mistral API supports message.content as a list
-                curr_msg_content = curr_msg_text
-            curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
+            if LLM_VISION_SUPPORT:
+                curr_msg_content = ([{"type": "text", "text": curr_msg_content}] if curr_msg_content else []) + curr_msg_images[:MAX_IMAGES]
             msg_nodes[curr_msg.id] = MsgNode(
                 {
                     "role": curr_msg_role,
                     "content": curr_msg_content,
                     "name": str(curr_msg.author.id),
-                }
+                },
+                too_many_images=len(curr_msg_images) > MAX_IMAGES,
             )
-            if len(curr_msg_images) > MAX_IMAGES:
-                msg_nodes[curr_msg.id].too_many_images = True
             if prev_msg_id:
                 msg_nodes[prev_msg_id].replied_to = msg_nodes[curr_msg.id]
             prev_msg_id = curr_msg.id
@@ -197,17 +190,17 @@ async def on_message(msg):
                     last_task_time = datetime.now().timestamp()
             prev_content = curr_content
 
-        # Create MsgNode(s) for bot reply message(s) (can be multiple if bot reply was long)
-        for response_msg in response_msgs:
-            msg_nodes[response_msg.id] = MsgNode(
-                {
-                    "role": "assistant",
-                    "content": "".join(response_contents),
-                    "name": str(discord_client.user.id),
-                },
-                replied_to=msg_nodes[msg.id],
-            )
-            active_msg_ids.remove(response_msg.id)
+    # Create MsgNode(s) for bot reply message(s) (can be multiple if bot reply was long)
+    for response_msg in response_msgs:
+        msg_nodes[response_msg.id] = MsgNode(
+            {
+                "role": "assistant",
+                "content": "".join(response_contents),
+                "name": str(discord_client.user.id),
+            },
+            replied_to=msg_nodes[msg.id],
+        )
+        active_msg_ids.remove(response_msg.id)
 
 
 async def main():

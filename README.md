@@ -23,7 +23,7 @@
   Additionally, you can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). When you @ the bot in a thread it will remember the conversation attached outside of it.
 
 - ### Choose your LLM
-  Supports remote models from:<br />&nbsp;&nbsp;&nbsp;- [OpenAI API](https://platform.openai.com/docs/models)<br />&nbsp;&nbsp;&nbsp;- [La plateforme de Mistral](https://mistral.ai/news/la-plateforme)
+  Supports models from:<br />&nbsp;&nbsp;&nbsp;- [OpenAI API](https://platform.openai.com/docs/models)<br />&nbsp;&nbsp;&nbsp;- [La plateforme de Mistral](https://mistral.ai/news/la-plateforme)
 
   Or run a local API server with:<br />&nbsp;&nbsp;&nbsp;- [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)<br />&nbsp;&nbsp;&nbsp;- [LM Studio](https://lmstudio.ai)
 
@@ -40,7 +40,7 @@
 - 1 Python file, ~200 lines of code
 
 ## Instructions
-  Before you start, install Python and clone this git repo.
+Before you start, install Python and clone this git repo.
 
 1. Install Python requirements:
 ```bash
@@ -71,6 +71,15 @@ https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=41231
 ```bash
 python llmcord.py
 ```
+
+## Notes
+- Currently only OpenAI API supports the **name** property in user messages, therefore only OpenAI API models are user identity aware (with the exception of **gpt-4-vision-preview** which also doesn't support it yet). I tried the alternate approach of prepending user's names in the message content but this didn't seem to work well with all models.
+
+- A goal of this bot is to be compatible with all local API solutions, e.g. [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui), [LM Studio](https://lmstudio.ai), [Jan](https://jan.ai) and [ollama](https://ollama.ai/) (and maybe others I don't know about). Out of these, Jan and ollama strictly require the **model** parameter (in the chat completions request) to match the name of the model you have loaded; the other's don't care. Keeping **model** static is necessary for how this bot is coded (when **model** = local-model the code knows to point to the local API server URL). Hence why the bot only supports LM Studio and text-generation-webui for now. I'm considering [litellm](https://github.com/BerriAI/litellm) as a solution but it would still require some finesse to maintain compatibility with everything.
+
+- I'm interested in using [chromadb](https://github.com/chroma-core/chroma) to enable asking the bot about ANYTHING in the current channel without having to reply to it. I spent time prototyping this but couldn't get to something I'm happy with.
+
+- PRs are welcome :)
 
 ## Star History
 <a href="https://star-history.com/#jakobdylanc/llmcord&Date">

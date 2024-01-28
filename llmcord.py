@@ -179,7 +179,7 @@ async def on_message(msg):
                     last_task_time = datetime.now().timestamp()
                     response_contents += [""]
                 response_contents[-1] += prev_content
-                final_edit = len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH or curr_content == ""
+                final_edit = curr_content == "" or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
                 if final_edit or (not edit_task or edit_task.done()) and datetime.now().timestamp() - last_task_time >= len(active_msg_ids) / EDITS_PER_SECOND:
                     while edit_task and not edit_task.done():
                         await asyncio.sleep(0)

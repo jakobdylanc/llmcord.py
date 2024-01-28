@@ -11,7 +11,7 @@
 </i></h3>
 
 <p align="center">
-  <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/a9636e09-c89e-42e9-8690-65d52f8236ea" alt="">
+  <img src="https://github.com/jakobdylanc/discord-llm-chatbot/assets/38699060/a9636e09-c89e-42e9-8690-65d52f8236ea" alt="">
 </p>
 
 ## Features
@@ -47,7 +47,7 @@ Before you start, install Python and clone this git repo.
 pip install -r requirements.txt
 ```
 
-2. Create a copy of *.env.example*, rename it to *.env* and set it up:
+2. Create a copy of *.env.example* named *.env* and set it up:
 
 | Setting | Instructions |
 | --- | --- |
@@ -82,10 +82,10 @@ python llmcord.py
 - PRs are welcome :)
 
 ## Star History
-<a href="https://star-history.com/#jakobdylanc/llmcord&Date">
+<a href="https://star-history.com/#jakobdylanc/discord-llm-chatbot&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/discord-llm-chatbot&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/discord-llm-chatbot&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/discord-llm-chatbot&type=Date" />
   </picture>
 </a>

@@ -27,14 +27,15 @@
 
   Or run a local API server with:<br />&nbsp;&nbsp;&nbsp;- [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)<br />&nbsp;&nbsp;&nbsp;- [LM Studio](https://lmstudio.ai)
 
-- ### Streamed responses
-  The bot's responses are dynamically generated and turn green when complete.
-
 - ### Vision support
   The bot can see image attachments when you choose a vision model.
 
+- ### Streamed responses
+  The bot's responses are dynamically generated and turn green when complete.
+
 ### And more...
 - Easily set a custom personality (aka system prompt)
+- DM the bot for private access (no @ required)
 - User identity aware
 - Fully asynchronous
 - 1 Python file, ~200 lines of code
@@ -58,7 +59,7 @@ pip install -r requirements.txt
 | **LLM** | [OpenAI API](https://platform.openai.com/docs/models):<br />&nbsp;&nbsp;&nbsp;**gpt-3.5-turbo**<br />&nbsp;&nbsp;&nbsp;**gpt-4-turbo-preview**<br />&nbsp;&nbsp;&nbsp;**gpt-4-vision-preview**<br /><br />[Mistral API](https://docs.mistral.ai/platform/endpoints):<br />&nbsp;&nbsp;&nbsp;**mistral-tiny** (Mistral-7B)<br />&nbsp;&nbsp;&nbsp;**mistral-small** (Mixtral-8X7B)<br />&nbsp;&nbsp;&nbsp;**mistral-medium** (Mistral internal prototype)<br /><br />Local API:<br />&nbsp;&nbsp;&nbsp;**local-model** |
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 | **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
-| **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone.** |
+| **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: 5) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: 20) |
 
@@ -75,7 +76,7 @@ python llmcord.py
 ## Notes
 - Currently only OpenAI API supports the **name** property in user messages, therefore only OpenAI API models are user identity aware (with the exception of **gpt-4-vision-preview** which also doesn't support it yet). I tried the alternate approach of prepending user's names in the message content but this didn't seem to work well with all models.
 
-- A goal of this bot is to be compatible with all local API solutions, e.g. [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui), [LM Studio](https://lmstudio.ai), [Jan](https://jan.ai) and [ollama](https://ollama.ai/) (and maybe others I don't know about). Out of these, Jan and ollama strictly require the **model** parameter (in the chat completions request) to match the name of the model you have loaded; the other's don't care. Keeping **model** static is necessary for how this bot is coded (when **model** = local-model the code knows to point to the local API server URL). Hence why the bot only supports LM Studio and text-generation-webui for now. I'm considering [litellm](https://github.com/BerriAI/litellm) as a solution but it would still require some finesse to maintain compatibility with everything.
+- A goal of this bot is to be compatible with all local API solutions, e.g. [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui), [LM Studio](https://lmstudio.ai), [Jan](https://jan.ai) and [ollama](https://ollama.ai/) (and maybe others I don't know about). Out of these, Jan and ollama strictly require the **model** parameter (in the chat completions request) to match the name of the model you have loaded; the other's don't care. Keeping **model** static is necessary for how this bot is coded (when **model** = local-model the code knows to point to the local API server URL). Hence why the bot only supports text-generation-webui and LM Studio for now. I'm considering [litellm](https://github.com/BerriAI/litellm) as a solution but it would still require some finesse to maintain compatibility with everything.
 
 - I'm interested in using [chromadb](https://github.com/chroma-core/chroma) to enable asking the bot about ANYTHING in the current channel without having to reply to it. I spent time prototyping this but couldn't get to something I'm happy with.
 

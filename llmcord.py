@@ -47,7 +47,7 @@ EDITS_PER_SECOND = 1.3
 llm_client = AsyncOpenAI(**LLM_CONFIG[LLM_PROVIDER])
 intents = discord.Intents.default()
 intents.message_content = True
-discord_client = discord.Client(intents=intents)
+discord_client = discord.Client(intents=intents, activity=discord.CustomActivity(name="https://github.com/jakobdylanc/discord-llm-chatbot"))
 
 msg_nodes = {}
 active_msg_ids = []

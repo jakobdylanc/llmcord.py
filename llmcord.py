@@ -36,8 +36,8 @@ ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_th
 ALLOWED_CHANNEL_IDS = tuple(int(i) for i in os.environ["ALLOWED_CHANNEL_IDS"].split(",") if i)
 ALLOWED_ROLE_IDS = tuple(int(i) for i in os.environ["ALLOWED_ROLE_IDS"].split(",") if i)
 MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
-MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
 MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
+MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
 MAX_MESSAGE_WARNING = f"⚠️ Only using last {MAX_MESSAGES} messages"
 
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
@@ -142,7 +142,7 @@ async def on_message(msg):
         reply_chain = []
         user_warnings = set()
         curr_node = msg_nodes[msg.id]
-        while curr_node is not None and len(reply_chain) < MAX_MESSAGES:
+        while curr_node and len(reply_chain) < MAX_MESSAGES:
             reply_chain += [curr_node.msg]
             if curr_node.too_many_images:
                 user_warnings.add(MAX_IMAGE_WARNING)

@@ -74,6 +74,8 @@ python llmcord.py
 ```
 
 ## Notes
+- No support for local vision models yet.
+
 - Currently only OpenAI API supports the **name** property in user messages, therefore only OpenAI API models are user identity aware (with the exception of **gpt-4-vision-preview** which also doesn't support it yet). I tried the alternate approach of prepending user's names in the message content but this didn't seem to work well with all models.
 
 - A goal of this bot is to be compatible with all local API solutions, e.g. [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui), [LM Studio](https://lmstudio.ai), [Jan](https://jan.ai) and [ollama](https://ollama.ai/) (and maybe others I don't know about). Out of these, Jan and ollama strictly require the **model** parameter (in the chat completions request) to match the name of the model you have loaded; the other's don't care. Keeping **model** static is necessary for how this bot is coded (when **model** = local-model the code knows to point to the local API server URL). Hence why the bot only supports text-generation-webui and LM Studio for now. I'm considering [litellm](https://github.com/BerriAI/litellm) as a solution but it would still require some finesse to maintain compatibility with everything.

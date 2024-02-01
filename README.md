@@ -25,7 +25,7 @@
 - ### Choose your LLM
   Supports models from:<br />&nbsp;&nbsp;&nbsp;- [OpenAI API](https://platform.openai.com/docs/models)<br />&nbsp;&nbsp;&nbsp;- [La plateforme de Mistral](https://mistral.ai/news/la-plateforme)
 
-  Or run a local API server with:<br />&nbsp;&nbsp;&nbsp;- [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)<br />&nbsp;&nbsp;&nbsp;- [LM Studio](https://lmstudio.ai)
+  Or run a local model and API server with:<br />&nbsp;&nbsp;&nbsp;- [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)<br />&nbsp;&nbsp;&nbsp;- [LM Studio](https://lmstudio.ai)
 
 - ### Vision support
   The bot can see image attachments when you choose a vision model.

@@ -115,22 +115,16 @@ async def on_message(msg):
                 too_many_images=len(curr_msg_images) > MAX_IMAGES,
             )
 
-            if not curr_msg.reference and curr_msg.channel.type == discord.ChannelType.public_thread:
-                msg_nodes[curr_msg.id].replied_to_id = curr_msg.channel.id
-
-                async def next_msg(m):
-                    return m.channel.starter_message or await m.channel.parent.fetch_message(m.channel.id)
-
-            else:
-                msg_nodes[curr_msg.id].replied_to_id = getattr(curr_msg.reference, "message_id", None)
-
-                async def next_msg(m):
-                    return m.reference.resolved if isinstance(m.reference.resolved, discord.Message) else await m.channel.fetch_message(m.reference.message_id)
-
-            if not msg_nodes[curr_msg.id].replied_to_id or msg_nodes[curr_msg.id].replied_to_id in msg_nodes:
+            next_is_thread_parent: bool = curr_msg.channel.type == discord.ChannelType.public_thread and not curr_msg.reference
+            msg_nodes[curr_msg.id].replied_to_id = curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None)
+            if not (id := msg_nodes[curr_msg.id].replied_to_id) or id in msg_nodes:
                 break
             try:
-                curr_msg = await next_msg(curr_msg)
+                curr_msg = (
+                    (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(curr_msg.channel.id))
+                    if next_is_thread_parent
+                    else (ref if isinstance(ref := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(curr_msg.reference.message_id))
+                )
             except (discord.NotFound, discord.HTTPException, AttributeError):
                 break
 
@@ -178,13 +172,13 @@ async def on_message(msg):
                     response_contents += [""]
 
                 response_contents[-1] += prev_content
-                final_edit = curr_content == "" or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
-                if final_edit or (not edit_task or edit_task.done()) and datetime.now().timestamp() - last_task_time >= len(active_msg_ids) / EDITS_PER_SECOND:
+                is_final_edit: bool = curr_content == "" or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
+                if is_final_edit or (not edit_task or edit_task.done()) and datetime.now().timestamp() - last_task_time >= len(active_msg_ids) / EDITS_PER_SECOND:
                     while edit_task and not edit_task.done():
                         await asyncio.sleep(0)
                     if response_contents[-1].strip():
                         embed.description = response_contents[-1]
-                    embed.color = EMBED_COLOR["complete"] if final_edit else EMBED_COLOR["incomplete"]
+                    embed.color = EMBED_COLOR["complete"] if is_final_edit else EMBED_COLOR["incomplete"]
                     edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
                     last_task_time = datetime.now().timestamp()
 

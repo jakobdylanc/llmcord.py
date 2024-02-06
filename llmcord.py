@@ -36,6 +36,7 @@ if any(os.environ["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-
 
 extra_kwargs = {}
 if os.environ["LLM"].startswith("local"):
+    extra_kwargs["api_key"] = "Not used"
     extra_kwargs["base_url"] = os.environ["LOCAL_SERVER_URL"]
     os.environ["LLM"] = os.environ["LLM"].replace("local", "openai", 1)
 

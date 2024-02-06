@@ -103,10 +103,10 @@ async def on_message(msg):
 
         next_is_thread_parent: bool = curr_msg.channel.type == discord.ChannelType.public_thread and not curr_msg.reference
         msg_nodes[curr_msg.id].replied_to_id = curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None)
-        if not (next_id := msg_nodes[curr_msg.id].replied_to_id) or next_id in msg_nodes:
-            break
-        while next_id in active_msg_ids:
+        while (next_id := msg_nodes[curr_msg.id].replied_to_id) and next_id in active_msg_ids:
             await asyncio.sleep(0)
+        if not next_id or next_id in msg_nodes:
+            break
         try:
             curr_msg = (
                 (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_id))
@@ -127,6 +127,8 @@ async def on_message(msg):
         if curr_node.replied_to_id:
             if len(reply_chain) == MAX_MESSAGES:
                 user_warnings.add(MAX_MESSAGE_WARNING)
+            while curr_node.replied_to_id in active_msg_ids:
+                await asyncio.sleep(0)
         else:
             break
         curr_node = msg_nodes[curr_node.replied_to_id]

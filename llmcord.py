@@ -30,14 +30,14 @@ EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.g
 EMBED_MAX_LENGTH = 4096
 EDITS_PER_SECOND = 1.3
 
+system_prompt_extras = []
+if any(os.environ["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in os.environ["LLM"]:
+    system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
+
 extra_kwargs = {}
 if os.environ["LLM"].startswith("local"):
     extra_kwargs["base_url"] = os.environ["LOCAL_SERVER_URL"]
     os.environ["LLM"] = os.environ["LLM"].replace("local", "openai", 1)
-
-system_prompt_extras = []
-if any(os.environ["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in os.environ["LLM"]:
-    system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -75,71 +75,69 @@ async def on_message(msg):
     ):
         return
 
-    # If user replied to a message that's still generating, wait until it's done
-    while msg.reference and msg.reference.message_id in active_msg_ids:
-        await asyncio.sleep(0)
+    # Loop through message reply chain and create MsgNodes (until an existing MsgNode is found)
+    curr_msg = msg
+    while True:
+        curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
+        curr_msg_content = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
+        if curr_msg_content.startswith(discord_client.user.mention):
+            curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip()
+        curr_msg_images = [
+            {
+                "type": "image_url",
+                "image_url": {"url": att.url, "detail": "low"},
+            }
+            for att in curr_msg.attachments
+            if "image" in att.content_type
+        ]
+        if LLM_VISION_SUPPORT:
+            curr_msg_content = ([{"type": "text", "text": curr_msg_content}] if curr_msg_content else []) + curr_msg_images[:MAX_IMAGES]
+        msg_nodes[curr_msg.id] = MsgNode(
+            {
+                "role": curr_msg_role,
+                "content": curr_msg_content,
+                "name": str(curr_msg.author.id),
+            },
+            too_many_images=len(curr_msg_images) > MAX_IMAGES,
+        )
 
-    async with msg.channel.typing():
-        # Loop through message reply chain and create MsgNodes
-        curr_msg = msg
-        while True:
-            curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
-            curr_msg_content = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
-            if curr_msg_content.startswith(discord_client.user.mention):
-                curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip()
-            curr_msg_images = [
-                {
-                    "type": "image_url",
-                    "image_url": {"url": att.url, "detail": "low"},
-                }
-                for att in curr_msg.attachments
-                if "image" in att.content_type
-            ]
-            if LLM_VISION_SUPPORT:
-                curr_msg_content = ([{"type": "text", "text": curr_msg_content}] if curr_msg_content else []) + curr_msg_images[:MAX_IMAGES]
-            msg_nodes[curr_msg.id] = MsgNode(
-                {
-                    "role": curr_msg_role,
-                    "content": curr_msg_content,
-                    "name": str(curr_msg.author.id),
-                },
-                too_many_images=len(curr_msg_images) > MAX_IMAGES,
+        next_is_thread_parent: bool = curr_msg.channel.type == discord.ChannelType.public_thread and not curr_msg.reference
+        msg_nodes[curr_msg.id].replied_to_id = curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None)
+        if not (next_id := msg_nodes[curr_msg.id].replied_to_id) or next_id in msg_nodes:
+            break
+        while next_id in active_msg_ids:
+            await asyncio.sleep(0)
+        try:
+            curr_msg = (
+                (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_id))
+                if next_is_thread_parent
+                else (ref if isinstance(ref := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(next_id))
             )
+        except (discord.NotFound, discord.HTTPException, AttributeError):
+            break
 
-            next_is_thread_parent: bool = curr_msg.channel.type == discord.ChannelType.public_thread and not curr_msg.reference
-            msg_nodes[curr_msg.id].replied_to_id = curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None)
-            if not (id := msg_nodes[curr_msg.id].replied_to_id) or id in msg_nodes:
-                break
-            try:
-                curr_msg = (
-                    (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(curr_msg.channel.id))
-                    if next_is_thread_parent
-                    else (ref if isinstance(ref := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(curr_msg.reference.message_id))
-                )
-            except (discord.NotFound, discord.HTTPException, AttributeError):
-                break
+    # Build reply chain and set user warnings
+    reply_chain = []
+    user_warnings = set()
+    curr_node = msg_nodes[msg.id]
+    while len(reply_chain) < MAX_MESSAGES:
+        reply_chain += [curr_node.data]
+        if curr_node.too_many_images:
+            user_warnings.add(MAX_IMAGE_WARNING)
+        if len(reply_chain) == MAX_MESSAGES and curr_node.replied_to_id:
+            user_warnings.add(MAX_MESSAGE_WARNING)
+        if not curr_node.replied_to_id:
+            break
+        curr_node = msg_nodes[curr_node.replied_to_id]
 
-        # Build reply chain and set user warnings
-        reply_chain = []
-        user_warnings = set()
-        curr_node = msg_nodes[msg.id]
-        while len(reply_chain) < MAX_MESSAGES:
-            reply_chain += [curr_node.data]
-            if curr_node.too_many_images:
-                user_warnings.add(MAX_IMAGE_WARNING)
-            if len(reply_chain) == MAX_MESSAGES and curr_node.replied_to_id:
-                user_warnings.add(MAX_MESSAGE_WARNING)
-            if not curr_node.replied_to_id:
-                break
-            curr_node = msg_nodes[curr_node.replied_to_id]
-
-        # Generate and send bot reply
-        logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
-        response_msgs = []
-        response_contents = []
-        prev_content = None
-        edit_task = None
-        kwargs = dict(model=os.environ["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
+    # Generate and send bot reply
+    logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
+    response_msgs = []
+    response_contents = []
+    prev_content = None
+    edit_task = None
+    kwargs = dict(model=os.environ["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
+    async with msg.channel.typing():
         try:
             async for chunk in await acompletion(**kwargs):
                 curr_content = chunk.choices[0].delta.content or ""

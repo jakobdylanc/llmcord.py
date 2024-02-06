@@ -23,7 +23,7 @@
   Additionally, you can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). When you @ the bot in a thread it will remember the conversation attached outside of it.
 
 - ### Choose your LLM
-  Supports models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://mistral.ai/news/la-plateforme), [ollama](https://ollama.ai) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
+  Supports models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://mistral.ai/news/la-plateforme), [ollama](https://github.com/ollama/ollama) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
   Also supports:<br />&nbsp;&nbsp;&nbsp;- [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)<br />&nbsp;&nbsp;&nbsp;- [Jan](https://jan.ai)<br />&nbsp;&nbsp;&nbsp;- [LM Studio](https://lmstudio.ai)
 
@@ -57,9 +57,9 @@ pip install -r requirements.txt
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 | **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
-| **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: 5) |
-| **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: 20) |
-| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when LLM starts with `local/` (aka when using oobabooga, Jan or LM Studio).**<br />(Default: http://localhost:5000/v1) |
+| **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
+| **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
+| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when using oobabooga, Jan or LM Studio (aka when LLM starts with `local/`).**<br />(Default: `http://localhost:5000/v1`) |
 | **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/user/api-keys](https://console.mistral.ai/user/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
 

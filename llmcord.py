@@ -13,6 +13,7 @@ logging.basicConfig(
     format="%(asctime)s.%(msecs)03d %(levelname)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LLM_VISION_SUPPORT: bool = "gpt-4-vision-preview" in os.environ["LLM"]
 MAX_COMPLETION_TOKENS = 1024

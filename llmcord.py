@@ -124,9 +124,10 @@ async def on_message(msg):
         reply_chain += [curr_node.data]
         if curr_node.too_many_images:
             user_warnings.add(MAX_IMAGE_WARNING)
-        if len(reply_chain) == MAX_MESSAGES and curr_node.replied_to_id:
-            user_warnings.add(MAX_MESSAGE_WARNING)
-        if not curr_node.replied_to_id:
+        if curr_node.replied_to_id:
+            if len(reply_chain) == MAX_MESSAGES:
+                user_warnings.add(MAX_MESSAGE_WARNING)
+        else:
             break
         curr_node = msg_nodes[curr_node.replied_to_id]
 

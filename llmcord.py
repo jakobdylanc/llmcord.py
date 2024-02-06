@@ -1,11 +1,11 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime as dt
 import logging
 import os
 
 import discord
 from dotenv import load_dotenv
-from openai import AsyncOpenAI
+from litellm import acompletion
 
 load_dotenv()
 logging.basicConfig(
@@ -14,22 +14,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-LLM_CONFIG = {
-    "gpt": {
-        "api_key": os.environ["OPENAI_API_KEY"],
-        "base_url": "https://api.openai.com/v1",
-    },
-    "mistral": {
-        "api_key": os.environ["MISTRAL_API_KEY"],
-        "base_url": "https://api.mistral.ai/v1",
-    },
-    "local": {
-        "api_key": "Not used",
-        "base_url": os.environ["LOCAL_SERVER_URL"],
-    },
-}
-LLM_PROVIDER = os.environ["LLM"].split("-", 1)[0]
-LLM_VISION_SUPPORT = "vision" in os.environ["LLM"]
+LLM_VISION_SUPPORT: bool = "gpt-4-vision-preview" in os.environ["LLM"]
 MAX_COMPLETION_TOKENS = 1024
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
@@ -44,7 +29,15 @@ EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.g
 EMBED_MAX_LENGTH = 4096
 EDITS_PER_SECOND = 1.3
 
-llm_client = AsyncOpenAI(**LLM_CONFIG[LLM_PROVIDER])
+extra_kwargs = {}
+if os.environ["LLM"].startswith("local"):
+    extra_kwargs["base_url"] = os.environ["LOCAL_SERVER_URL"]
+    os.environ["LLM"] = os.environ["LLM"].replace("local", "openai", 1)
+
+system_prompt_extras = []
+if any(os.environ["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in os.environ["LLM"]:
+    system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
+
 intents = discord.Intents.default()
 intents.message_content = True
 discord_client = discord.Client(intents=intents, activity=discord.CustomActivity(name="https://github.com/jakobdylanc/discord-llm-chatbot"))
@@ -61,13 +54,10 @@ class MsgNode:
 
 
 def get_system_prompt():
-    system_prompt_extras = [f"Today's date: {datetime.now().strftime('%B %d %Y')}"]
-    if LLM_PROVIDER == "gpt" and os.environ["LLM"] != "gpt-4-vision-preview":
-        system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
     return [
         {
             "role": "system",
-            "content": "\n".join([os.environ["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras),
+            "content": "\n".join([os.environ["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras + [f"Today's date: {dt.now().strftime('%B %d %Y')}"]),
         }
     ]
 
@@ -148,14 +138,14 @@ async def on_message(msg):
         response_contents = []
         prev_content = None
         edit_task = None
-        async for chunk in await llm_client.chat.completions.create(
-            model=os.environ["LLM"],
-            messages=get_system_prompt() + reply_chain[::-1],
-            max_tokens=MAX_COMPLETION_TOKENS,
-            stream=True,
-        ):
-            curr_content = chunk.choices[0].delta.content or ""
-            if prev_content:
+        kwargs = dict(model=os.environ["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
+        try:
+            async for chunk in await acompletion(**kwargs):
+                curr_content = chunk.choices[0].delta.content or ""
+                if not prev_content:
+                    prev_content = curr_content
+                    continue
+
                 if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
                     reply_to_msg = msg if not response_msgs else response_msgs[-1]
                     embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
@@ -168,21 +158,23 @@ async def on_message(msg):
                         )
                     ]
                     active_msg_ids.append(response_msgs[-1].id)
-                    last_task_time = datetime.now().timestamp()
+                    last_task_time = dt.now().timestamp()
                     response_contents += [""]
 
                 response_contents[-1] += prev_content
-                is_final_edit: bool = curr_content == "" or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
-                if is_final_edit or (not edit_task or edit_task.done()) and datetime.now().timestamp() - last_task_time >= len(active_msg_ids) / EDITS_PER_SECOND:
+                is_final_edit: bool = chunk.choices[0].finish_reason or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
+                if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= len(active_msg_ids) / EDITS_PER_SECOND:
                     while edit_task and not edit_task.done():
                         await asyncio.sleep(0)
                     if response_contents[-1].strip():
                         embed.description = response_contents[-1]
                     embed.color = EMBED_COLOR["complete"] if is_final_edit else EMBED_COLOR["incomplete"]
                     edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
-                    last_task_time = datetime.now().timestamp()
+                    last_task_time = dt.now().timestamp()
 
-            prev_content = curr_content
+                prev_content = curr_content
+        except:
+            logging.exception("Error while streaming response")
 
     # Create MsgNode(s) for bot reply message(s) (can be multiple if bot reply was long)
     for response_msg in response_msgs:

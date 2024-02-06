@@ -41,7 +41,7 @@ if any(os.environ["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-
 
 intents = discord.Intents.default()
 intents.message_content = True
-discord_client = discord.Client(intents=intents, activity=discord.CustomActivity(name="https://github.com/jakobdylanc/discord-llm-chatbot"))
+discord_client = discord.Client(intents=intents, activity=discord.CustomActivity(name="github.com/jakobdylanc/discord-llm-chatbot"))
 
 msg_nodes = {}
 active_msg_ids = []

@@ -15,8 +15,8 @@
 </p>
 
 ## Features
-- ### Elegant chat system
-  Mention (@) the bot and it will reply to your message. Reply to the bot's message to continue from that point. Build conversations with reply chains!
+- ### Collaborative prompting
+  Mention (@) the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. Build conversations with reply chains!
 
   You can reply to any of the bot's messages to continue from wherever you want. Or reply to your friend's message (and @ the bot) to ask a question about it. There are no limits to this functionality.
 

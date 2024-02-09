@@ -80,9 +80,9 @@ async def on_message(msg):
     curr_msg = msg
     while True:
         curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
-        curr_msg_content = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
+        curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or " "
         if curr_msg_content.startswith(discord_client.user.mention):
-            curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip()
+            curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip() or " "
         curr_msg_images = [
             {
                 "type": "image_url",
@@ -92,7 +92,7 @@ async def on_message(msg):
             if "image" in att.content_type
         ]
         if LLM_VISION_SUPPORT:
-            curr_msg_content = ([{"type": "text", "text": curr_msg_content}] if curr_msg_content else []) + curr_msg_images[:MAX_IMAGES]
+            curr_msg_content = [{"type": "text", "text": curr_msg_content}] + curr_msg_images[:MAX_IMAGES]
         msg_nodes[curr_msg.id] = MsgNode(
             {
                 "role": curr_msg_role,

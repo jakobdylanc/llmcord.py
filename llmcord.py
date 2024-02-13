@@ -49,10 +49,10 @@ active_msg_ids = []
 
 
 class MsgNode:
-    def __init__(self, data, too_many_images=False, replied_to_id=None):
+    def __init__(self, data, too_many_images=False, replied_to_msg=None):
         self.data = data
         self.too_many_images = too_many_images
-        self.replied_to_id = replied_to_id
+        self.replied_to_msg = replied_to_msg
 
 
 def get_system_prompt():
@@ -76,66 +76,56 @@ async def on_message(msg):
     ):
         return
 
-    # Loop through message reply chain and create MsgNodes (until an existing MsgNode is found)
-    curr_msg = msg
-    while True:
-        curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
-        curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or " "
-        if curr_msg_content.startswith(discord_client.user.mention):
-            curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip() or " "
-        curr_msg_images = [
-            {
-                "type": "image_url",
-                "image_url": {"url": att.url, "detail": "low"},
-            }
-            for att in curr_msg.attachments
-            if "image" in att.content_type
-        ]
-        if LLM_VISION_SUPPORT:
-            curr_msg_content = [{"type": "text", "text": curr_msg_content}] + curr_msg_images[:MAX_IMAGES]
-        msg_nodes[curr_msg.id] = MsgNode(
-            {
-                "role": curr_msg_role,
-                "content": curr_msg_content,
-                "name": str(curr_msg.author.id),
-            },
-            too_many_images=len(curr_msg_images) > MAX_IMAGES,
-        )
-
-        next_is_thread_parent: bool = curr_msg.channel.type == discord.ChannelType.public_thread and not curr_msg.reference
-        msg_nodes[curr_msg.id].replied_to_id = curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None)
-        while (next_id := msg_nodes[curr_msg.id].replied_to_id) and next_id in active_msg_ids:
-            await asyncio.sleep(0)
-        if not next_id or next_id in msg_nodes:
-            break
-        try:
-            curr_msg = (
-                (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_id))
-                if next_is_thread_parent
-                else (ref if isinstance(ref := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(next_id))
-            )
-        except (discord.NotFound, discord.HTTPException, AttributeError):
-            break
-
-    # Build reply chain and set user warnings
+    # Build message reply chain and set user warnings
     reply_chain = []
     user_warnings = set()
-    curr_node = msg_nodes[msg.id]
+    curr_msg = msg
     while len(reply_chain) < MAX_MESSAGES:
+        if curr_msg.id not in msg_nodes:
+            curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
+            curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or " "
+            if curr_msg_content.startswith(discord_client.user.mention):
+                curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip() or " "
+            curr_msg_img_urls = [att.url for att in curr_msg.attachments if "image" in att.content_type]
+            if LLM_VISION_SUPPORT:
+                curr_msg_content = [{"type": "text", "text": curr_msg_content}]
+                curr_msg_content += [{"type": "image_url", "image_url": {"url": url, "detail": "low"}} for url in curr_msg_img_urls[:MAX_IMAGES]]
+            msg_nodes[curr_msg.id] = MsgNode(
+                {
+                    "role": curr_msg_role,
+                    "content": curr_msg_content,
+                    "name": str(curr_msg.author.id),
+                },
+                too_many_images=len(curr_msg_img_urls) > MAX_IMAGES,
+            )
+
+            next_is_thread_parent: bool = curr_msg.channel.type == discord.ChannelType.public_thread and not curr_msg.reference
+            if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
+                while next_msg_id in active_msg_ids:
+                    await asyncio.sleep(0)
+                try:
+                    msg_nodes[curr_msg.id].replied_to_msg = (
+                        (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
+                        if next_is_thread_parent
+                        else (ref if isinstance(ref := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(next_msg_id))
+                    )
+                except (discord.NotFound, discord.HTTPException, AttributeError):
+                    logging.exception("Error fetching a message in the reply chain")
+
+        curr_node = msg_nodes[curr_msg.id]
         reply_chain += [curr_node.data]
         if curr_node.too_many_images:
             user_warnings.add(MAX_IMAGE_WARNING)
-        if curr_node.replied_to_id:
+        if curr_node.replied_to_msg:
             if len(reply_chain) == MAX_MESSAGES:
                 user_warnings.add(MAX_MESSAGE_WARNING)
-            while curr_node.replied_to_id in active_msg_ids:
-                await asyncio.sleep(0)
+            curr_msg = curr_node.replied_to_msg
         else:
             break
-        curr_node = msg_nodes[curr_node.replied_to_id]
 
-    # Generate and send bot reply
     logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
+
+    # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []
     response_contents = []
     prev_content = None
@@ -179,7 +169,7 @@ async def on_message(msg):
         except:
             logging.exception("Error while streaming response")
 
-    # Create MsgNode(s) for bot reply message(s) (can be multiple if bot reply was long)
+    # Create MsgNode(s) for response message(s)
     for response_msg in response_msgs:
         msg_nodes[response_msg.id] = MsgNode(
             {
@@ -187,7 +177,7 @@ async def on_message(msg):
                 "content": "".join(response_contents),
                 "name": str(discord_client.user.id),
             },
-            replied_to_id=msg.id,
+            replied_to_msg=msg,
         )
         active_msg_ids.remove(response_msg.id)
 

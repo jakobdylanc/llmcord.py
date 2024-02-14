@@ -16,9 +16,9 @@
 
 ## Features
 - ### Collaborative prompting
-  Mention (@) the bot and it will reply to your message. Anyone can reply to the bot's message to continue from that point. Build conversations with reply chains!
+  @ the bot and it will reply to your message. Reply to the bot's message to continue from that point. **Build conversations with reply chains!**
 
-  You can reply to any of the bot's messages to continue from wherever you want. Or reply to your friend's message (and @ the bot) to ask a question about it. There are no limits to this functionality.
+  You can reply to **any** message to continue **any** conversation from **any** point. Just @ the bot if you're replying to someone else's message. There are no limits to this functionality.
 
   Additionally, you can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). When you @ the bot in a thread it will remember the conversation attached outside of it.
 

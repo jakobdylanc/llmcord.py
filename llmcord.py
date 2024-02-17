@@ -99,18 +99,26 @@ async def on_message(msg):
                 too_many_images=len(curr_msg_img_urls) > MAX_IMAGES,
             )
 
-            next_is_thread_parent: bool = curr_msg.channel.type == discord.ChannelType.public_thread and not curr_msg.reference
-            if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
-                while next_msg_id in active_msg_ids:
-                    await asyncio.sleep(0)
-                try:
-                    msg_nodes[curr_msg.id].replied_to_msg = (
-                        (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
-                        if next_is_thread_parent
-                        else (ref if isinstance(ref := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(next_msg_id))
-                    )
-                except (discord.NotFound, discord.HTTPException, AttributeError):
-                    logging.exception("Error fetching a message in the reply chain")
+            try:
+                if (
+                    not curr_msg.reference
+                    and discord_client.user.mention not in curr_msg.content
+                    and (prev_msg_in_channel := ([m async for m in msg.channel.history(before=curr_msg, limit=1)] or [None])[0])
+                    and prev_msg_in_channel.author == curr_msg.author
+                ):
+                    msg_nodes[curr_msg.id].replied_to_msg = prev_msg_in_channel
+                else:
+                    next_is_thread_parent: bool = not curr_msg.reference and curr_msg.channel.type == discord.ChannelType.public_thread
+                    if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
+                        while next_msg_id in active_msg_ids:
+                            await asyncio.sleep(0)
+                        msg_nodes[curr_msg.id].replied_to_msg = (
+                            (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
+                            if next_is_thread_parent
+                            else (ref if isinstance(ref := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(next_msg_id))
+                        )
+            except (discord.NotFound, discord.HTTPException, AttributeError):
+                logging.exception("Error fetching next message in the chain")
 
         curr_node = msg_nodes[curr_msg.id]
         reply_chain += [curr_node.data]

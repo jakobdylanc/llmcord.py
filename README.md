@@ -16,16 +16,21 @@
 
 ## Features
 - ### Collaborative prompting
-  @ the bot and it will reply to your message. Reply to the bot's message to continue from that point. **Build conversations with reply chains!**
+  @ the bot and it will reply to your message. Reply to the bot's message to continue from that point. Build conversations with reply chains!
+ 
+  You can reply to any of the bot's messages to continue from any point. Or reply to your friend's message and @ the bot to ask a question about it. There are no limits to this functionality.
 
-  You can reply to **any** message to continue **any** conversation from **any** point. Just @ the bot if you're replying to someone else's message. There are no limits to this functionality.
-
-  Additionally, you can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). When you @ the bot in a thread it will remember the conversation attached outside of it.
+  Additionally:
+  - Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
+  - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
 
 - ### Choose your LLM
   Supports models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://mistral.ai/news/la-plateforme), [ollama](https://github.com/ollama/ollama) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
-  Also supports:<br />&nbsp;&nbsp;&nbsp;- [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)<br />&nbsp;&nbsp;&nbsp;- [Jan](https://jan.ai)<br />&nbsp;&nbsp;&nbsp;- [LM Studio](https://lmstudio.ai)
+  Also supports:
+  - [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
+  - [Jan](https://jan.ai)
+  - [LM Studio](https://lmstudio.ai)
 
 - ### Vision support
   The bot can see image attachments when you choose a vision model.

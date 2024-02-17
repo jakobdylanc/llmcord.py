@@ -38,6 +38,9 @@ extra_kwargs = {}
 if os.environ["LLM"].startswith("local/"):
     extra_kwargs["api_key"] = "Not used"
     extra_kwargs["base_url"] = os.environ["LOCAL_SERVER_URL"]
+    if os.environ["OOBABOOGA_CHARACTER"]:
+        extra_kwargs["mode"] = "chat"
+        extra_kwargs["character"] = os.environ["OOBABOOGA_CHARACTER"]
     os.environ["LLM"] = os.environ["LLM"].replace("local/", "", 1)
 
 intents = discord.Intents.default()

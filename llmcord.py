@@ -104,6 +104,7 @@ async def on_message(msg):
                     not curr_msg.reference
                     and discord_client.user.mention not in curr_msg.content
                     and (prev_msg_in_channel := ([m async for m in curr_msg.channel.history(before=curr_msg, limit=1)] or [None])[0])
+                    and any(prev_msg_in_channel.type == type for type in (discord.MessageType.default, discord.MessageType.reply))
                     and prev_msg_in_channel.author == curr_msg.author
                 ):
                     msg_nodes[curr_msg.id].replied_to_msg = prev_msg_in_channel

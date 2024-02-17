@@ -35,10 +35,10 @@ if any(os.environ["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-
     system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
 extra_kwargs = {}
-if os.environ["LLM"].startswith("local"):
+if os.environ["LLM"].startswith("local/"):
     extra_kwargs["api_key"] = "Not used"
     extra_kwargs["base_url"] = os.environ["LOCAL_SERVER_URL"]
-    os.environ["LLM"] = os.environ["LLM"].replace("local", "openai", 1)
+    os.environ["LLM"] = os.environ["LLM"].replace("local/", "", 1)
 
 intents = discord.Intents.default()
 intents.message_content = True

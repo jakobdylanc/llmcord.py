@@ -64,7 +64,8 @@ pip install -r requirements.txt
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
-| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when using oobabooga, Jan or LM Studio (aka when LLM starts with `local/`).**<br />(Default: `http://localhost:5000/v1`) |
+| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when LLM starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
+| **LOCAL_API_KEY** | The API key to use with your local API server. **Only applicable when LLM starts with `local/`. Usually safe to leave blank.** |
 | **OOBABOOGA_CHARACTER** | Your [oobabooga character](https://github.com/oobabooga/text-generation-webui/wiki/03-%E2%80%90-Parameters-Tab#character) that you want to use. **Only applicable when using oobabooga. Leave blank to use CUSTOM_SYSTEM_PROMPT instead.** |
 | **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/user/api-keys](https://console.mistral.ai/user/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|

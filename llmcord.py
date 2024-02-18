@@ -19,8 +19,8 @@ LLM_VISION_SUPPORT: bool = "gpt-4-vision-preview" in env["LLM"]
 MAX_COMPLETION_TOKENS = 1024
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
-ALLOWED_CHANNEL_IDS = tuple(int(i) for i in env["ALLOWED_CHANNEL_IDS"].split(",") if i)
-ALLOWED_ROLE_IDS = tuple(int(i) for i in env["ALLOWED_ROLE_IDS"].split(",") if i)
+ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
+ALLOWED_ROLE_IDS = tuple(int(id) for id in env["ALLOWED_ROLE_IDS"].split(",") if id)
 MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
 MAX_MESSAGES = int(env["MAX_MESSAGES"])
 MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
@@ -88,7 +88,7 @@ async def on_message(msg):
             curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
             curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or " "
             if curr_msg_content.startswith(discord_client.user.mention):
-                curr_msg_content = curr_msg_content[len(discord_client.user.mention) :].lstrip() or " "
+                curr_msg_content = curr_msg_content.replace(discord_client.user.mention, "", 1).lstrip() or " "
             curr_msg_img_urls = [att.url for att in curr_msg.attachments if "image" in att.content_type]
             if LLM_VISION_SUPPORT:
                 curr_msg_content = [{"type": "text", "text": curr_msg_content}]

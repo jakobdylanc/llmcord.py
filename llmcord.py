@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime as dt
 import logging
-import os
+from os import environ as env
 
 import discord
 from dotenv import load_dotenv
@@ -15,14 +15,14 @@ logging.basicConfig(
 )
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
-LLM_VISION_SUPPORT: bool = "gpt-4-vision-preview" in os.environ["LLM"]
+LLM_VISION_SUPPORT: bool = "gpt-4-vision-preview" in env["LLM"]
 MAX_COMPLETION_TOKENS = 1024
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
-ALLOWED_CHANNEL_IDS = tuple(int(i) for i in os.environ["ALLOWED_CHANNEL_IDS"].split(",") if i)
-ALLOWED_ROLE_IDS = tuple(int(i) for i in os.environ["ALLOWED_ROLE_IDS"].split(",") if i)
-MAX_IMAGES = int(os.environ["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
-MAX_MESSAGES = int(os.environ["MAX_MESSAGES"])
+ALLOWED_CHANNEL_IDS = tuple(int(i) for i in env["ALLOWED_CHANNEL_IDS"].split(",") if i)
+ALLOWED_ROLE_IDS = tuple(int(i) for i in env["ALLOWED_ROLE_IDS"].split(",") if i)
+MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_VISION_SUPPORT else 0
+MAX_MESSAGES = int(env["MAX_MESSAGES"])
 MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
 MAX_MESSAGE_WARNING = f"⚠️ Only using last {MAX_MESSAGES} messages"
 
@@ -31,17 +31,17 @@ EMBED_MAX_LENGTH = 4096
 EDITS_PER_SECOND = 1.3
 
 system_prompt_extras = []
-if any(os.environ["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in os.environ["LLM"]:
+if any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in env["LLM"]:
     system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
 extra_kwargs = {}
-if os.environ["LLM"].startswith("local/"):
-    os.environ["LLM"] = os.environ["LLM"].replace("local/", "", 1)
-    extra_kwargs["base_url"] = os.environ["LOCAL_SERVER_URL"]
-    extra_kwargs["api_key"] = os.environ["LOCAL_API_KEY"] or "Not used"
-    if os.environ["OOBABOOGA_CHARACTER"]:
+if env["LLM"].startswith("local/"):
+    env["LLM"] = env["LLM"].replace("local/", "", 1)
+    extra_kwargs["base_url"] = env["LOCAL_SERVER_URL"]
+    extra_kwargs["api_key"] = env["LOCAL_API_KEY"] or "Not used"
+    if env["OOBABOOGA_CHARACTER"]:
         extra_kwargs["mode"] = "chat"
-        extra_kwargs["character"] = os.environ["OOBABOOGA_CHARACTER"]
+        extra_kwargs["character"] = env["OOBABOOGA_CHARACTER"]
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -62,7 +62,7 @@ def get_system_prompt():
     return [
         {
             "role": "system",
-            "content": "\n".join([os.environ["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras + [f"Today's date: {dt.now().strftime('%B %d %Y')}"]),
+            "content": "\n".join([env["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras + [f"Today's date: {dt.now().strftime('%B %d %Y')}"]),
         }
     ]
 
@@ -142,7 +142,7 @@ async def on_message(msg):
     response_contents = []
     prev_content = None
     edit_task = None
-    kwargs = dict(model=os.environ["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
+    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
     async with msg.channel.typing():
         try:
             async for chunk in await acompletion(**kwargs):
@@ -195,7 +195,7 @@ async def on_message(msg):
 
 
 async def main():
-    await discord_client.start(os.environ["DISCORD_BOT_TOKEN"])
+    await discord_client.start(env["DISCORD_BOT_TOKEN"])
 
 
 if __name__ == "__main__":

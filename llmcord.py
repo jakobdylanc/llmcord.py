@@ -209,8 +209,9 @@ async def on_message(msg):
 
 
 async def main():
+    if env["DISCORD_CLIENT_ID"]:
+        print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
     await discord_client.start(env["DISCORD_BOT_TOKEN"])
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())

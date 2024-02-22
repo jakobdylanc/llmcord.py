@@ -57,7 +57,8 @@ pip install -r requirements.txt
 
 | Setting | Instructions |
 | --- | --- |
-| **DISCORD_BOT_TOKEN** | Create a new Discord application at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
+| **DISCORD_BOT_TOKEN** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
+| **DISCORD_CLIENT_ID** | Found under the **OAuth2** tab of the Discord bot you just made. |
 | **LLM** | For [LiteLLM supported providers](https://github.com/BerriAI/litellm?tab=readme-ov-file#supported-providers-docs) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For [Jan](https://jan.ai), set to **`local/openai/<MODEL_NAME>`** where **<MODEL_NAME>** is the name of the model you have loaded.<br /><br />For [oobabooga](https://github.com/oobabooga/text-generation-webui) and [LM Studio](https://lmstudio.ai), set to **`local/openai/model`** regardless of the model you have loaded. |
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 | **CUSTOM_DISCORD_STATUS** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
@@ -73,12 +74,7 @@ pip install -r requirements.txt
 
 > **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other providers.
 
-3. Invite the bot to your Discord server with this URL (replace **<CLIENT_ID>** with your Discord application's client ID found under the **OAuth2** tab):
-```plaintext
-https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=412317273088&scope=bot
-```
-
-4. Run the bot:
+3. Run the bot:
 ```bash
 python llmcord.py
 ```

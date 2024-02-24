@@ -32,6 +32,9 @@ EMBED_MAX_LENGTH = 4096
 EDITS_PER_SECOND = 1.3
 MAX_MESSAGE_NODES = 100
 
+if env["DISCORD_CLIENT_ID"]:
+    print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
+
 system_prompt_extras = []
 if any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in env["LLM"]:
     system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
@@ -154,35 +157,32 @@ async def on_message(msg):
         try:
             async for chunk in await acompletion(**kwargs):
                 curr_content = chunk.choices[0].delta.content or ""
-                if not prev_content:
-                    prev_content = curr_content
-                    continue
+                if prev_content:
+                    if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
+                        reply_to_msg = msg if not response_msgs else response_msgs[-1]
+                        embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
+                        for warning in sorted(user_warnings):
+                            embed.add_field(name=warning, value="", inline=False)
+                        response_msgs += [
+                            await reply_to_msg.reply(
+                                embed=embed,
+                                silent=True,
+                            )
+                        ]
+                        await msg_locks.setdefault(response_msgs[-1].id, asyncio.Lock()).acquire()
+                        last_task_time = dt.now().timestamp()
+                        response_contents += [""]
 
-                if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
-                    reply_to_msg = msg if not response_msgs else response_msgs[-1]
-                    embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
-                    for warning in sorted(user_warnings):
-                        embed.add_field(name=warning, value="", inline=False)
-                    response_msgs += [
-                        await reply_to_msg.reply(
-                            embed=embed,
-                            silent=True,
-                        )
-                    ]
-                    await msg_locks.setdefault(response_msgs[-1].id, asyncio.Lock()).acquire()
-                    last_task_time = dt.now().timestamp()
-                    response_contents += [""]
-
-                response_contents[-1] += prev_content
-                is_final_edit: bool = chunk.choices[0].finish_reason or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
-                if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDITS_PER_SECOND:
-                    while edit_task and not edit_task.done():
-                        await asyncio.sleep(0)
-                    if response_contents[-1].strip():
-                        embed.description = response_contents[-1]
-                    embed.color = EMBED_COLOR["complete"] if is_final_edit else EMBED_COLOR["incomplete"]
-                    edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
-                    last_task_time = dt.now().timestamp()
+                    response_contents[-1] += prev_content
+                    is_final_edit: bool = chunk.choices[0].finish_reason or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
+                    if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDITS_PER_SECOND:
+                        while edit_task and not edit_task.done():
+                            await asyncio.sleep(0)
+                        if response_contents[-1].strip():
+                            embed.description = response_contents[-1]
+                        embed.color = EMBED_COLOR["complete"] if is_final_edit else EMBED_COLOR["incomplete"]
+                        edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
+                        last_task_time = dt.now().timestamp()
 
                 prev_content = curr_content
         except:
@@ -193,7 +193,7 @@ async def on_message(msg):
         msg_nodes[response_msg.id] = MsgNode(
             {
                 "role": "assistant",
-                "content": "".join(response_contents),
+                "content": "".join(response_contents) or " ",
                 "name": str(discord_client.user.id),
             },
             replied_to_msg=msg,
@@ -209,8 +209,6 @@ async def on_message(msg):
 
 
 async def main():
-    if env["DISCORD_CLIENT_ID"]:
-        print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
     await discord_client.start(env["DISCORD_BOT_TOKEN"])
 
 

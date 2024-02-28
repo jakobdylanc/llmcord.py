@@ -39,7 +39,7 @@
   The bot's responses are dynamically generated and turn green when complete.
 
 ### And more...
-- Easily set a custom personality (aka system prompt)
+- Easily set a custom personality
 - DM the bot for private access (no @ required)
 - User identity aware
 - Fully asynchronous
@@ -82,9 +82,7 @@ python llmcord.py
 ## Notes
 - Vision support is currently limited to **gpt-4-vision-preview** from OpenAI API. Support for local vision models like llava is planned.
 
-- Currently only OpenAI API supports the **name** property in user messages, therefore only OpenAI API models are user identity aware (with the exception of **gpt-4-vision-preview** which also doesn't support it yet). I tried the alternate approach of prepending user's names in the message content but this doesn't seem to work well with all models.
-
-- I'm interested in using [chromadb](https://github.com/chroma-core/chroma) to enable asking the bot about ANYTHING in the current channel without having to reply to it. I spent time prototyping this but couldn't get to something I'm happy with.
+- Only models from OpenAI API are user identity aware (excluding **gpt-4-vision-preview** for now). This is because only OpenAI API supports the **name** property in the user message object. I tried the alternate approach of prepending user's names in the message body but this doesn't seem to work well with all models.
 
 - PRs are welcome :)
 

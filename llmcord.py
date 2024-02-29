@@ -99,17 +99,17 @@ async def on_message(msg):
                 curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or " "
                 if curr_msg_content.startswith(discord_client.user.mention):
                     curr_msg_content = curr_msg_content.replace(discord_client.user.mention, "", 1).lstrip() or " "
-                curr_msg_img_urls = [att.url for att in curr_msg.attachments if "image" in att.content_type]
+                curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
                 if VISION_LLM:
                     curr_msg_content = [{"type": "text", "text": curr_msg_content}]
-                    curr_msg_content += [{"type": "image_url", "image_url": {"url": url, "detail": "low"}} for url in curr_msg_img_urls[:MAX_IMAGES]]
+                    curr_msg_content += [{"type": "image_url", "image_url": {"url": img.url, "detail": "low"}} for img in curr_msg_images[:MAX_IMAGES]]
                 msg_nodes[curr_msg.id] = MsgNode(
                     {
                         "role": curr_msg_role,
                         "content": curr_msg_content,
                         "name": str(curr_msg.author.id),
                     },
-                    too_many_images=len(curr_msg_img_urls) > MAX_IMAGES,
+                    too_many_images=len(curr_msg_images) > MAX_IMAGES,
                 )
 
                 try:
@@ -153,8 +153,8 @@ async def on_message(msg):
     prev_content = None
     edit_task = None
     kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
-    async with msg.channel.typing():
-        try:
+    try:
+        async with msg.channel.typing():
             async for chunk in await acompletion(**kwargs):
                 curr_content = chunk.choices[0].delta.content or ""
                 if prev_content:
@@ -185,8 +185,8 @@ async def on_message(msg):
                         last_task_time = dt.now().timestamp()
 
                 prev_content = curr_content
-        except:
-            logging.exception("Error while streaming response")
+    except:
+        logging.exception("Error while streaming response")
 
     # Create MsgNodes for response messages
     for response_msg in response_msgs:

@@ -24,8 +24,6 @@ ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split("
 ALLOWED_ROLE_IDS = tuple(int(id) for id in env["ALLOWED_ROLE_IDS"].split(",") if id)
 MAX_IMAGES = int(env["MAX_IMAGES"]) if VISION_LLM else 0
 MAX_MESSAGES = int(env["MAX_MESSAGES"])
-MAX_IMAGE_WARNING = f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images"
-MAX_MESSAGE_WARNING = f"⚠️ Only using last {MAX_MESSAGES} messages"
 
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
 EMBED_MAX_LENGTH = 4096
@@ -59,9 +57,10 @@ last_task_time = None
 
 
 class MsgNode:
-    def __init__(self, data, too_many_images=False, replied_to_msg=None):
+    def __init__(self, data, too_many_images=False, fetch_next_failed=False, replied_to_msg=None):
         self.data = data
-        self.too_many_images = too_many_images
+        self.too_many_images: bool = too_many_images
+        self.fetch_next_failed: bool = fetch_next_failed
         self.replied_to_msg = replied_to_msg
 
 
@@ -92,7 +91,7 @@ async def on_message(msg):
     reply_chain = []
     user_warnings = set()
     curr_msg = msg
-    while len(reply_chain) < MAX_MESSAGES:
+    while curr_msg and len(reply_chain) < MAX_MESSAGES:
         async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
             if curr_msg.id not in msg_nodes:
                 curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
@@ -133,17 +132,15 @@ async def on_message(msg):
                             )
                 except (discord.NotFound, discord.HTTPException, AttributeError):
                     logging.exception("Error fetching next message in the chain")
+                    msg_nodes[curr_msg.id].fetch_next_failed = True
 
             curr_node = msg_nodes[curr_msg.id]
             reply_chain += [curr_node.data]
             if curr_node.too_many_images:
-                user_warnings.add(MAX_IMAGE_WARNING)
-            if curr_node.replied_to_msg:
-                if len(reply_chain) == MAX_MESSAGES:
-                    user_warnings.add(MAX_MESSAGE_WARNING)
-                curr_msg = curr_node.replied_to_msg
-            else:
-                break
+                user_warnings.add(f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images")
+            if curr_node.fetch_next_failed or (curr_node.replied_to_msg and len(reply_chain) == MAX_MESSAGES):
+                user_warnings.add(f"⚠️ Only using last{'' if (count := len(reply_chain)) == 1 else f' {count}'} message{'' if count == 1 else 's'}")
+            curr_msg = curr_node.replied_to_msg
 
     logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
 

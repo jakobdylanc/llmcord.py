@@ -57,11 +57,11 @@ last_task_time = None
 
 
 class MsgNode:
-    def __init__(self, data, too_many_images=False, fetch_next_failed=False, replied_to_msg=None):
+    def __init__(self, data, replied_to_msg=None, too_many_images=False, fetch_next_failed=False):
         self.data = data
+        self.replied_to_msg = replied_to_msg
         self.too_many_images: bool = too_many_images
         self.fetch_next_failed: bool = fetch_next_failed
-        self.replied_to_msg = replied_to_msg
 
 
 def get_system_prompt():

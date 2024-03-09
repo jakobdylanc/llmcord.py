@@ -17,7 +17,9 @@ logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LOCAL_LLM: bool = env["LLM"].startswith("local/")
 VISION_LLM: bool = "gpt-4-vision-preview" in env["LLM"]
-MAX_COMPLETION_TOKENS = 1024
+MAX_COMPLETION_TOKENS = int(env.get('MAX_COMPLETION_TOKENS', 1024))
+TEMPERATURE = float(env.get('TEMPERATURE', 1.0))
+TOP_P = float(env.get('TOP_P', 1.0))
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
@@ -57,11 +59,11 @@ last_task_time = None
 
 
 class MsgNode:
-    def __init__(self, data, replied_to_msg=None, too_many_images=False, fetch_next_failed=False):
+    def __init__(self, data, too_many_images=False, fetch_next_failed=False, replied_to_msg=None):
         self.data = data
-        self.replied_to_msg = replied_to_msg
         self.too_many_images: bool = too_many_images
         self.fetch_next_failed: bool = fetch_next_failed
+        self.replied_to_msg = replied_to_msg
 
 
 def get_system_prompt():
@@ -149,7 +151,7 @@ async def on_message(msg):
     response_contents = []
     prev_content = None
     edit_task = None
-    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
+    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), temperature=TEMPERATURE, top_p=TOP_P, max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
     try:
         async with msg.channel.typing():
             async for chunk in await acompletion(**kwargs):

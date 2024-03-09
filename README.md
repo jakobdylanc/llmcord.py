@@ -64,8 +64,11 @@ pip install -r requirements.txt
 | **CUSTOM_DISCORD_STATUS** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
 | **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
+| **MAX_COMPLETION_TOKENS** | Limit for the maximum response length of the bot. **Suggested to not set this higher than the default.**<br />(Default: `1024`) |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
+| **TEMPERATURE** | Controls LLM response, higher = more creative, lower = more deterministic. <br />(Default: `1`) |
+| **TOP_P** | Controls LLM response, higher = more diverse output, lower = more precise. <br />(Default: `1`) |
 | **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when LLM starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
 | **LOCAL_API_KEY** | The API key to use with your local API server. **Only applicable when LLM starts with `local/`. Usually safe to leave blank.** |
 | **OOBABOOGA_CHARACTER** | Your [oobabooga character](https://github.com/oobabooga/text-generation-webui/wiki/03-%E2%80%90-Parameters-Tab#character) that you want to use. **Only applicable when using oobabooga. Leave blank to use CUSTOM_SYSTEM_PROMPT instead.** |

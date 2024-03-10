@@ -73,7 +73,7 @@ pip install -r requirements.txt
 | **LOCAL_API_KEY** | The API key to use with your local API server. **Only applicable when LLM starts with `local/`. Usually safe to leave blank.** |
 | **OOBABOOGA_CHARACTER** | Your [oobabooga character](https://github.com/oobabooga/text-generation-webui/wiki/03-%E2%80%90-Parameters-Tab#character) that you want to use. **Only applicable when using oobabooga. Leave blank to use CUSTOM_SYSTEM_PROMPT instead.** |
 | **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
-| **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/user/api-keys](https://console.mistral.ai/user/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
+| **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
 
 > **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM providers](https://docs.litellm.ai/docs/providers).
 

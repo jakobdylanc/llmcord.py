@@ -31,6 +31,7 @@
   - [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
   - [Jan](https://jan.ai)
   - [LM Studio](https://lmstudio.ai)
+  - Any others that are OpenAI API compatible should work too
 
 - ### Vision support
   The bot can see image attachments when you choose a vision model.

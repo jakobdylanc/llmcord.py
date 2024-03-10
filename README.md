@@ -31,7 +31,7 @@
   - [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
   - [Jan](https://jan.ai)
   - [LM Studio](https://lmstudio.ai)
-  - Any others that are OpenAI API compatible should work too
+  - Any other OpenAI compatible options should work too
 
 - ### Vision support
   The bot can see image attachments when you choose a vision model.
@@ -49,12 +49,11 @@
 ## Instructions
 Before you start, install Python and clone this git repo.
 
-1. Install Python requirements:
-```bash
-pip install -r requirements.txt
-```
+1. Install Python requirements: `pip install -r requirements.txt`
 
-2. Create a copy of *.env.example* named *.env* and set it up:
+2. Create a copy of *.env.example* named *.env* and set it up (see below)
+
+3. Run the bot: `python llmcord.py`
 
 | Setting | Instructions |
 | --- | --- |
@@ -77,11 +76,6 @@ pip install -r requirements.txt
 | **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
 
 > **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM providers](https://docs.litellm.ai/docs/providers).
-
-3. Run the bot:
-```bash
-python llmcord.py
-```
 
 ## Notes
 - Vision support is currently limited to **gpt-4-vision-preview** from OpenAI API. Support for local vision models like llava is planned.

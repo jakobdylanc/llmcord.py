@@ -60,6 +60,9 @@ pip install -r requirements.txt
 | **DISCORD_BOT_TOKEN** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
 | **DISCORD_CLIENT_ID** | Found under the **OAuth2** tab of the Discord bot you just made. |
 | **LLM** | For [LiteLLM supported providers](https://github.com/BerriAI/litellm?tab=readme-ov-file#supported-providers-docs) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For [Jan](https://jan.ai), set to **`local/openai/<MODEL_NAME>`** where **<MODEL_NAME>** is the name of the model you have loaded.<br /><br />For [oobabooga](https://github.com/oobabooga/text-generation-webui) and [LM Studio](https://lmstudio.ai), set to **`local/openai/model`** regardless of the model you have loaded. |
+| **LLM_MAX_TOKENS** | The maximum number of tokens in the LLM's chat completion.<br />(Default: `1024`) |
+| **LLM_TEMPERATURE** | LLM sampling temperature value. Higher values make the LLM's output more random.<br />(Default: `1.0`) |
+| **LLM_TOP_P** | LLM nucleus sampling value. **Alternative to sampling temperature.** Higher values make the LLM's output more diverse.<br />(Default: `1.0`) |
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 | **CUSTOM_DISCORD_STATUS** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
 | **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
@@ -72,7 +75,7 @@ pip install -r requirements.txt
 | **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/user/api-keys](https://console.mistral.ai/user/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
 
-> **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other providers.
+> **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM providers](https://docs.litellm.ai/docs/providers).
 
 3. Run the bot:
 ```bash

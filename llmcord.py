@@ -17,7 +17,6 @@ logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LOCAL_LLM: bool = env["LLM"].startswith("local/")
 VISION_LLM: bool = "gpt-4-vision-preview" in env["LLM"]
-MAX_COMPLETION_TOKENS = 1024
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
@@ -38,6 +37,12 @@ if any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-visio
     system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
 extra_kwargs = {}
+if env["LLM_MAX_TOKENS"]:
+    extra_kwargs["max_tokens"] = int(env["LLM_MAX_TOKENS"])
+if env["LLM_TEMPERATURE"]:
+    extra_kwargs["temperature"] = float(env["LLM_TEMPERATURE"])
+if env["LLM_TOP_P"]:
+    extra_kwargs["top_p"] = float(env["LLM_TOP_P"])
 if LOCAL_LLM:
     env["LLM"] = env["LLM"].replace("local/", "", 1)
     extra_kwargs["base_url"] = env["LOCAL_SERVER_URL"]
@@ -149,7 +154,7 @@ async def on_message(msg):
     response_contents = []
     prev_content = None
     edit_task = None
-    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), max_tokens=MAX_COMPLETION_TOKENS, stream=True) | extra_kwargs
+    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | extra_kwargs
     try:
         async with msg.channel.typing():
             async for chunk in await acompletion(**kwargs):

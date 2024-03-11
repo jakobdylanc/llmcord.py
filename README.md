@@ -15,10 +15,10 @@
 </p>
 
 ## Features
-- ### Collaborative prompting
+- ### Best chat system
   @ the bot and it will reply to your message. Reply to the bot's message to continue from that point. Build conversations with reply chains!
- 
-  You can reply to any of the bot's messages to continue from any point. Or reply to your friend's message and @ the bot to ask a question about it. There are no limits to this functionality.
+
+  You can reply to any of the bot's messages to continue any conversation from any point. Or @ the bot while replying to your friend's message to ask a question about it. There are no limits to this functionality.
 
   Additionally:
   - Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.

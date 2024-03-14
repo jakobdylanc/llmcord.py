@@ -17,6 +17,7 @@ logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LOCAL_LLM: bool = env["LLM"].startswith("local/")
 VISION_LLM: bool = "gpt-4-vision-preview" in env["LLM"]
+LLM_SUPPORTS_MESSAGE_NAME: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in env["LLM"]
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
@@ -33,7 +34,7 @@ if env["DISCORD_CLIENT_ID"]:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
 
 system_prompt_extras = []
-if any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in env["LLM"]:
+if LLM_SUPPORTS_MESSAGE_NAME:
     system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
 extra_kwargs = {}
@@ -107,14 +108,14 @@ async def on_message(msg):
                 if VISION_LLM:
                     curr_msg_content = [{"type": "text", "text": curr_msg_content}]
                     curr_msg_content += [{"type": "image_url", "image_url": {"url": img.url, "detail": "low"}} for img in curr_msg_images[:MAX_IMAGES]]
-                msg_nodes[curr_msg.id] = MsgNode(
-                    {
-                        "role": curr_msg_role,
-                        "content": curr_msg_content,
-                        "name": str(curr_msg.author.id),
-                    },
-                    too_many_images=len(curr_msg_images) > MAX_IMAGES,
-                )
+
+                msg_node_data = {
+                    "role": curr_msg_role,
+                    "content": curr_msg_content,
+                }
+                if LLM_SUPPORTS_MESSAGE_NAME:
+                    msg_node_data["name"] = str(curr_msg.author.id)
+                msg_nodes[curr_msg.id] = MsgNode(data=msg_node_data, too_many_images=len(curr_msg_images) > MAX_IMAGES)
 
                 try:
                     if (
@@ -193,14 +194,13 @@ async def on_message(msg):
 
     # Create MsgNodes for response messages
     for response_msg in response_msgs:
-        msg_nodes[response_msg.id] = MsgNode(
-            {
-                "role": "assistant",
-                "content": "".join(response_contents) or " ",
-                "name": str(discord_client.user.id),
-            },
-            replied_to_msg=msg,
-        )
+        msg_node_data = {
+            "role": "assistant",
+            "content": "".join(response_contents) or " ",
+        }
+        if LLM_SUPPORTS_MESSAGE_NAME:
+            msg_node_data["name"] = str(discord_client.user.id)
+        msg_nodes[response_msg.id] = MsgNode(data=msg_node_data, replied_to_msg=msg)
         msg_locks[response_msg.id].release()
 
     # Delete MsgNodes for oldest messages (lowest IDs)

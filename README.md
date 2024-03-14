@@ -15,7 +15,7 @@
 </p>
 
 ## Features
-- ### Best chat system
+- ### Simple, powerful chat system
   @ the bot and it will reply to your message. Reply to the bot's message to continue from that point. Build conversations with reply chains!
 
   You can reply to any of the bot's messages to continue any conversation from any point. Or @ the bot while replying to your friend's message to ask a question about it. There are no limits to this functionality.
@@ -25,13 +25,14 @@
   - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
 
 - ### Choose your LLM
-  Supports models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://mistral.ai/news/la-plateforme), [ollama](https://github.com/ollama/ollama) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
+  Supports models from [OpenAI](https://platform.openai.com/docs/models), [Mistral](https://docs.mistral.ai/platform/endpoints), [Anthropic](https://docs.anthropic.com/claude/docs/models-overview) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
-  Also supports:
+  Or run a local model with:
+  - [ollama](https://github.com/ollama/ollama)
   - [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
   - [Jan](https://jan.ai)
   - [LM Studio](https://lmstudio.ai)
-  - Any other OpenAI compatible options should work too
+  - Any others that are OpenAI compatible should work too
 
 - ### Vision support
   The bot can see image attachments when you choose a vision model.

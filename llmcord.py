@@ -101,9 +101,9 @@ async def on_message(msg):
         async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
             if curr_msg.id not in msg_nodes:
                 curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
-                curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or " "
+                curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or "."
                 if curr_msg_content.startswith(discord_client.user.mention):
-                    curr_msg_content = curr_msg_content.replace(discord_client.user.mention, "", 1).lstrip() or " "
+                    curr_msg_content = curr_msg_content.replace(discord_client.user.mention, "", 1).lstrip() or "."
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
                 if VISION_LLM:
                     curr_msg_content = [{"type": "text", "text": curr_msg_content}]
@@ -196,7 +196,7 @@ async def on_message(msg):
     for response_msg in response_msgs:
         msg_node_data = {
             "role": "assistant",
-            "content": "".join(response_contents) or " ",
+            "content": "".join(response_contents) or ".",
         }
         if LLM_SUPPORTS_MESSAGE_NAME:
             msg_node_data["name"] = str(discord_client.user.id)

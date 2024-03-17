@@ -1,7 +1,9 @@
 import asyncio
+import base64
 from datetime import datetime as dt
 import logging
 from os import environ as env
+import requests
 
 import discord
 from dotenv import load_dotenv
@@ -16,7 +18,7 @@ logging.basicConfig(
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LOCAL_LLM: bool = env["LLM"].startswith("local/")
-VISION_LLM: bool = "gpt-4-vision-preview" in env["LLM"]
+VISION_LLM: bool = any(x in env["LLM"] for x in ("claude-3", "llava", "vision"))
 LLM_SUPPORTS_MESSAGE_NAME: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in env["LLM"]
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
@@ -101,13 +103,25 @@ async def on_message(msg):
         async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
             if curr_msg.id not in msg_nodes:
                 curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
-                curr_msg_content = (curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content) or "."
-                if curr_msg_content.startswith(discord_client.user.mention):
-                    curr_msg_content = curr_msg_content.replace(discord_client.user.mention, "", 1).lstrip() or "."
+                curr_msg_text = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
+                if curr_msg_text.startswith(discord_client.user.mention):
+                    curr_msg_text = curr_msg_text.replace(discord_client.user.mention, "", 1).lstrip()
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
+
                 if VISION_LLM:
-                    curr_msg_content = [{"type": "text", "text": curr_msg_content}]
-                    curr_msg_content += [{"type": "image_url", "image_url": {"url": img.url, "detail": "low"}} for img in curr_msg_images[:MAX_IMAGES]]
+                    curr_msg_content = [{"type": "text", "text": curr_msg_text}] if curr_msg_text else []
+                    try:
+                        curr_msg_content += [
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"},
+                            }
+                            for att in curr_msg_images[:MAX_IMAGES]
+                        ]
+                    except requests.exceptions.RequestException:
+                        logging.exception("Error downloading image from URL")
+                else:
+                    curr_msg_content = curr_msg_text or "."
 
                 msg_node_data = {
                     "role": curr_msg_role,
@@ -149,7 +163,7 @@ async def on_message(msg):
                 user_warnings.add(f"⚠️ Only using last{'' if (count := len(reply_chain)) == 1 else f' {count}'} message{'' if count == 1 else 's'}")
             curr_msg = curr_node.replied_to_msg
 
-    logging.info(f"Message received: {reply_chain[0]}, reply chain length: {len(reply_chain)}")
+    logging.info(f'Message received: "{curr_msg_text}", image count: {len(curr_msg_images[:MAX_IMAGES])}, reply chain length: {len(reply_chain)}')
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []

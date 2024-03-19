@@ -28,7 +28,7 @@
   Supports models from [OpenAI](https://platform.openai.com/docs/models), [Mistral](https://docs.mistral.ai/platform/endpoints), [Anthropic](https://docs.anthropic.com/claude/docs/models-overview) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
   Or run a local model with:
-  - [ollama](https://github.com/ollama/ollama)
+  - [ollama](https://ollama.com)
   - [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
   - [Jan](https://jan.ai)
   - [LM Studio](https://lmstudio.ai)
@@ -62,7 +62,7 @@ Before you start, install Python and clone this git repo.
 | **DISCORD_CLIENT_ID** | Found under the **OAuth2** tab of the Discord bot you just made. |
 | **LLM** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local models ([oobabooga](https://github.com/oobabooga/text-generation-webui), [LM Studio](https://lmstudio.ai), etc.), set to **`local/openai/model`**. If using a vision model, set to **`local/openai/vision-model`**.<br /><br />If using [Jan](https://jan.ai), set to **`local/openai/<MODEL_NAME>`** where **<MODEL_NAME>** is the exact name of the model you have loaded. |
 | **LLM_MAX_TOKENS** | The maximum number of tokens in the LLM's chat completion.<br />(Default: `1024`) |
-| **LLM_TEMPERATURE** | LLM sampling temperature value. Higher values make the LLM's output more random.<br />(Default: `1.0`) |
+| **LLM_TEMPERATURE** | LLM sampling temperature. Higher values make the LLM's output more random.<br />(Default: `1.0`) |
 | **LLM_TOP_P** | LLM nucleus sampling value. **Alternative to sampling temperature.** Higher values make the LLM's output more diverse.<br />(Default: `1.0`) |
 | **CUSTOM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 | **CUSTOM_DISCORD_STATUS** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |

@@ -3,49 +3,28 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-</p>
-
-<h3 align="center"><i>
-  Talk to LLMs with your friends!
-</i></h3>
-
-<p align="center">
   <img src="https://github.com/jakobdylanc/discord-llm-chatbot/assets/38699060/a9636e09-c89e-42e9-8690-65d52f8236ea" alt="">
 </p>
 
-## Features
-- ### Simple, powerful chat system
-  @ the bot and it will reply to your message. Reply to the bot's message to continue from that point. Build conversations with reply chains!
+llmcord.py is ~200 lines of Python code that enables collaborative multi-turn LLM prompting in your Discord server. It uses message reply chains to build conversations. Just @ the bot to start a conversation and reply to continue.
 
-  You can reply to any of the bot's messages to continue any conversation from any point. Or @ the bot while replying to your friend's message to ask a question about it. There are no limits to this functionality.
+You can reply to ANY of the bot's messages to continue ANY conversation from ANY point. Or @ the bot while replying to your friend's message to ask a question about it. There are no limits to this functionality.
 
-  Additionally:
-  - Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
-  - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
+Additionally:
+- Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
+- You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
 
-- ### Choose your LLM
-  Supports models from [OpenAI](https://platform.openai.com/docs/models), [Mistral](https://docs.mistral.ai/platform/endpoints), [Anthropic](https://docs.anthropic.com/claude/docs/models-overview) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
+Supports remote models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), [Anthropic API](https://docs.anthropic.com/claude/docs/models-overview) and more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
-  Or run a local model with:
-  - [ollama](https://ollama.com)
-  - [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
-  - [Jan](https://jan.ai)
-  - [LM Studio](https://lmstudio.ai)
-  - Any others that are OpenAI compatible should work too
+Or run a local model with [ollama](https://ollama.com), [oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai) or any other OpenAI compatible API server.
 
-- ### Vision support
-  The bot can see image attachments when you choose a vision model.
-
-- ### Streamed responses
-  The bot's responses are dynamically generated and turn green when complete.
-
-### And more...
-- Easily set a custom personality
-- DM the bot for private access (no @ required)
-- User identity aware
+Other features include:
+- Vision model support
+- Customizable system prompt
+- DM for private access (no @ required)
+- User identity aware (OpenAI API only)
+- Streamed responses
 - Fully asynchronous
-- 1 Python file, ~200 lines of code
 
 ## Instructions
 Before you start, install Python and clone this git repo.
@@ -79,7 +58,7 @@ Before you start, install Python and clone this git repo.
 > **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM providers](https://docs.litellm.ai/docs/providers).
 
 ## Notes
-- Only models from OpenAI API are user identity aware (excluding **gpt-4-vision-preview** curently) because only OpenAI API supports the message **name** property. Hopefully others support it in the future.
+- Only models from OpenAI API are user identity aware (excluding **gpt-4-vision-preview** curently) because only OpenAI API supports the message **name** property. Hopefully others support this in the future.
 
 - PRs are welcome :)
 

@@ -163,7 +163,7 @@ async def on_message(msg):
                 user_warnings.add(f"⚠️ Only using last{'' if (count := len(reply_chain)) == 1 else f' {count}'} message{'' if count == 1 else 's'}")
             curr_msg = curr_node.replied_to_msg
 
-    logging.info(f'Message received: "{curr_msg_text}", image count: {len(curr_msg_images[:MAX_IMAGES])}, reply chain length: {len(reply_chain)}')
+    logging.info(f"Message received (user ID: {msg.author.id}, attachments: {len(msg.attachments)}, reply chain length: {len(reply_chain)}):\n{msg.content}")
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []

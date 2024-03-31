@@ -1,3 +1,3 @@
 discord.py>=2.3.2
-litellm>=1.33.7
+litellm
 python-dotenv

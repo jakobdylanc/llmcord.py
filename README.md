@@ -2,6 +2,10 @@
   llmcord.py
 </h1>
 
+<h3 align="center"><i>
+  Talk to LLMs with your friends!
+</i></h3>
+
 <p align="center">
   <img src="https://github.com/jakobdylanc/discord-llm-chatbot/assets/38699060/a9636e09-c89e-42e9-8690-65d52f8236ea" alt="">
 </p>
@@ -14,16 +18,18 @@ Additionally:
 - Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
 - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
 
-Supports remote models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), [Anthropic API](https://docs.anthropic.com/claude/docs/models-overview) and more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
+Supports remote models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), [Anthropic API](https://docs.anthropic.com/claude/docs/models-overview) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
 Or run a local model with [ollama](https://ollama.com), [oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai) or any other OpenAI compatible API server.
 
-Other features include:
-- Vision model support
+And more:
+- Supports image attachments when using a vision model
 - Customizable system prompt
 - DM for private access (no @ required)
 - User identity aware (OpenAI API only)
-- Streamed responses
+- Streamed responses (turns green when complete, automatically splits into separate messages when too long, throttled to prevent Discord ratelimiting)
+- Automatically displays helpful user warnings when appropriate (like "Only using last 20 messages", "Max 5 images per message", etc.)
+- Caches message data in a size-managed (no memory leaks) and per-message mutex-protected (no race conditions) global dictionary to maximize efficiency and minimize Discord API calls
 - Fully asynchronous
 
 ## Instructions
@@ -49,8 +55,8 @@ Before you start, install Python and clone this git repo.
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
-| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when LLM starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
-| **LOCAL_API_KEY** | The API key to use with your local API server. **Only applicable when LLM starts with `local/`. Usually safe to leave blank.** |
+| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when using a local model.**<br />(Default: `http://localhost:5000/v1`) |
+| **LOCAL_API_KEY** | The API key to use with your local API server. **Only applicable when using a local model. Usually safe to leave blank.** |
 | **OOBABOOGA_CHARACTER** | Your [oobabooga character](https://github.com/oobabooga/text-generation-webui/wiki/03-%E2%80%90-Parameters-Tab#character) that you want to use. **Only applicable when using oobabooga. Leave blank to use CUSTOM_SYSTEM_PROMPT instead.** |
 | **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|

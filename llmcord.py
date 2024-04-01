@@ -108,7 +108,7 @@ async def on_message(msg):
                     curr_msg_text = curr_msg_text.replace(discord_client.user.mention, "", 1).lstrip()
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
 
-                if VISION_LLM:
+                if VISION_LLM and curr_msg_images[:MAX_IMAGES]:
                     curr_msg_content = [{"type": "text", "text": curr_msg_text}] if curr_msg_text else []
                     try:
                         curr_msg_content += [

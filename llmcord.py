@@ -29,7 +29,7 @@ MAX_MESSAGES = int(env["MAX_MESSAGES"])
 
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
 EMBED_MAX_LENGTH = 4096
-EDITS_PER_SECOND = 1.3
+EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
 
 if env["DISCORD_CLIENT_ID"]:
@@ -193,7 +193,7 @@ async def on_message(msg):
 
                     response_contents[-1] += prev_content
                     is_final_edit: bool = chunk.choices[0].finish_reason or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
-                    if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDITS_PER_SECOND:
+                    if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS:
                         while edit_task and not edit_task.done():
                             await asyncio.sleep(0)
                         if response_contents[-1].strip():

@@ -7,7 +7,7 @@
 </i></h3>
 
 <p align="center">
-  <img src="https://github.com/jakobdylanc/discord-llm-chatbot/assets/38699060/a9636e09-c89e-42e9-8690-65d52f8236ea" alt="">
+  <img src="https://github.com/jakobdylanc/discord-llm-chatbot/assets/38699060/789d49fe-ef5c-470e-b60e-48ac03057443" alt="">
 </p>
 
 llmcord.py is ~200 lines of Python code that enables collaborative multi-turn LLM prompting in your Discord server. It uses message reply chains to build conversations. Just @ the bot to start a conversation and reply to continue.

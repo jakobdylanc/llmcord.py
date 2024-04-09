@@ -168,14 +168,15 @@ async def on_message(msg):
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []
     response_contents = []
-    prev_content = None
+    prev_chunk = None
     edit_task = None
     kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | extra_kwargs
     try:
         async with msg.channel.typing():
-            async for chunk in await acompletion(**kwargs):
-                curr_content = chunk.choices[0].delta.content or ""
-                if prev_content:
+            async for curr_chunk in await acompletion(**kwargs):
+                if prev_chunk:
+                    curr_content = curr_chunk.choices[0].delta.content or ""
+                    prev_content = prev_chunk.choices[0].delta.content or ""
                     if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
                         reply_to_msg = msg if not response_msgs else response_msgs[-1]
                         embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
@@ -192,7 +193,7 @@ async def on_message(msg):
                         response_contents += [""]
 
                     response_contents[-1] += prev_content
-                    is_final_edit: bool = chunk.choices[0].finish_reason or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
+                    is_final_edit: bool = curr_chunk.choices[0].finish_reason != None or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
                     if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS:
                         while edit_task and not edit_task.done():
                             await asyncio.sleep(0)
@@ -202,7 +203,7 @@ async def on_message(msg):
                         edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
                         last_task_time = dt.now().timestamp()
 
-                prev_content = curr_content
+                prev_chunk = curr_chunk
     except:
         logging.exception("Error while streaming response")
 

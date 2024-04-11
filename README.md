@@ -64,7 +64,7 @@ Before you start, install Python and clone this git repo.
 > **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM providers](https://docs.litellm.ai/docs/providers).
 
 ## Notes
-- Only models from OpenAI API are user identity aware (excluding **gpt-4-vision-preview** curently) because only OpenAI API supports the message **name** property. Hopefully others support this in the future.
+- Only models from OpenAI API are user identity aware because only OpenAI supports the message "name" property. Hopefully others support this in the future.
 
 - PRs are welcome :)
 

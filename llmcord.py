@@ -19,7 +19,7 @@ logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LOCAL_LLM: bool = env["LLM"].startswith("local/")
 VISION_LLM: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "llava", "vision"))
-LLM_SUPPORTS_MESSAGE_NAME: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt")) and "gpt-4-vision-preview" not in env["LLM"]
+LLM_SUPPORTS_MESSAGE_NAME: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)

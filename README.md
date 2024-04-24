@@ -10,27 +10,36 @@
   <img src="https://github.com/jakobdylanc/discord-llm-chatbot/assets/38699060/789d49fe-ef5c-470e-b60e-48ac03057443" alt="">
 </p>
 
-llmcord.py is ~200 lines of Python code that enables collaborative multi-turn LLM prompting in your Discord server. It uses message reply chains to build conversations. Just @ the bot to start a conversation and reply to continue.
+llmcord.py enables collaborative LLM prompting in your Discord server. It works with practically any LLM, remote or locally hosted.
 
-You can reply to ANY of the bot's messages to continue ANY conversation from ANY point. Or @ the bot while replying to your friend's message to ask a question about it. There are no limits to this functionality.
+## Features
+### Reply-based chat system
+Just @ the bot to start a conversation and reply to continue. Build conversations with reply chains!
+
+You can do things like:
+- Build conversations together with your friends
+- "Rewind" a conversation simply by replying to an older message
+- @ the bot while replying to any message in your server to ask a question about it
 
 Additionally:
 - Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
 - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
 
+### Choose any LLM
 Supports remote models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), [Anthropic API](https://docs.anthropic.com/claude/docs/models-overview) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
 Or run a local model with [ollama](https://ollama.com), [oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai) or any other OpenAI compatible API server.
 
-And more:
+### And more:
 - Supports image attachments when using a vision model
 - Customizable system prompt
 - DM for private access (no @ required)
 - User identity aware (OpenAI API only)
 - Streamed responses (turns green when complete, automatically splits into separate messages when too long, throttled to prevent Discord ratelimiting)
-- Automatically displays helpful user warnings when appropriate (like "Only using last 20 messages", "Max 5 images per message", etc.)
+- Displays helpful user warnings when appropriate (like "Only using last 20 messages", "Max 5 images per message", etc.)
 - Caches message data in a size-managed (no memory leaks) and per-message mutex-protected (no race conditions) global dictionary to maximize efficiency and minimize Discord API calls
 - Fully asynchronous
+- 1 Python file, ~200 lines of code
 
 ## Instructions
 Before you start, install Python and clone this git repo.
@@ -61,7 +70,7 @@ Before you start, install Python and clone this git repo.
 | **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
 
-> **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM providers](https://docs.litellm.ai/docs/providers).
+> **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM supported providers](https://docs.litellm.ai/docs/providers).
 
 ## Notes
 - Only models from OpenAI API are user identity aware because only OpenAI supports the message "name" property. Hopefully others support this in the future.

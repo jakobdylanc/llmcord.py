@@ -31,7 +31,7 @@ Supports remote models from [OpenAI API](https://platform.openai.com/docs/models
 Or run a local model with [ollama](https://ollama.com), [oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai) or any other OpenAI compatible API server.
 
 ### And more:
-- Supports image attachments when using a vision model
+- Supports image attachments when using a vision model (like gpt-4-turbo, claude-3, llava, etc.)
 - Customizable system prompt
 - DM for private access (no @ required)
 - User identity aware (OpenAI API only)

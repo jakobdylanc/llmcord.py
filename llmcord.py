@@ -17,14 +17,14 @@ logging.basicConfig(
 )
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
-LOCAL_LLM: bool = env["LLM"].startswith("local/")
-VISION_LLM: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "llava", "vision"))
+LLM_IS_LOCAL: bool = env["LLM"].startswith("local/")
+LLM_IS_VISION: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "llava", "vision"))
 LLM_SUPPORTS_MESSAGE_NAME: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
 ALLOWED_ROLE_IDS = tuple(int(id) for id in env["ALLOWED_ROLE_IDS"].split(",") if id)
-MAX_IMAGES = int(env["MAX_IMAGES"]) if VISION_LLM else 0
+MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_IS_VISION else 0
 MAX_MESSAGES = int(env["MAX_MESSAGES"])
 
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
@@ -46,7 +46,7 @@ if env["LLM_TEMPERATURE"]:
     extra_kwargs["temperature"] = float(env["LLM_TEMPERATURE"])
 if env["LLM_TOP_P"]:
     extra_kwargs["top_p"] = float(env["LLM_TOP_P"])
-if LOCAL_LLM:
+if LLM_IS_LOCAL:
     env["LLM"] = env["LLM"].replace("local/", "", 1)
     extra_kwargs["base_url"] = env["LOCAL_SERVER_URL"]
     extra_kwargs["api_key"] = env["LOCAL_API_KEY"] or "Not used"
@@ -82,23 +82,23 @@ def get_system_prompt():
 
 
 @discord_client.event
-async def on_message(msg):
+async def on_message(new_msg):
     global msg_nodes, msg_locks, last_task_time
 
     # Filter out unwanted messages
     if (
-        msg.channel.type not in ALLOWED_CHANNEL_TYPES
-        or (msg.channel.type != discord.ChannelType.private and discord_client.user not in msg.mentions)
-        or (ALLOWED_CHANNEL_IDS and not any(id in ALLOWED_CHANNEL_IDS for id in (msg.channel.id, getattr(msg.channel, "parent_id", None))))
-        or (ALLOWED_ROLE_IDS and (msg.channel.type == discord.ChannelType.private or not any(role.id in ALLOWED_ROLE_IDS for role in msg.author.roles)))
-        or msg.author.bot
+        new_msg.channel.type not in ALLOWED_CHANNEL_TYPES
+        or (new_msg.channel.type != discord.ChannelType.private and discord_client.user not in new_msg.mentions)
+        or (ALLOWED_CHANNEL_IDS and not any(id in ALLOWED_CHANNEL_IDS for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
+        or (ALLOWED_ROLE_IDS and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in ALLOWED_ROLE_IDS for role in new_msg.author.roles)))
+        or new_msg.author.bot
     ):
         return
 
     # Build message reply chain and set user warnings
     reply_chain = []
     user_warnings = set()
-    curr_msg = msg
+    curr_msg = new_msg
     while curr_msg and len(reply_chain) < MAX_MESSAGES:
         async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
             if curr_msg.id not in msg_nodes:
@@ -108,7 +108,7 @@ async def on_message(msg):
                     curr_msg_text = curr_msg_text.replace(discord_client.user.mention, "", 1).lstrip()
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
 
-                if VISION_LLM and curr_msg_images[:MAX_IMAGES]:
+                if LLM_IS_VISION and curr_msg_images[:MAX_IMAGES]:
                     curr_msg_content = [{"type": "text", "text": curr_msg_text}] if curr_msg_text else []
                     try:
                         curr_msg_content += [
@@ -163,7 +163,7 @@ async def on_message(msg):
                 user_warnings.add(f"⚠️ Only using last{'' if (count := len(reply_chain)) == 1 else f' {count}'} message{'' if count == 1 else 's'}")
             curr_msg = curr_node.replied_to_msg
 
-    logging.info(f"Message received (user ID: {msg.author.id}, attachments: {len(msg.attachments)}, reply chain length: {len(reply_chain)}):\n{msg.content}")
+    logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, reply chain length: {len(reply_chain)}):\n{new_msg.content}")
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []
@@ -172,13 +172,13 @@ async def on_message(msg):
     edit_task = None
     kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | extra_kwargs
     try:
-        async with msg.channel.typing():
+        async with new_msg.channel.typing():
             async for curr_chunk in await acompletion(**kwargs):
                 if prev_chunk:
-                    curr_content = curr_chunk.choices[0].delta.content or ""
                     prev_content = prev_chunk.choices[0].delta.content or ""
+                    curr_content = curr_chunk.choices[0].delta.content or ""
                     if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
-                        reply_to_msg = msg if not response_msgs else response_msgs[-1]
+                        reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
                         embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
                         for warning in sorted(user_warnings):
                             embed.add_field(name=warning, value="", inline=False)
@@ -208,15 +208,15 @@ async def on_message(msg):
         logging.exception("Error while streaming response")
 
     # Create MsgNodes for response messages
-    for response_msg in response_msgs:
+    for msg in response_msgs:
         msg_node_data = {
             "role": "assistant",
             "content": "".join(response_contents) or ".",
         }
         if LLM_SUPPORTS_MESSAGE_NAME:
             msg_node_data["name"] = str(discord_client.user.id)
-        msg_nodes[response_msg.id] = MsgNode(data=msg_node_data, replied_to_msg=msg)
-        msg_locks[response_msg.id].release()
+        msg_nodes[msg.id] = MsgNode(data=msg_node_data, replied_to_msg=new_msg)
+        msg_locks[msg.id].release()
 
     # Delete MsgNodes for oldest messages (lowest IDs)
     if (num_nodes := len(msg_nodes)) > MAX_MESSAGE_NODES:

@@ -18,13 +18,13 @@ logging.basicConfig(
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LLM_IS_LOCAL: bool = env["LLM"].startswith("local/")
-LLM_IS_VISION: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "llava", "vision"))
-LLM_SUPPORTS_MESSAGE_NAME: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
+LLM_SUPPORTS_IMAGES: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "llava", "vision"))
+LLM_SUPPORTS_NAMES: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
 
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
 ALLOWED_ROLE_IDS = tuple(int(id) for id in env["ALLOWED_ROLE_IDS"].split(",") if id)
-MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_IS_VISION else 0
+MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_SUPPORTS_IMAGES else 0
 MAX_MESSAGES = int(env["MAX_MESSAGES"])
 
 EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
@@ -36,7 +36,7 @@ if env["DISCORD_CLIENT_ID"]:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
 
 system_prompt_extras = []
-if LLM_SUPPORTS_MESSAGE_NAME:
+if LLM_SUPPORTS_NAMES:
     system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
 extra_kwargs = {}
@@ -108,7 +108,7 @@ async def on_message(new_msg):
                     curr_msg_text = curr_msg_text.replace(discord_client.user.mention, "", 1).lstrip()
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
 
-                if LLM_IS_VISION and curr_msg_images[:MAX_IMAGES]:
+                if LLM_SUPPORTS_IMAGES and curr_msg_images[:MAX_IMAGES]:
                     curr_msg_content = [{"type": "text", "text": curr_msg_text}] if curr_msg_text else []
                     try:
                         curr_msg_content += [
@@ -127,7 +127,7 @@ async def on_message(new_msg):
                     "role": curr_msg_role,
                     "content": curr_msg_content,
                 }
-                if LLM_SUPPORTS_MESSAGE_NAME:
+                if LLM_SUPPORTS_NAMES:
                     msg_node_data["name"] = str(curr_msg.author.id)
                 msg_nodes[curr_msg.id] = MsgNode(data=msg_node_data, too_many_images=len(curr_msg_images) > MAX_IMAGES)
 
@@ -213,7 +213,7 @@ async def on_message(new_msg):
             "role": "assistant",
             "content": "".join(response_contents) or ".",
         }
-        if LLM_SUPPORTS_MESSAGE_NAME:
+        if LLM_SUPPORTS_NAMES:
             msg_node_data["name"] = str(discord_client.user.id)
         msg_nodes[msg.id] = MsgNode(data=msg_node_data, replied_to_msg=new_msg)
         msg_locks[msg.id].release()

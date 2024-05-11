@@ -36,7 +36,7 @@ Or run a local model with [ollama](https://ollama.com), [oobabooga](https://gith
 - DM for private access (no @ required)
 - User identity aware (OpenAI API only)
 - Streamed responses (turns green when complete, automatically splits into separate messages when too long, throttled to prevent Discord ratelimiting)
-- Displays helpful user warnings when appropriate (like "Only using last 20 messages", "Max 5 images per message", etc.)
+- Displays helpful user warnings when appropriate (like "Only using last 20 messages" when the customizable message limit is exceeded)
 - Caches message data in a size-managed (no memory leaks) and per-message mutex-protected (no race conditions) global dictionary to maximize efficiency and minimize Discord API calls
 - Fully asynchronous
 - 1 Python file, ~200 lines of code
@@ -46,9 +46,9 @@ Before you start, install Python and clone this git repo.
 
 1. Install Python requirements: `pip install -r requirements.txt`
 
-2. Create a copy of *.env.example* named *.env* and set it up (see below)
+2. Create a copy of ".env.example" named ".env" and set it up (see below)
 
-3. Run the bot: `python llmcord.py`
+3. Run the bot: `python llmcord.py` (the invite URL will print to the console)
 
 | Setting | Instructions |
 | --- | --- |
@@ -67,8 +67,8 @@ Before you start, install Python and clone this git repo.
 | **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when using a local model.**<br />(Default: `http://localhost:5000/v1`) |
 | **LOCAL_API_KEY** | The API key to use with your local API server. **Only applicable when using a local model. Usually safe to leave blank.** |
 | **OOBABOOGA_CHARACTER** | Your [oobabooga character](https://github.com/oobabooga/text-generation-webui/wiki/03-%E2%80%90-Parameters-Tab#character) that you want to use. **Only applicable when using oobabooga. Leave blank to use CUSTOM_SYSTEM_PROMPT instead.** |
-| **OPENAI_API_KEY** | **Only required if you choose an OpenAI API model.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
-| **MISTRAL_API_KEY** | **Only required if you choose a Mistral API model.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
+| **OPENAI_API_KEY** | **Only required if you choose a model from OpenAI API.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
+| **MISTRAL_API_KEY** | **Only required if you choose a model from Mistral API.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
 
 > **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM supported providers](https://docs.litellm.ai/docs/providers).
 

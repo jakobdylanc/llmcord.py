@@ -12,8 +12,7 @@ from litellm import acompletion
 load_dotenv()
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s.%(msecs)03d %(levelname)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
+    format="%(asctime)s %(levelname)s: %(message)s",
 )
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
@@ -34,10 +33,6 @@ MAX_MESSAGE_NODES = 100
 
 if env["DISCORD_CLIENT_ID"]:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
-
-system_prompt_extras = []
-if LLM_SUPPORTS_NAMES:
-    system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
 extra_kwargs = {}
 if env["LLM_MAX_TOKENS"]:
@@ -73,10 +68,14 @@ class MsgNode:
 
 
 def get_system_prompt():
+    system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}"]
+    if LLM_SUPPORTS_NAMES:
+        system_prompt_extras += ["User's names are their Discord IDs and should be typed as '<@ID>'."]
+
     return [
         {
             "role": "system",
-            "content": "\n".join([env["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras + [f"Today's date: {dt.now().strftime('%B %d %Y')}"]),
+            "content": "\n".join([env["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras),
         }
     ]
 

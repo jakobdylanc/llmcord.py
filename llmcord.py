@@ -16,7 +16,9 @@ logging.basicConfig(
 )
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
-LLM_IS_LOCAL: bool = env["LLM"].startswith("local/")
+convert = lambda string: int(string) if string.isdecimal() else (float(string) if string.replace(".", "", 1).isdecimal() else string)
+LLM_SETTINGS = {k.strip(): convert(v.strip()) for k, v in (x.split("=") for x in env["LLM_SETTINGS"].split(",") if x.strip()) if not "#" in k}
+
 LLM_SUPPORTS_IMAGES: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
 LLM_SUPPORTS_NAMES: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
 
@@ -33,21 +35,6 @@ MAX_MESSAGE_NODES = 100
 
 if env["DISCORD_CLIENT_ID"]:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
-
-extra_kwargs = {}
-if env["LLM_MAX_TOKENS"]:
-    extra_kwargs["max_tokens"] = int(env["LLM_MAX_TOKENS"])
-if env["LLM_TEMPERATURE"]:
-    extra_kwargs["temperature"] = float(env["LLM_TEMPERATURE"])
-if env["LLM_TOP_P"]:
-    extra_kwargs["top_p"] = float(env["LLM_TOP_P"])
-if LLM_IS_LOCAL:
-    env["LLM"] = env["LLM"].replace("local/", "", 1)
-    extra_kwargs["base_url"] = env["LOCAL_SERVER_URL"]
-    extra_kwargs["api_key"] = env["LOCAL_API_KEY"] or "Not used"
-    if env["OOBABOOGA_CHARACTER"]:
-        extra_kwargs["mode"] = "chat"
-        extra_kwargs["character"] = env["OOBABOOGA_CHARACTER"]
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -169,7 +156,7 @@ async def on_message(new_msg):
     response_contents = []
     prev_chunk = None
     edit_task = None
-    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | extra_kwargs
+    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | LLM_SETTINGS
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await acompletion(**kwargs):

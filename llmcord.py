@@ -75,7 +75,7 @@ def get_system_prompt():
     return [
         {
             "role": "system",
-            "content": "\n".join([env["CUSTOM_SYSTEM_PROMPT"]] + system_prompt_extras),
+            "content": "\n".join([env["LLM_SYSTEM_PROMPT"]] + system_prompt_extras),
         }
     ]
 

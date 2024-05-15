@@ -54,12 +54,12 @@ Before you start, install Python and clone this git repo.
 | --- | --- |
 | **DISCORD_BOT_TOKEN** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
 | **DISCORD_CLIENT_ID** | Found under the **OAuth2** tab of the Discord bot you just made. |
+| **DISCORD_STATUS_MESSAGE** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
 | **LLM** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local models (running on an OpenAI compatible API server), set to **`local/openai/model`**. If using a vision model, set to **`local/openai/vision-model`**. Some setups will instead require **`local/openai/<MODEL_NAME>`** where **<MODEL_NAME>** is the exact name of the model you're using. |
 | **LLM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
 | **LLM_MAX_TOKENS** | The maximum number of tokens in the LLM's chat completion.<br />(Default: `1024`) |
 | **LLM_TEMPERATURE** | LLM sampling temperature. Higher values make the LLM's output more random.<br />(Default: `1.0`) |
 | **LLM_TOP_P** | LLM nucleus sampling value. **Alternative to sampling temperature.** Higher values make the LLM's output more diverse.<br />(Default: `1.0`) |
-| **CUSTOM_DISCORD_STATUS** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
 | **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |

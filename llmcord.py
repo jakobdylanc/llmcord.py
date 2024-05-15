@@ -51,7 +51,7 @@ if LLM_IS_LOCAL:
 
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=env["CUSTOM_DISCORD_STATUS"][:128] or "github.com/jakobdylanc/discord-llm-chatbot")
+activity = discord.CustomActivity(name=env["DISCORD_STATUS_MESSAGE"][:128] or "github.com/jakobdylanc/discord-llm-chatbot")
 discord_client = discord.Client(intents=intents, activity=activity)
 
 msg_nodes = {}

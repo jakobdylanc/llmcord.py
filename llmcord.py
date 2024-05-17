@@ -16,9 +16,7 @@ logging.basicConfig(
 )
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
-convert = lambda string: int(string) if string.isdecimal() else (float(string) if string.replace(".", "", 1).isdecimal() else string)
-LLM_SETTINGS = {k.strip(): convert(v.strip()) for k, v in (x.split("=") for x in env["LLM_SETTINGS"].split(",") if x.strip()) if not "#" in k}
-
+LLM_IS_LOCAL: bool = env["LLM"].startswith("local/")
 LLM_SUPPORTS_IMAGES: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
 LLM_SUPPORTS_NAMES: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
 
@@ -33,7 +31,15 @@ EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
 
-env["OPENAI_API_KEY"] = env["OPENAI_API_KEY"] or "Not used"
+convert = lambda string: int(string) if string.isdecimal() else (float(string) if string.replace(".", "", 1).isdecimal() else string)
+llm_settings = {k.strip(): convert(v.strip()) for k, v in (x.split("=") for x in env["LLM_SETTINGS"].split(",") if x.strip()) if not "#" in k}
+
+if LLM_IS_LOCAL:
+    llm_settings["base_url"] = env["LOCAL_SERVER_URL"]
+    if "api_key" not in llm_settings:
+        llm_settings["api_key"] = "Not used"
+
+    env["LLM"] = env["LLM"].replace("local/", "", 1)
 
 if env["DISCORD_CLIENT_ID"]:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
@@ -158,7 +164,7 @@ async def on_message(new_msg):
     response_contents = []
     prev_chunk = None
     edit_task = None
-    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | LLM_SETTINGS
+    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | llm_settings
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await acompletion(**kwargs):

@@ -33,6 +33,8 @@ EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
 
+env["OPENAI_API_KEY"] = env["OPENAI_API_KEY"] or "Not used"
+
 if env["DISCORD_CLIENT_ID"]:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
 

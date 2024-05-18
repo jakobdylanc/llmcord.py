@@ -52,17 +52,17 @@ Before you start, install Python and clone this git repo.
 
 | Setting | Instructions |
 | --- | --- |
-| **DISCORD_BOT_TOKEN** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the **Bot** tab. Also enable **MESSAGE CONTENT INTENT**. |
-| **DISCORD_CLIENT_ID** | Found under the **OAuth2** tab of the Discord bot you just made. |
+| **DISCORD_BOT_TOKEN** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
+| **DISCORD_CLIENT_ID** | Found under the "OAuth2" tab of the Discord bot you just made. |
 | **DISCORD_STATUS_MESSAGE** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
-| **LLM** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local models ([oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai), etc.), set to **`local/openai/model`** (or **`local/openai/vision-model`** if using a vision model). Some setups will instead require **`local/openai/<MODEL_NAME>`** where **<MODEL_NAME>** is the exact name of the model you're using. |
-| **LLM_SETTINGS** | Extra API parameters for your LLM, separated by commas.<br /><br />(Default: `max_tokens=1024, temperature=1.0`) |
-| **LLM_SYSTEM_PROMPT** | Write practically anything you want to customize the bot's behavior! |
-| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when using a local model.**<br /><br />(Default: `http://localhost:5000/v1`) |
+| **LLM** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local models ([oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai), etc.), set to `local/openai/model` (or `local/openai/vision-model` if using a vision model). Some setups will instead require `local/openai/<MODEL_NAME>` where <MODEL_NAME> is the exact name of the model you're using. |
+| **LLM_SETTINGS** | Extra API parameters for your LLM, separated by commas.<br />(Default: `max_tokens=1024, temperature=1.0`) |
+| **LLM_SYSTEM_PROMPT** | Write anything you want to customize the bot's behavior! |
+| **LOCAL_SERVER_URL** | The URL of your local API server. **This setting only applies when "LLM" starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
 | **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
-| **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.** |
-| **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain. |
+| **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **This setting only applies when using a vision model.**<br />(Default: `5`) |
+| **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
 | **OPENAI_API_KEY** | **Only required if you choose a model from OpenAI API.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
 | **MISTRAL_API_KEY** | **Only required if you choose a model from Mistral API.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
 

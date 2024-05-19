@@ -32,7 +32,7 @@ EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
 
 convert = lambda string: int(string) if string.isdecimal() else (float(string) if string.replace(".", "", 1).isdecimal() else string)
-llm_settings = {k.strip(): convert(v.strip()) for k, v in (x.split("=") for x in env["LLM_SETTINGS"].split(",") if x.strip()) if not "#" in k}
+llm_settings = {k.strip(): convert(v.strip()) for k, v in (x.split("=") for x in env["LLM_SETTINGS"].split(",") if x.strip()) if "#" not in k}
 
 if LLM_IS_LOCAL:
     llm_settings["base_url"] = env["LOCAL_SERVER_URL"]

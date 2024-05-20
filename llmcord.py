@@ -96,7 +96,6 @@ async def on_message(new_msg):
     while curr_msg and len(reply_chain) < MAX_MESSAGES:
         async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
             if curr_msg.id not in msg_nodes:
-                curr_msg_role = "assistant" if curr_msg.author == discord_client.user else "user"
                 curr_msg_text = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
                 if curr_msg_text.startswith(discord_client.user.mention):
                     curr_msg_text = curr_msg_text.replace(discord_client.user.mention, "", 1).lstrip()
@@ -118,8 +117,8 @@ async def on_message(new_msg):
                     curr_msg_content = curr_msg_text or "."
 
                 msg_node_data = {
-                    "role": curr_msg_role,
                     "content": curr_msg_content,
+                    "role": "assistant" if curr_msg.author == discord_client.user else "user",
                 }
                 if LLM_SUPPORTS_NAMES:
                     msg_node_data["name"] = str(curr_msg.author.id)
@@ -204,8 +203,8 @@ async def on_message(new_msg):
     # Create MsgNodes for response messages
     for msg in response_msgs:
         msg_node_data = {
-            "role": "assistant",
             "content": "".join(response_contents) or ".",
+            "role": "assistant",
         }
         if LLM_SUPPORTS_NAMES:
             msg_node_data["name"] = str(discord_client.user.id)

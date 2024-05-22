@@ -116,13 +116,14 @@ async def on_message(new_msg):
                 else:
                     curr_msg_content = curr_msg_text or "."
 
-                msg_node_data = {
+                curr_msg_data = {
                     "content": curr_msg_content,
                     "role": "assistant" if curr_msg.author == discord_client.user else "user",
                 }
                 if LLM_SUPPORTS_NAMES:
-                    msg_node_data["name"] = str(curr_msg.author.id)
-                msg_nodes[curr_msg.id] = MsgNode(data=msg_node_data, too_many_images=len(curr_msg_images) > MAX_IMAGES)
+                    curr_msg_data["name"] = str(curr_msg.author.id)
+
+                msg_nodes[curr_msg.id] = MsgNode(data=curr_msg_data, too_many_images=len(curr_msg_images) > MAX_IMAGES)
 
                 try:
                     if (
@@ -150,10 +151,12 @@ async def on_message(new_msg):
 
             curr_node = msg_nodes[curr_msg.id]
             reply_chain += [curr_node.data]
+
             if curr_node.too_many_images:
                 user_warnings.add(f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images")
             if curr_node.fetch_next_failed or (curr_node.replied_to_msg and len(reply_chain) == MAX_MESSAGES):
                 user_warnings.add(f"⚠️ Only using last{'' if (count := len(reply_chain)) == 1 else f' {count}'} message{'' if count == 1 else 's'}")
+
             curr_msg = curr_node.replied_to_msg
 
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, reply chain length: {len(reply_chain)}):\n{new_msg.content}")
@@ -202,13 +205,13 @@ async def on_message(new_msg):
 
     # Create MsgNodes for response messages
     for msg in response_msgs:
-        msg_node_data = {
+        data = {
             "content": "".join(response_contents) or ".",
             "role": "assistant",
         }
         if LLM_SUPPORTS_NAMES:
-            msg_node_data["name"] = str(discord_client.user.id)
-        msg_nodes[msg.id] = MsgNode(data=msg_node_data, replied_to_msg=new_msg)
+            data["name"] = str(discord_client.user.id)
+        msg_nodes[msg.id] = MsgNode(data=data, replied_to_msg=new_msg)
         msg_locks[msg.id].release()
 
     # Delete MsgNodes for oldest messages (lowest IDs)

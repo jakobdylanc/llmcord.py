@@ -102,17 +102,13 @@ async def on_message(new_msg):
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
 
                 if LLM_SUPPORTS_IMAGES and curr_msg_images[:MAX_IMAGES]:
-                    curr_msg_content = [{"type": "text", "text": curr_msg_text}] if curr_msg_text else []
-                    try:
-                        curr_msg_content += [
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"},
-                            }
-                            for att in curr_msg_images[:MAX_IMAGES]
-                        ]
-                    except requests.exceptions.RequestException:
-                        logging.exception("Error downloading image from URL")
+                    curr_msg_content = ([{"type": "text", "text": curr_msg_text}] if curr_msg_text else []) + [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"},
+                        }
+                        for att in curr_msg_images[:MAX_IMAGES]
+                    ]
                 else:
                     curr_msg_content = curr_msg_text or "."
 

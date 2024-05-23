@@ -23,6 +23,8 @@ LLM_SUPPORTS_NAMES: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
 ALLOWED_ROLE_IDS = tuple(int(id) for id in env["ALLOWED_ROLE_IDS"].split(",") if id)
+
+MAX_TEXT = int(env["MAX_TEXT"])
 MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_SUPPORTS_IMAGES else 0
 MAX_MESSAGES = int(env["MAX_MESSAGES"])
 
@@ -55,9 +57,10 @@ last_task_time = None
 
 
 class MsgNode:
-    def __init__(self, data, replied_to_msg=None, too_many_images=False, fetch_next_failed=False):
+    def __init__(self, data, replied_to_msg=None, too_much_text=False, too_many_images=False, fetch_next_failed=False):
         self.data = data
         self.replied_to_msg = replied_to_msg
+        self.too_much_text: bool = too_much_text
         self.too_many_images: bool = too_many_images
         self.fetch_next_failed: bool = fetch_next_failed
 
@@ -96,13 +99,18 @@ async def on_message(new_msg):
     while curr_msg and len(reply_chain) < MAX_MESSAGES:
         async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
             if curr_msg.id not in msg_nodes:
-                curr_msg_text = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
-                if curr_msg_text.startswith(bot.user.mention):
+                curr_msg_text = "\n".join(
+                    ([curr_msg.content] if curr_msg.content else [])
+                    + [embed.description for embed in curr_msg.embeds]
+                    + [requests.get(att.url).text for att in curr_msg.attachments if "text" in att.content_type]
+                )
+                if curr_msg.content.startswith(bot.user.mention):
                     curr_msg_text = curr_msg_text.replace(bot.user.mention, "", 1).lstrip()
+
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
 
                 if LLM_SUPPORTS_IMAGES and curr_msg_images[:MAX_IMAGES]:
-                    content = ([{"type": "text", "text": curr_msg_text}] if curr_msg_text else []) + [
+                    content = ([{"type": "text", "text": curr_msg_text[:MAX_TEXT]}] if curr_msg_text[:MAX_TEXT] else []) + [
                         {
                             "type": "image_url",
                             "image_url": {"url": f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"},
@@ -110,7 +118,7 @@ async def on_message(new_msg):
                         for att in curr_msg_images[:MAX_IMAGES]
                     ]
                 else:
-                    content = curr_msg_text or "."
+                    content = curr_msg_text[:MAX_TEXT] or "."
 
                 data = {
                     "content": content,
@@ -119,7 +127,7 @@ async def on_message(new_msg):
                 if LLM_SUPPORTS_NAMES:
                     data["name"] = str(curr_msg.author.id)
 
-                msg_nodes[curr_msg.id] = MsgNode(data=data, too_many_images=len(curr_msg_images) > MAX_IMAGES)
+                msg_nodes[curr_msg.id] = MsgNode(data=data, too_much_text=len(curr_msg_text) > MAX_TEXT, too_many_images=len(curr_msg_images) > MAX_IMAGES)
 
                 try:
                     if (
@@ -148,6 +156,8 @@ async def on_message(new_msg):
             curr_node = msg_nodes[curr_msg.id]
             reply_chain += [curr_node.data]
 
+            if curr_node.too_much_text:
+                user_warnings.add(f"⚠️ Max {MAX_TEXT:,} characters per message")
             if curr_node.too_many_images:
                 user_warnings.add(f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images")
             if curr_node.fetch_next_failed or (curr_node.replied_to_msg and len(reply_chain) == MAX_MESSAGES):

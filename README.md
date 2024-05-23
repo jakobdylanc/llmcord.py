@@ -32,6 +32,7 @@ Or run a local model with [ollama](https://ollama.com), [oobabooga](https://gith
 
 ### And more:
 - Supports image attachments when using a vision model (like gpt-4o, claude-3, llava, etc.)
+- Supports text file attachments
 - Customizable system prompt
 - DM for private access (no @ required)
 - User identity aware (OpenAI API only)
@@ -61,6 +62,7 @@ Before you start, install Python and clone this git repo.
 | **LOCAL_SERVER_URL** | The URL of your local API server. **This setting only applies when "LLM" starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
 | **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
 | **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
+| **MAX_TEXT** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100000`) |
 | **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **This setting only applies when using a vision model.**<br />(Default: `5`) |
 | **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
 | **OPENAI_API_KEY** | **Only required if you choose a model from OpenAI API.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|

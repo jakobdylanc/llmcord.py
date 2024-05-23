@@ -47,7 +47,7 @@ if env["DISCORD_CLIENT_ID"]:
 intents = discord.Intents.default()
 intents.message_content = True
 activity = discord.CustomActivity(name=env["DISCORD_STATUS_MESSAGE"][:128] or "github.com/jakobdylanc/discord-llm-chatbot")
-discord_client = discord.Client(intents=intents, activity=activity)
+bot = discord.Client(intents=intents, activity=activity)
 
 msg_nodes = {}
 msg_locks = {}
@@ -75,14 +75,14 @@ def get_system_prompt():
     ]
 
 
-@discord_client.event
+@bot.event
 async def on_message(new_msg):
     global msg_nodes, msg_locks, last_task_time
 
     # Filter out unwanted messages
     if (
         new_msg.channel.type not in ALLOWED_CHANNEL_TYPES
-        or (new_msg.channel.type != discord.ChannelType.private and discord_client.user not in new_msg.mentions)
+        or (new_msg.channel.type != discord.ChannelType.private and bot.user not in new_msg.mentions)
         or (ALLOWED_CHANNEL_IDS and not any(id in ALLOWED_CHANNEL_IDS for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
         or (ALLOWED_ROLE_IDS and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in ALLOWED_ROLE_IDS for role in new_msg.author.roles)))
         or new_msg.author.bot
@@ -97,12 +97,12 @@ async def on_message(new_msg):
         async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
             if curr_msg.id not in msg_nodes:
                 curr_msg_text = curr_msg.embeds[0].description if curr_msg.embeds and curr_msg.author.bot else curr_msg.content
-                if curr_msg_text.startswith(discord_client.user.mention):
-                    curr_msg_text = curr_msg_text.replace(discord_client.user.mention, "", 1).lstrip()
+                if curr_msg_text.startswith(bot.user.mention):
+                    curr_msg_text = curr_msg_text.replace(bot.user.mention, "", 1).lstrip()
                 curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
 
                 if LLM_SUPPORTS_IMAGES and curr_msg_images[:MAX_IMAGES]:
-                    curr_msg_content = ([{"type": "text", "text": curr_msg_text}] if curr_msg_text else []) + [
+                    content = ([{"type": "text", "text": curr_msg_text}] if curr_msg_text else []) + [
                         {
                             "type": "image_url",
                             "image_url": {"url": f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"},
@@ -110,22 +110,22 @@ async def on_message(new_msg):
                         for att in curr_msg_images[:MAX_IMAGES]
                     ]
                 else:
-                    curr_msg_content = curr_msg_text or "."
+                    content = curr_msg_text or "."
 
-                curr_msg_data = {
-                    "content": curr_msg_content,
-                    "role": "assistant" if curr_msg.author == discord_client.user else "user",
+                data = {
+                    "content": content,
+                    "role": "assistant" if curr_msg.author == bot.user else "user",
                 }
                 if LLM_SUPPORTS_NAMES:
-                    curr_msg_data["name"] = str(curr_msg.author.id)
+                    data["name"] = str(curr_msg.author.id)
 
-                msg_nodes[curr_msg.id] = MsgNode(data=curr_msg_data, too_many_images=len(curr_msg_images) > MAX_IMAGES)
+                msg_nodes[curr_msg.id] = MsgNode(data=data, too_many_images=len(curr_msg_images) > MAX_IMAGES)
 
                 try:
                     if (
                         not curr_msg.reference
                         and curr_msg.channel.type != discord.ChannelType.private
-                        and discord_client.user.mention not in curr_msg.content
+                        and bot.user.mention not in curr_msg.content
                         and (prev_msg_in_channel := ([m async for m in curr_msg.channel.history(before=curr_msg, limit=1)] or [None])[0])
                         and any(prev_msg_in_channel.type == type for type in (discord.MessageType.default, discord.MessageType.reply))
                         and prev_msg_in_channel.author == curr_msg.author
@@ -206,7 +206,7 @@ async def on_message(new_msg):
             "role": "assistant",
         }
         if LLM_SUPPORTS_NAMES:
-            data["name"] = str(discord_client.user.id)
+            data["name"] = str(bot.user.id)
         msg_nodes[msg.id] = MsgNode(data=data, replied_to_msg=new_msg)
         msg_locks[msg.id].release()
 
@@ -219,7 +219,7 @@ async def on_message(new_msg):
 
 
 async def main():
-    await discord_client.start(env["DISCORD_BOT_TOKEN"])
+    await bot.start(env["DISCORD_BOT_TOKEN"])
 
 
 asyncio.run(main())

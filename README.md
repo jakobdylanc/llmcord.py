@@ -32,7 +32,7 @@ Or run a local model with [ollama](https://ollama.com), [oobabooga](https://gith
 
 ### And more:
 - Supports image attachments when using a vision model (like gpt-4o, claude-3, llava, etc.)
-- Supports text file attachments
+- Supports text file attachments (.txt, .py, .c, etc.)
 - Customizable system prompt
 - DM for private access (no @ required)
 - User identity aware (OpenAI API only)
@@ -45,7 +45,7 @@ Or run a local model with [ollama](https://ollama.com), [oobabooga](https://gith
 ## Instructions
 Before you start, install Python and clone this git repo.
 
-1. Install Python requirements: `pip install -r requirements.txt`
+1. Install Python requirements: `pip install -U -r requirements.txt`
 
 2. Create a copy of ".env.example" named ".env" and set it up (see below)
 
@@ -72,8 +72,6 @@ Before you start, install Python and clone this git repo.
 
 ## Notes
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/discord-llm-chatbot/issues/19)
-
-- Vision models with ollama are currently not supported (due to [this](https://github.com/ollama/ollama/blob/main/docs/openai.md#supported-features))
 
 - Only models from OpenAI are "user identity aware" because only OpenAI API supports the message "name" property. Hopefully others support this in the future.
 

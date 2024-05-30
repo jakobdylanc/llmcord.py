@@ -102,12 +102,12 @@ async def on_message(new_msg):
                 curr_msg_text = "\n".join(
                     ([curr_msg.content] if curr_msg.content else [])
                     + [embed.description for embed in curr_msg.embeds]
-                    + [requests.get(att.url).text for att in curr_msg.attachments if "text" in att.content_type]
+                    + [requests.get(att.url).text for att in curr_msg.attachments if att.content_type and "text" in att.content_type]
                 )
                 if curr_msg.content.startswith(bot.user.mention):
                     curr_msg_text = curr_msg_text.replace(bot.user.mention, "", 1).lstrip()
 
-                curr_msg_images = [att for att in curr_msg.attachments if "image" in att.content_type]
+                curr_msg_images = [att for att in curr_msg.attachments if att.content_type and "image" in att.content_type]
 
                 if LLM_SUPPORTS_IMAGES and curr_msg_images[:MAX_IMAGES]:
                     content = ([{"type": "text", "text": curr_msg_text[:MAX_TEXT]}] if curr_msg_text[:MAX_TEXT] else []) + [

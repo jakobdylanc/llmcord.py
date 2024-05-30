@@ -217,6 +217,7 @@ async def on_message(new_msg):
         }
         if LLM_SUPPORTS_NAMES:
             data["name"] = str(bot.user.id)
+
         msg_nodes[msg.id] = MsgNode(data=data, replied_to_msg=new_msg)
         msg_locks[msg.id].release()
 

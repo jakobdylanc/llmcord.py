@@ -18,7 +18,7 @@ Just @ the bot to start a conversation and reply to continue. Build conversation
 
 You can do things like:
 - Continue your own conversation or someone else's
-- "Rewind" a conversation simply by replying to an older message
+- "Rewind" a conversation by simply replying to an older message
 - @ the bot while replying to any message in your server to ask a question about it
 
 Additionally:
@@ -26,7 +26,7 @@ Additionally:
 - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
 
 ### Choose any LLM
-Supports remote models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), [Anthropic API](https://docs.anthropic.com/claude/docs/models-overview) and many more thanks to [LiteLLM](https://github.com/BerriAI/litellm).
+llmcord.py supports remote models from [OpenAI API](https://platform.openai.com/docs/models), [Mistral API](https://docs.mistral.ai/platform/endpoints), [Anthropic API](https://docs.anthropic.com/claude/docs/models-overview) and [many more](https://docs.litellm.ai/docs/providers) thanks to [LiteLLM](https://github.com/BerriAI/litellm).
 
 Or run a local model with [ollama](https://ollama.com), [oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai) or any other OpenAI compatible API server.
 

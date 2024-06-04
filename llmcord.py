@@ -106,8 +106,8 @@ async def on_message(new_msg):
 
                 text = "\n".join(
                     ([curr_msg.content] if curr_msg.content else [])
-                    + [embed.description for embed in curr_msg.embeds]
-                    + [requests.get(att.url).text for att in good_attachments["text"]]
+                    + [embed.description for embed in curr_msg.embeds if embed.description is not None]
+                    + [requests.get(att.url).text for att in good_attachments["text"] if requests.get(att.url).text is not None]
                 )
                 if curr_msg.content.startswith(bot.user.mention):
                     text = text.replace(bot.user.mention, "", 1).lstrip()

@@ -14,7 +14,6 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s: %(message)s",
 )
-logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 
 LLM_IS_LOCAL: bool = env["LLM"].startswith("local/")
 LLM_SUPPORTS_IMAGES: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))

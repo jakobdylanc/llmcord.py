@@ -120,7 +120,7 @@ async def on_message(new_msg):
                         for att in good_attachments["image"][:MAX_IMAGES]
                     ]
                 else:
-                    content = text[:MAX_TEXT] or "."
+                    content = text[:MAX_TEXT]
 
                 data = {
                     "content": content,
@@ -161,7 +161,9 @@ async def on_message(new_msg):
                     msg_nodes[curr_msg.id].fetch_next_failed = True
 
             curr_node = msg_nodes[curr_msg.id]
-            reply_chain += [curr_node.data]
+
+            if curr_node.data["content"]:
+                reply_chain += [curr_node.data]
 
             if curr_node.too_much_text:
                 user_warnings.add(f"⚠️ Max {MAX_TEXT:,} characters per message")
@@ -221,7 +223,7 @@ async def on_message(new_msg):
     # Create MsgNodes for response messages
     for msg in response_msgs:
         data = {
-            "content": "".join(response_contents) or ".",
+            "content": "".join(response_contents),
             "role": "assistant",
         }
         if LLM_SUPPORTS_NAMES:

@@ -57,9 +57,9 @@ last_task_time = None
 
 
 class MsgNode:
-    def __init__(self, data, replied_to_msg=None, too_much_text=False, too_many_images=False, has_bad_attachments=False, fetch_next_failed=False):
+    def __init__(self, data, next_msg=None, too_much_text=False, too_many_images=False, has_bad_attachments=False, fetch_next_failed=False):
         self.data = data
-        self.replied_to_msg = replied_to_msg
+        self.next_msg = next_msg
 
         self.too_much_text: bool = too_much_text
         self.too_many_images: bool = too_many_images
@@ -145,13 +145,13 @@ async def on_message(new_msg):
                         and any(prev_msg_in_channel.type == type for type in (discord.MessageType.default, discord.MessageType.reply))
                         and prev_msg_in_channel.author == curr_msg.author
                     ):
-                        msg_nodes[curr_msg.id].replied_to_msg = prev_msg_in_channel
+                        msg_nodes[curr_msg.id].next_msg = prev_msg_in_channel
                     else:
                         next_is_thread_parent: bool = not curr_msg.reference and curr_msg.channel.type == discord.ChannelType.public_thread
                         if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
                             while msg_locks.setdefault(next_msg_id, asyncio.Lock()).locked():
                                 await asyncio.sleep(0)
-                            msg_nodes[curr_msg.id].replied_to_msg = (
+                            msg_nodes[curr_msg.id].next_msg = (
                                 (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
                                 if next_is_thread_parent
                                 else (r if isinstance(r := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(next_msg_id))
@@ -171,10 +171,10 @@ async def on_message(new_msg):
                 user_warnings.add(f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images")
             if curr_node.has_bad_attachments:
                 user_warnings.add("⚠️ Unsupported attachments")
-            if curr_node.fetch_next_failed or (curr_node.replied_to_msg and len(reply_chain) == MAX_MESSAGES):
+            if curr_node.fetch_next_failed or (curr_node.next_msg and len(reply_chain) == MAX_MESSAGES):
                 user_warnings.add(f"⚠️ Only using last{'' if (count := len(reply_chain)) == 1 else f' {count}'} message{'' if count == 1 else 's'}")
 
-            curr_msg = curr_node.replied_to_msg
+            curr_msg = curr_node.next_msg
 
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, reply chain length: {len(reply_chain)}):\n{new_msg.content}")
 
@@ -229,7 +229,7 @@ async def on_message(new_msg):
         if LLM_SUPPORTS_NAMES:
             data["name"] = str(bot.user.id)
 
-        msg_nodes[msg.id] = MsgNode(data=data, replied_to_msg=new_msg)
+        msg_nodes[msg.id] = MsgNode(data=data, next_msg=new_msg)
         msg_locks[msg.id].release()
 
     # Delete MsgNodes for oldest messages (lowest IDs)

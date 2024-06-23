@@ -1,9 +1,11 @@
 import asyncio
 import base64
+from dataclasses import dataclass
 from datetime import datetime as dt
 import logging
 from os import environ as env
 import requests
+from typing import Optional
 
 import discord
 from dotenv import load_dotenv
@@ -56,15 +58,15 @@ msg_locks = {}
 last_task_time = None
 
 
+@dataclass
 class MsgNode:
-    def __init__(self, data, next_msg=None, too_much_text=False, too_many_images=False, has_bad_attachments=False, fetch_next_failed=False):
-        self.data = data
-        self.next_msg = next_msg
+    data: dict
+    next_msg: Optional[discord.Message] = None
 
-        self.too_much_text: bool = too_much_text
-        self.too_many_images: bool = too_many_images
-        self.has_bad_attachments: bool = has_bad_attachments
-        self.fetch_next_failed: bool = fetch_next_failed
+    too_much_text: bool = False
+    too_many_images: bool = False
+    has_bad_attachments: bool = False
+    fetch_next_failed: bool = False
 
 
 def get_system_prompt():

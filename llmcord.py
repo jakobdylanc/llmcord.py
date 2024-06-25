@@ -156,7 +156,7 @@ async def on_message(new_msg):
                             msg_nodes[curr_msg.id].next_msg = (
                                 (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
                                 if next_is_thread_parent
-                                else (r if isinstance(r := curr_msg.reference.resolved, discord.Message) else await curr_msg.channel.fetch_message(next_msg_id))
+                                else (curr_msg.reference.cached_message or await curr_msg.channel.fetch_message(next_msg_id))
                             )
                 except (discord.NotFound, discord.HTTPException, AttributeError):
                     logging.exception("Error fetching next message in the chain")

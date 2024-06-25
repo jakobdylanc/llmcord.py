@@ -30,7 +30,7 @@ MAX_TEXT = int(env["MAX_TEXT"])
 MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_SUPPORTS_IMAGES else 0
 MAX_MESSAGES = int(env["MAX_MESSAGES"])
 
-EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.green()}
+EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.dark_green()}
 EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100

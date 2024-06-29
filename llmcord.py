@@ -1,6 +1,6 @@
 import asyncio
 import base64
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime as dt
 import logging
 from os import environ as env
@@ -54,19 +54,20 @@ activity = discord.CustomActivity(name=env["DISCORD_STATUS_MESSAGE"][:128] or "g
 bot = discord.Client(intents=intents, activity=activity)
 
 msg_nodes = {}
-msg_locks = {}
 last_task_time = None
 
 
 @dataclass
 class MsgNode:
-    data: dict
-    next_msg: Optional[discord.Message] = None
+    data: dict = field(default_factory=dict)
+    next_msg: Optional[discord.Message] = field(default=None)
 
-    too_much_text: bool = False
-    too_many_images: bool = False
-    has_bad_attachments: bool = False
-    fetch_next_failed: bool = False
+    too_much_text: bool = field(default=False)
+    too_many_images: bool = field(default=False)
+    has_bad_attachments: bool = field(default=False)
+    fetch_next_failed: bool = field(default=False)
+
+    lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
 
 def get_system_prompt():
@@ -84,7 +85,7 @@ def get_system_prompt():
 
 @bot.event
 async def on_message(new_msg):
-    global msg_nodes, msg_locks, last_task_time
+    global msg_nodes, last_task_time
 
     # Filter out unwanted messages
     if (
@@ -101,8 +102,10 @@ async def on_message(new_msg):
     user_warnings = set()
     curr_msg = new_msg
     while curr_msg and len(reply_chain) < MAX_MESSAGES:
-        async with msg_locks.setdefault(curr_msg.id, asyncio.Lock()):
-            if curr_msg.id not in msg_nodes:
+        async with msg_nodes.setdefault(curr_msg.id, MsgNode()).lock:
+            curr_node = msg_nodes[curr_msg.id]
+
+            if not curr_node.data:
                 good_attachments = {type: [att for att in curr_msg.attachments if att.content_type and type in att.content_type] for type in ALLOWED_FILE_TYPES}
 
                 text = "\n".join(
@@ -131,12 +134,10 @@ async def on_message(new_msg):
                 if LLM_SUPPORTS_NAMES:
                     data["name"] = str(curr_msg.author.id)
 
-                msg_nodes[curr_msg.id] = MsgNode(
-                    data=data,
-                    too_much_text=len(text) > MAX_TEXT,
-                    too_many_images=len(good_attachments["image"]) > MAX_IMAGES,
-                    has_bad_attachments=len(curr_msg.attachments) > sum(len(att_list) for att_list in good_attachments.values()),
-                )
+                curr_node.data = data
+                curr_node.too_much_text = len(text) > MAX_TEXT
+                curr_node.too_many_images = len(good_attachments["image"]) > MAX_IMAGES
+                curr_node.has_bad_attachments = len(curr_msg.attachments) > sum(len(att_list) for att_list in good_attachments.values())
 
                 try:
                     if (
@@ -147,22 +148,20 @@ async def on_message(new_msg):
                         and any(prev_msg_in_channel.type == type for type in (discord.MessageType.default, discord.MessageType.reply))
                         and prev_msg_in_channel.author == curr_msg.author
                     ):
-                        msg_nodes[curr_msg.id].next_msg = prev_msg_in_channel
+                        curr_node.next_msg = prev_msg_in_channel
                     else:
                         next_is_thread_parent: bool = not curr_msg.reference and curr_msg.channel.type == discord.ChannelType.public_thread
                         if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
-                            while msg_locks.setdefault(next_msg_id, asyncio.Lock()).locked():
+                            while msg_nodes.setdefault(next_msg_id, MsgNode()).lock.locked():
                                 await asyncio.sleep(0)
-                            msg_nodes[curr_msg.id].next_msg = (
+                            curr_node.next_msg = (
                                 (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
                                 if next_is_thread_parent
                                 else (curr_msg.reference.cached_message or await curr_msg.channel.fetch_message(next_msg_id))
                             )
                 except (discord.NotFound, discord.HTTPException, AttributeError):
                     logging.exception("Error fetching next message in the chain")
-                    msg_nodes[curr_msg.id].fetch_next_failed = True
-
-            curr_node = msg_nodes[curr_msg.id]
+                    curr_node.fetch_next_failed = True
 
             if curr_node.data["content"]:
                 reply_chain += [curr_node.data]
@@ -203,7 +202,7 @@ async def on_message(new_msg):
                                 silent=True,
                             )
                         ]
-                        await msg_locks.setdefault(response_msgs[-1].id, asyncio.Lock()).acquire()
+                        await msg_nodes.setdefault(response_msgs[-1].id, MsgNode(next_msg=new_msg)).lock.acquire()
                         last_task_time = dt.now().timestamp()
                         response_contents += [""]
 
@@ -222,24 +221,23 @@ async def on_message(new_msg):
     except:
         logging.exception("Error while streaming response")
 
-    # Create MsgNodes for response messages
-    for msg in response_msgs:
-        data = {
-            "content": "".join(response_contents),
-            "role": "assistant",
-        }
-        if LLM_SUPPORTS_NAMES:
-            data["name"] = str(bot.user.id)
+    # Create MsgNode data for response messages
+    data = {
+        "content": "".join(response_contents),
+        "role": "assistant",
+    }
+    if LLM_SUPPORTS_NAMES:
+        data["name"] = str(bot.user.id)
 
-        msg_nodes[msg.id] = MsgNode(data=data, next_msg=new_msg)
-        msg_locks[msg.id].release()
+    for msg in response_msgs:
+        msg_nodes[msg.id].data = data
+        msg_nodes[msg.id].lock.release()
 
     # Delete MsgNodes for oldest messages (lowest IDs)
     if (num_nodes := len(msg_nodes)) > MAX_MESSAGE_NODES:
         for msg_id in sorted(msg_nodes.keys())[: num_nodes - MAX_MESSAGE_NODES]:
-            async with msg_locks.setdefault(msg_id, asyncio.Lock()):
-                msg_nodes.pop(msg_id, None)
-                msg_locks.pop(msg_id, None)
+            async with msg_nodes.setdefault(msg_id, MsgNode()).lock:
+                del msg_nodes[msg_id]
 
 
 async def main():

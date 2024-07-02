@@ -211,8 +211,7 @@ async def on_message(new_msg):
                     if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS:
                         while edit_task and not edit_task.done():
                             await asyncio.sleep(0)
-                        if response_contents[-1].strip():
-                            embed.description = response_contents[-1]
+                        embed.description = response_contents[-1]
                         embed.color = EMBED_COLOR["complete"] if is_final_edit else EMBED_COLOR["incomplete"]
                         edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
                         last_task_time = dt.now().timestamp()

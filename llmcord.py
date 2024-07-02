@@ -60,12 +60,12 @@ last_task_time = None
 @dataclass
 class MsgNode:
     data: dict = field(default_factory=dict)
-    next_msg: Optional[discord.Message] = field(default=None)
+    next_msg: Optional[discord.Message] = None
 
-    too_much_text: bool = field(default=False)
-    too_many_images: bool = field(default=False)
-    has_bad_attachments: bool = field(default=False)
-    fetch_next_failed: bool = field(default=False)
+    too_much_text: bool = False
+    too_many_images: bool = False
+    has_bad_attachments: bool = False
+    fetch_next_failed: bool = False
 
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 

@@ -18,8 +18,8 @@ logging.basicConfig(
 )
 
 LLM_IS_LOCAL: bool = env["LLM"].startswith("local/")
-LLM_SUPPORTS_IMAGES: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
-LLM_SUPPORTS_NAMES: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
+LLM_ACCEPTS_IMAGES: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
+LLM_ACCEPTS_NAMES: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
@@ -27,10 +27,11 @@ ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split("
 ALLOWED_ROLE_IDS = tuple(int(id) for id in env["ALLOWED_ROLE_IDS"].split(",") if id)
 
 MAX_TEXT = int(env["MAX_TEXT"])
-MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_SUPPORTS_IMAGES else 0
+MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_ACCEPTS_IMAGES else 0
 MAX_MESSAGES = int(env["MAX_MESSAGES"])
 
-EMBED_COLOR = {"incomplete": discord.Color.orange(), "complete": discord.Color.dark_green()}
+EMBED_COLOR_COMPLETE = discord.Color.dark_green()
+EMBED_COLOR_INCOMPLETE = discord.Color.orange()
 EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
@@ -72,7 +73,7 @@ class MsgNode:
 
 def get_system_prompt():
     system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}"]
-    if LLM_SUPPORTS_NAMES:
+    if LLM_ACCEPTS_NAMES:
         system_prompt_extras += ["User's names are their Discord IDs and should be typed as '<@ID>'."]
 
     return [
@@ -116,7 +117,7 @@ async def on_message(new_msg):
                 if curr_msg.content.startswith(bot.user.mention):
                     text = text.replace(bot.user.mention, "", 1).lstrip()
 
-                if LLM_SUPPORTS_IMAGES and good_attachments["image"][:MAX_IMAGES]:
+                if LLM_ACCEPTS_IMAGES and good_attachments["image"][:MAX_IMAGES]:
                     content = ([{"type": "text", "text": text[:MAX_TEXT]}] if text[:MAX_TEXT] else []) + [
                         {
                             "type": "image_url",
@@ -131,7 +132,7 @@ async def on_message(new_msg):
                     "content": content,
                     "role": "assistant" if curr_msg.author == bot.user else "user",
                 }
-                if LLM_SUPPORTS_NAMES:
+                if LLM_ACCEPTS_NAMES:
                     data["name"] = str(curr_msg.author.id)
 
                 curr_node.data = data
@@ -193,7 +194,7 @@ async def on_message(new_msg):
                     curr_content = curr_chunk.choices[0].delta.content or ""
                     if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
                         reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
-                        embed = discord.Embed(description="⏳", color=EMBED_COLOR["incomplete"])
+                        embed = discord.Embed(description="⏳", color=EMBED_COLOR_INCOMPLETE)
                         for warning in sorted(user_warnings):
                             embed.add_field(name=warning, value="", inline=False)
                         response_msgs += [
@@ -202,7 +203,7 @@ async def on_message(new_msg):
                                 silent=True,
                             )
                         ]
-                        await msg_nodes.setdefault(response_msgs[-1].id, MsgNode(next_msg=new_msg)).lock.acquire()
+                        await msg_nodes.setdefault(response_msgs[-1].id, MsgNode()).lock.acquire()
                         last_task_time = dt.now().timestamp()
                         response_contents += [""]
 
@@ -212,7 +213,7 @@ async def on_message(new_msg):
                         while edit_task and not edit_task.done():
                             await asyncio.sleep(0)
                         embed.description = response_contents[-1]
-                        embed.color = EMBED_COLOR["complete"] if is_final_edit else EMBED_COLOR["incomplete"]
+                        embed.color = EMBED_COLOR_COMPLETE if is_final_edit else EMBED_COLOR_INCOMPLETE
                         edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
                         last_task_time = dt.now().timestamp()
 
@@ -225,11 +226,12 @@ async def on_message(new_msg):
         "content": "".join(response_contents),
         "role": "assistant",
     }
-    if LLM_SUPPORTS_NAMES:
+    if LLM_ACCEPTS_NAMES:
         data["name"] = str(bot.user.id)
 
     for msg in response_msgs:
         msg_nodes[msg.id].data = data
+        msg_nodes[msg.id].next_msg = new_msg
         msg_nodes[msg.id].lock.release()
 
     # Delete MsgNodes for oldest messages (lowest IDs)

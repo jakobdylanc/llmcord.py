@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from datetime import datetime as dt
 import json
 import logging
-from os import environ as env
 import requests
 from typing import Optional
 

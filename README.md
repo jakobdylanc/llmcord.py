@@ -47,28 +47,26 @@ Before you start, install Python and clone this git repo.
 
 1. Install Python requirements: `pip install -U -r requirements.txt`
 
-2. Create a copy of ".env.example" named ".env" and set it up (see below)
+2. Create a copy of "config.json.example" named "config.json" and set it up:
 
-3. Run the bot: `python llmcord.py` (the invite URL will print to the console)
-
-| Setting | Instructions |
+| Setting | Description |
 | --- | --- |
-| **DISCORD_BOT_TOKEN** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
-| **DISCORD_CLIENT_ID** | Found under the "OAuth2" tab of the Discord bot you just made. |
-| **DISCORD_STATUS_MESSAGE** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
-| **LLM** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local models ([oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai), etc.), set to `local/openai/model` (or `local/openai/vision-model` if using a vision model). Some setups will instead require `local/openai/<MODEL_NAME>` where <MODEL_NAME> is the exact name of the model you're using. |
-| **LLM_SETTINGS** | Extra API parameters for your LLM, separated by commas. **Supports string, integer and float values.**<br />(Default: `max_tokens=1024, temperature=1.0`) |
-| **LLM_SYSTEM_PROMPT** | Write anything you want to customize the bot's behavior! |
-| **LOCAL_SERVER_URL** | The URL of your local API server. **Only applicable when "LLM" starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
-| **ALLOWED_CHANNEL_IDS** | Discord channel IDs where the bot can send messages, separated by commas. **Leave blank to allow all channels.** |
-| **ALLOWED_ROLE_IDS** | Discord role IDs that can use the bot, separated by commas. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
-| **MAX_TEXT** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
-| **MAX_IMAGES** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
-| **MAX_MESSAGES** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
-| **OPENAI_API_KEY** | **Only required if you choose a model from OpenAI API.** Generate an OpenAI API key at [platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys). You must also add a payment method to your OpenAI account at [platform.openai.com/account/billing/payment-methods](https://platform.openai.com/account/billing/payment-methods).|
-| **MISTRAL_API_KEY** | **Only required if you choose a model from Mistral API.** Generate a Mistral API key at [console.mistral.ai/api-keys](https://console.mistral.ai/api-keys). You must also add a payment method to your Mistral account at [console.mistral.ai/billing](https://console.mistral.ai/billing).|
+| **llm** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local models ([oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai), etc.), set to `local/openai/model` (or `local/openai/vision-model` if using a vision model). Some setups will instead require `local/openai/<MODEL_NAME>` where <MODEL_NAME> is the exact name of the model you're using. |
+| **local_server_url** | The URL of your local API server. **Only applicable when "llm" starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
+| **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=1024, temperature=1.0`) |
+| **system_prompt** | Write anything you want to customize the bot's behavior! |
+| **bot_token** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
+| **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
+| **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
+| **allowed_channel_ids** | A list of Discord channel IDs where the bot can send messages. **Leave blank to allow all channels.** |
+| **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
+| **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
+| **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
+| **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
 
-> **OPENAI_API_KEY** and **MISTRAL_API_KEY** are provided as examples. Add more as needed for other [LiteLLM supported providers](https://docs.litellm.ai/docs/providers).
+3. Create a copy of ".env.example" named ".env" and add API keys as needed for your [LiteLLM supported providers](https://docs.litellm.ai/docs/providers)
+
+4. Run the bot: `python llmcord.py` (the invite URL will print to the console)
 
 ## Notes
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/discord-llm-chatbot/issues/19)

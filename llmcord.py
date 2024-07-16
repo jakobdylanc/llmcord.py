@@ -2,6 +2,7 @@ import asyncio
 import base64
 from dataclasses import dataclass, field
 from datetime import datetime as dt
+import json
 import logging
 from os import environ as env
 import requests
@@ -11,24 +12,29 @@ import discord
 from dotenv import load_dotenv
 from litellm import acompletion
 
-load_dotenv()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s: %(message)s",
 )
 
-LLM_IS_LOCAL: bool = env["LLM"].startswith("local/")
-LLM_ACCEPTS_IMAGES: bool = any(x in env["LLM"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
-LLM_ACCEPTS_NAMES: bool = any(env["LLM"].startswith(x) for x in ("gpt", "openai/gpt"))
+load_dotenv()
+with open("config.json", "r") as file:
+    config = {k: v for d in json.load(file).values() for k, v in d.items()}
+
+llm = config["llm"]
+
+LLM_IS_LOCAL: bool = llm.startswith("local/")
+LLM_ACCEPTS_IMAGES: bool = any(x in llm for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
+LLM_ACCEPTS_NAMES: bool = any(llm.startswith(x) for x in ("gpt", "openai/gpt"))
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
-ALLOWED_CHANNEL_IDS = tuple(int(id) for id in env["ALLOWED_CHANNEL_IDS"].split(",") if id)
-ALLOWED_ROLE_IDS = tuple(int(id) for id in env["ALLOWED_ROLE_IDS"].split(",") if id)
+ALLOWED_CHANNEL_IDS = config["allowed_channel_ids"]
+ALLOWED_ROLE_IDS = config["allowed_role_ids"]
 
-MAX_TEXT = int(env["MAX_TEXT"])
-MAX_IMAGES = int(env["MAX_IMAGES"]) if LLM_ACCEPTS_IMAGES else 0
-MAX_MESSAGES = int(env["MAX_MESSAGES"])
+MAX_TEXT = config["max_text"]
+MAX_IMAGES = config["max_images"] if LLM_ACCEPTS_IMAGES else 0
+MAX_MESSAGES = config["max_messages"]
 
 EMBED_COLOR_COMPLETE = discord.Color.dark_green()
 EMBED_COLOR_INCOMPLETE = discord.Color.orange()
@@ -36,22 +42,21 @@ EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
 
-convert = lambda string: int(string) if string.isdecimal() else (float(string) if string.replace(".", "", 1).isdecimal() else string)
-llm_settings = {k.strip(): convert(v.strip()) for k, v in (x.split("=", 1) for x in env["LLM_SETTINGS"].split(",") if x.strip()) if "#" not in k}
+extra_api_parameters = config["extra_api_parameters"]
 
 if LLM_IS_LOCAL:
-    llm_settings["base_url"] = env["LOCAL_SERVER_URL"]
-    if "api_key" not in llm_settings:
-        llm_settings["api_key"] = "Not used"
+    extra_api_parameters["base_url"] = config["local_server_url"]
+    if "api_key" not in extra_api_parameters:
+        extra_api_parameters["api_key"] = "Not used"
 
-    env["LLM"] = env["LLM"].replace("local/", "", 1)
+    llm = llm.replace("local/", "", 1)
 
-if env["DISCORD_CLIENT_ID"]:
-    print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={env['DISCORD_CLIENT_ID']}&permissions=412317273088&scope=bot\n")
+if config["client_id"] != 123456789:
+    print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={config['client_id']}&permissions=412317273088&scope=bot\n")
 
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=env["DISCORD_STATUS_MESSAGE"][:128] or "github.com/jakobdylanc/discord-llm-chatbot")
+activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/discord-llm-chatbot")
 bot = discord.Client(intents=intents, activity=activity)
 
 msg_nodes = {}
@@ -79,7 +84,7 @@ def get_system_prompt():
     return [
         {
             "role": "system",
-            "content": "\n".join([env["LLM_SYSTEM_PROMPT"]] + system_prompt_extras),
+            "content": "\n".join([config["system_prompt"]] + system_prompt_extras),
         }
     ]
 
@@ -185,7 +190,7 @@ async def on_message(new_msg):
     response_contents = []
     prev_chunk = None
     edit_task = None
-    kwargs = dict(model=env["LLM"], messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | llm_settings
+    kwargs = dict(model=llm, messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | extra_api_parameters
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await acompletion(**kwargs):
@@ -242,7 +247,7 @@ async def on_message(new_msg):
 
 
 async def main():
-    await bot.start(env["DISCORD_BOT_TOKEN"])
+    await bot.start(config["bot_token"])
 
 
 asyncio.run(main())

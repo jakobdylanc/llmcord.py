@@ -58,8 +58,8 @@ Before you start, install Python and clone this git repo.
 | **bot_token** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
 | **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
 | **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
-| **allowed_channel_ids** | A list of Discord channel IDs where the bot can send messages. **Leave blank to allow all channels.** |
-| **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave blank to allow everyone. Specifying at least one role also disables DMs.** |
+| **allowed_channel_ids** | A list of Discord channel IDs where the bot can send messages. **Leave empty to allow all channels.** |
+| **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. Specifying at least one role also disables DMs.** |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |

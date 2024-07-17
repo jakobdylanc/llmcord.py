@@ -64,7 +64,7 @@ Before you start, install Python and clone this git repo.
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
 
-3. Create a copy of ".env.example" named ".env" and add API keys as needed for your [LiteLLM supported providers](https://docs.litellm.ai/docs/providers)
+3. Create a copy of "example.env" named ".env" and add API keys as needed for your [LiteLLM supported providers](https://docs.litellm.ai/docs/providers)
 
 4. Run the bot: `python llmcord.py` (the invite URL will print to the console)
 

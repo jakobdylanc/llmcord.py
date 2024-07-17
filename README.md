@@ -47,7 +47,7 @@ Before you start, install Python and clone this git repo.
 
 1. Install Python requirements: `pip install -U -r requirements.txt`
 
-2. Create a copy of "config.json.example" named "config.json" and set it up:
+2. Create a copy of "config-example.json" named "config.json" and set it up:
 
 | Setting | Description |
 | --- | --- |

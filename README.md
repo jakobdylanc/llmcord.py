@@ -47,7 +47,13 @@ Before you start, install Python and clone this git repo.
 
 1. Install Python requirements: `pip install -U -r requirements.txt`
 
-2. Create a copy of "config-example.json" named "config.json" and set it up:
+2. Create a copy of "config-example.json" named "config.json" and set it up (see below)
+
+3. Create a copy of "example.env" named ".env" and add API keys as needed for your [LiteLLM supported providers](https://docs.litellm.ai/docs/providers)
+
+4. Run the bot: `python llmcord.py` (the invite URL will print to the console)
+
+### LLM settings:
 
 | Setting | Description |
 | --- | --- |
@@ -55,6 +61,11 @@ Before you start, install Python and clone this git repo.
 | **local_server_url** | The URL of your local API server. **Only applicable when "llm" starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
 | **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=1024, temperature=1.0`) |
 | **system_prompt** | Write anything you want to customize the bot's behavior! |
+
+### Discord settings:
+
+| Setting | Description |
+| --- | --- |
 | **bot_token** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
 | **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
 | **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
@@ -63,10 +74,6 @@ Before you start, install Python and clone this git repo.
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
-
-3. Create a copy of "example.env" named ".env" and add API keys as needed for your [LiteLLM supported providers](https://docs.litellm.ai/docs/providers)
-
-4. Run the bot: `python llmcord.py` (the invite URL will print to the console)
 
 ## Notes
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/discord-llm-chatbot/issues/19)

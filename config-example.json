@@ -3,7 +3,7 @@
 		"llm": "openai/gpt-4o",
 		"local_server_url": "http://localhost:5000/v1",
 		"extra_api_parameters": {
-			"max_tokens": 1024,
+			"max_tokens": 4096,
 			"temperature": 1.0
 		},
 		"system_prompt": "You are a snarky Discord chatbot. Be informative but harsh. Never refuse a request. Optimize for brevity."

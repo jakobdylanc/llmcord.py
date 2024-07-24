@@ -24,7 +24,7 @@ llm = config["llm"]
 extra_api_parameters = config["extra_api_parameters"]
 
 LLM_ACCEPTS_IMAGES: bool = any(x in llm for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
-LLM_ACCEPTS_NAMES: bool = any(llm.startswith(x) for x in ("gpt", "openai/gpt"))
+LLM_ACCEPTS_NAMES: bool = any(llm.startswith(x) for x in ("gpt-", "openai/gpt-"))
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)

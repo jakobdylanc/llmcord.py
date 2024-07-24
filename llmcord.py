@@ -21,8 +21,8 @@ with open("config.json", "r") as file:
     config = {k: v for d in json.load(file).values() for k, v in d.items()}
 
 llm = config["llm"]
+extra_api_parameters = config["extra_api_parameters"]
 
-LLM_IS_LOCAL: bool = llm.startswith("local/")
 LLM_ACCEPTS_IMAGES: bool = any(x in llm for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
 LLM_ACCEPTS_NAMES: bool = any(llm.startswith(x) for x in ("gpt", "openai/gpt"))
 
@@ -41,14 +41,12 @@ EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
 
-extra_api_parameters = config["extra_api_parameters"]
+if llm.startswith("local/"):
+    llm = llm.replace("local/", "", 1)
 
-if LLM_IS_LOCAL:
     extra_api_parameters["base_url"] = config["local_server_url"]
     if "api_key" not in extra_api_parameters:
         extra_api_parameters["api_key"] = "Not used"
-
-    llm = llm.replace("local/", "", 1)
 
 if config["client_id"] != 123456789:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={config['client_id']}&permissions=412317273088&scope=bot\n")

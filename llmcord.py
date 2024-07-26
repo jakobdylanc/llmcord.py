@@ -74,7 +74,7 @@ class MsgNode:
 
 
 def get_system_prompt():
-    system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}"]
+    system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
     if LLM_ACCEPTS_NAMES:
         system_prompt_extras += ["User's names are their Discord IDs and should be typed as '<@ID>'."]
 

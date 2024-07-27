@@ -73,7 +73,7 @@ Before you start, install Python and clone this git repo.
 | **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. Specifying at least one role also disables DMs.** |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
-| **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `20`) |
+| **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `25`) |
 
 ## Notes
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/discord-llm-chatbot/issues/19)

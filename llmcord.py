@@ -78,12 +78,10 @@ def get_system_prompt():
     if LLM_ACCEPTS_NAMES:
         system_prompt_extras += ["User's names are their Discord IDs and should be typed as '<@ID>'."]
 
-    return [
-        {
-            "role": "system",
-            "content": "\n".join([config["system_prompt"]] + system_prompt_extras),
-        }
-    ]
+    return {
+        "role": "system",
+        "content": "\n".join([config["system_prompt"]] + system_prompt_extras),
+    }
 
 
 @bot.event
@@ -187,7 +185,8 @@ async def on_message(new_msg):
     response_contents = []
     prev_chunk = None
     edit_task = None
-    kwargs = dict(model=llm, messages=(get_system_prompt() + reply_chain[::-1]), stream=True) | extra_api_parameters
+    messages = [get_system_prompt()] + reply_chain[::-1]
+    kwargs = dict(model=llm, messages=messages, stream=True) | extra_api_parameters
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await acompletion(**kwargs):

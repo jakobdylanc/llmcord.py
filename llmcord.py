@@ -20,11 +20,11 @@ load_dotenv()
 with open("config.json", "r") as file:
     config = {k: v for d in json.load(file).values() for k, v in d.items()}
 
-llm = config["llm"]
+model = config["model"]
 extra_api_parameters = config["extra_api_parameters"]
 
-LLM_ACCEPTS_IMAGES: bool = any(x in llm for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
-LLM_ACCEPTS_NAMES: bool = any(llm.startswith(x) for x in ("gpt-", "openai/gpt-"))
+LLM_ACCEPTS_IMAGES: bool = any(x in model for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
+LLM_ACCEPTS_NAMES: bool = any(model.startswith(x) for x in ("gpt-", "openai/gpt-"))
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
@@ -41,8 +41,8 @@ EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_NODES = 100
 
-if llm.startswith("local/"):
-    llm = llm.replace("local/", "", 1)
+if model.startswith("local/"):
+    model = model.replace("local/", "", 1)
 
     extra_api_parameters["base_url"] = config["local_server_url"]
     if "api_key" not in extra_api_parameters:
@@ -186,7 +186,7 @@ async def on_message(new_msg):
     prev_chunk = None
     edit_task = None
     messages = [get_system_prompt()] + reply_chain[::-1]
-    kwargs = dict(model=llm, messages=messages, stream=True) | extra_api_parameters
+    kwargs = dict(model=model, messages=messages, stream=True) | extra_api_parameters
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await acompletion(**kwargs):

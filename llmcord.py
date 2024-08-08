@@ -43,7 +43,6 @@ MAX_MESSAGE_NODES = 100
 
 if model.startswith("local/"):
     model = model.replace("local/", "", 1)
-
     extra_api_parameters["base_url"] = config["local_server_url"]
     if "api_key" not in extra_api_parameters:
         extra_api_parameters["api_key"] = "Not used"
@@ -193,6 +192,7 @@ async def on_message(new_msg):
                 if prev_chunk:
                     prev_content = prev_chunk.choices[0].delta.content or ""
                     curr_content = curr_chunk.choices[0].delta.content or ""
+
                     if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
                         reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
                         embed = discord.Embed(description=f"{prev_content} ⏳", color=EMBED_COLOR_INCOMPLETE)

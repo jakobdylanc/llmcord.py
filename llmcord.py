@@ -198,19 +198,17 @@ async def on_message(new_msg):
                         embed = discord.Embed(description=f"{prev_content} ⏳", color=EMBED_COLOR_INCOMPLETE)
                         for warning in sorted(user_warnings):
                             embed.add_field(name=warning, value="", inline=False)
-                        response_msgs += [
-                            await reply_to_msg.reply(
-                                embed=embed,
-                                silent=True,
-                            )
-                        ]
-                        await msg_nodes.setdefault(response_msgs[-1].id, MsgNode()).lock.acquire()
+                        response_msg = await reply_to_msg.reply(embed=embed, silent=True)
+                        msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
+                        await msg_nodes[response_msg.id].lock.acquire()
                         last_task_time = dt.now().timestamp()
+                        response_msgs += [response_msg]
                         response_contents += [""]
 
                     response_contents[-1] += prev_content
                     is_final_edit: bool = curr_chunk.choices[0].finish_reason != None or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
-                    if is_final_edit or (not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS:
+
+                    if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
                         while edit_task and not edit_task.done():
                             await asyncio.sleep(0)
                         embed.description = response_contents[-1] if is_final_edit else f"{response_contents[-1]} ⏳"
@@ -232,7 +230,6 @@ async def on_message(new_msg):
 
     for msg in response_msgs:
         msg_nodes[msg.id].data = data
-        msg_nodes[msg.id].next_msg = new_msg
         msg_nodes[msg.id].lock.release()
 
     # Delete MsgNodes for oldest messages (lowest IDs)

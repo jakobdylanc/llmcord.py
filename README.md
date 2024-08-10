@@ -37,7 +37,7 @@ Or run a local model with [ollama](https://ollama.com), [oobabooga](https://gith
 - DM for private access (no @ required)
 - User identity aware (OpenAI API only)
 - Streamed responses (turns green when complete, automatically splits into separate messages when too long)
-- Displays helpful user warnings when appropriate (like "Only using last 20 messages" when the customizable message limit is exceeded)
+- Displays helpful warning messages when appropriate (like "⚠️ Only using last 25 messages" when the customizable message limit is exceeded)
 - Caches message data in a size-managed (no memory leaks) and mutex-protected (no race conditions) global dictionary to maximize efficiency and minimize Discord API calls
 - Fully asynchronous
 - 1 Python file, ~200 lines of code

@@ -74,6 +74,7 @@ Before you start, install Python and clone this git repo.
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `25`) |
+| **use_plain_responses** | When set to `true` the bot's messages appear more like a regular user message. **This disables embeds, streamed responses and warning messages**.<br />(Default: `false`) |
 
 ## Notes
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/discord-llm-chatbot/issues/19)

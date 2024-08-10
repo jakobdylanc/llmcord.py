@@ -35,10 +35,12 @@ MAX_TEXT = config["max_text"]
 MAX_IMAGES = config["max_images"] if LLM_ACCEPTS_IMAGES else 0
 MAX_MESSAGES = config["max_messages"]
 
+USE_PLAIN_RESPONSES: bool = config["use_plain_responses"]
+
 EMBED_COLOR_COMPLETE = discord.Color.dark_green()
 EMBED_COLOR_INCOMPLETE = discord.Color.orange()
-EMBED_MAX_LENGTH = 4096
 EDIT_DELAY_SECONDS = 1.3
+MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else 4096
 MAX_MESSAGE_NODES = 100
 
 if model.startswith("local/"):
@@ -193,32 +195,44 @@ async def on_message(new_msg):
                     prev_content = prev_chunk.choices[0].delta.content or ""
                     curr_content = curr_chunk.choices[0].delta.content or ""
 
-                    if not response_msgs or len(response_contents[-1] + prev_content) > EMBED_MAX_LENGTH:
-                        reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
-                        embed = discord.Embed(description=f"{prev_content} ⏳", color=EMBED_COLOR_INCOMPLETE)
-                        for warning in sorted(user_warnings):
-                            embed.add_field(name=warning, value="", inline=False)
-                        response_msg = await reply_to_msg.reply(embed=embed, silent=True)
-                        msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
-                        await msg_nodes[response_msg.id].lock.acquire()
-                        last_task_time = dt.now().timestamp()
-                        response_msgs += [response_msg]
+                    if not response_contents or len(response_contents[-1] + prev_content) > MAX_MESSAGE_LENGTH:
                         response_contents += [""]
 
-                    response_contents[-1] += prev_content
-                    is_final_edit: bool = curr_chunk.choices[0].finish_reason != None or len(response_contents[-1] + curr_content) > EMBED_MAX_LENGTH
+                        if not USE_PLAIN_RESPONSES:
+                            reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
+                            embed = discord.Embed(description=f"{prev_content} ⏳", color=EMBED_COLOR_INCOMPLETE)
+                            for warning in sorted(user_warnings):
+                                embed.add_field(name=warning, value="", inline=False)
+                            response_msg = await reply_to_msg.reply(embed=embed, silent=True)
+                            msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
+                            await msg_nodes[response_msg.id].lock.acquire()
+                            last_task_time = dt.now().timestamp()
+                            response_msgs += [response_msg]
 
-                    if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
-                        while edit_task and not edit_task.done():
-                            await asyncio.sleep(0)
-                        embed.description = response_contents[-1] if is_final_edit else f"{response_contents[-1]} ⏳"
-                        embed.color = EMBED_COLOR_COMPLETE if is_final_edit else EMBED_COLOR_INCOMPLETE
-                        edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
-                        last_task_time = dt.now().timestamp()
+                    response_contents[-1] += prev_content
+
+                    if not USE_PLAIN_RESPONSES:
+                        is_final_edit: bool = curr_chunk.choices[0].finish_reason != None or len(response_contents[-1] + curr_content) > MAX_MESSAGE_LENGTH
+
+                        if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
+                            while edit_task and not edit_task.done():
+                                await asyncio.sleep(0)
+                            embed.description = response_contents[-1] if is_final_edit else f"{response_contents[-1]} ⏳"
+                            embed.color = EMBED_COLOR_COMPLETE if is_final_edit else EMBED_COLOR_INCOMPLETE
+                            edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
+                            last_task_time = dt.now().timestamp()
 
                 prev_chunk = curr_chunk
     except:
         logging.exception("Error while streaming response")
+
+    if USE_PLAIN_RESPONSES:
+        for content in response_contents:
+            reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
+            response_msg = await reply_to_msg.reply(content=content)
+            msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
+            await msg_nodes[response_msg.id].lock.acquire()
+            response_msgs += [response_msg]
 
     # Create MsgNode data for response messages
     data = {

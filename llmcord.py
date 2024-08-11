@@ -39,8 +39,9 @@ USE_PLAIN_RESPONSES: bool = config["use_plain_responses"]
 
 EMBED_COLOR_COMPLETE = discord.Color.dark_green()
 EMBED_COLOR_INCOMPLETE = discord.Color.orange()
+STREAMING_INDICATOR = " ⚪"
 EDIT_DELAY_SECONDS = 1.3
-MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else 4096
+MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else (4096 - len(STREAMING_INDICATOR))
 MAX_MESSAGE_NODES = 100
 
 if model.startswith("local/"):
@@ -200,7 +201,7 @@ async def on_message(new_msg):
 
                         if not USE_PLAIN_RESPONSES:
                             reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
-                            embed = discord.Embed(description=f"{prev_content} ⏳", color=EMBED_COLOR_INCOMPLETE)
+                            embed = discord.Embed(description=(prev_content + STREAMING_INDICATOR), color=EMBED_COLOR_INCOMPLETE)
                             for warning in sorted(user_warnings):
                                 embed.add_field(name=warning, value="", inline=False)
                             response_msg = await reply_to_msg.reply(embed=embed, silent=True)
@@ -217,7 +218,7 @@ async def on_message(new_msg):
                         if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
                             while edit_task and not edit_task.done():
                                 await asyncio.sleep(0)
-                            embed.description = response_contents[-1] if is_final_edit else f"{response_contents[-1]} ⏳"
+                            embed.description = response_contents[-1] if is_final_edit else (response_contents[-1] + STREAMING_INDICATOR)
                             embed.color = EMBED_COLOR_COMPLETE if is_final_edit else EMBED_COLOR_INCOMPLETE
                             edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
                             last_task_time = dt.now().timestamp()

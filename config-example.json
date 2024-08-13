@@ -1,7 +1,7 @@
 {
 	"llm_settings": {
 		"model": "openai/gpt-4o",
-		"local_server_url": "http://localhost:5000/v1",
+		"local_server_url": "http://localhost:11434/v1",
 		"extra_api_parameters": {
 			"max_tokens": 4096,
 			"temperature": 1.0

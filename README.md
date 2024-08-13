@@ -57,7 +57,7 @@ Before you start, install Python and clone this git repo.
 
 | Setting | Description |
 | --- | --- |
-| **model** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [ollama](https://docs.litellm.ai/docs/providers/ollama), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local, OpenAI compatible API servers ([oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai), etc.), set to `local/openai/model` (or `local/openai/vision-model` if using a vision model). Some setups will instead require `local/openai/<MODEL_NAME>` where <MODEL_NAME> is the exact name of the model you're using. |
+| **model** | For [LiteLLM supported providers](https://docs.litellm.ai/docs/providers) ([OpenAI API](https://docs.litellm.ai/docs/providers/openai), [Mistral API](https://docs.litellm.ai/docs/providers/mistral), [Anthropic API](https://docs.litellm.ai/docs/providers/anthropic), etc.), follow the LiteLLM instructions for its model name formatting.<br /><br />For local models ([ollama](https://docs.litellm.ai/docs/providers/ollama), [oobabooga](https://github.com/oobabooga/text-generation-webui), [Jan](https://jan.ai), [LM Studio](https://lmstudio.ai), etc.), set to `local/openai/<MODEL_NAME>` where <MODEL_NAME> is the exact name of the model you're using. For setups with no model name, just set it to `local/openai/model` or `local/openai/vision-model` if it's a vision model. |
 | **local_server_url** | The URL of your local API server. **Only applicable when "model" starts with `local/`.**<br />(Default: `http://localhost:5000/v1`) |
 | **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=4096, temperature=1.0`) |
 | **system_prompt** | Write anything you want to customize the bot's behavior! |
@@ -69,7 +69,7 @@ Before you start, install Python and clone this git repo.
 | **bot_token** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
 | **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
 | **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
-| **allowed_channel_ids** | A list of Discord channel IDs where the bot can send messages. **Leave empty to allow all channels.** |
+| **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Leave empty to allow all channels.** |
 | **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. Specifying at least one role also disables DMs.** |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |

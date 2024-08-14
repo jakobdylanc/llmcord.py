@@ -247,7 +247,7 @@ async def on_message(new_msg):
         msg_nodes[msg.id].data = data
         msg_nodes[msg.id].lock.release()
 
-    # Delete MsgNodes for oldest messages (lowest IDs)
+    # Delete oldest MsgNodes (lowest message IDs) from the cache
     if (num_nodes := len(msg_nodes)) > MAX_MESSAGE_NODES:
         for msg_id in sorted(msg_nodes.keys())[: num_nodes - MAX_MESSAGE_NODES]:
             async with msg_nodes.setdefault(msg_id, MsgNode()).lock:

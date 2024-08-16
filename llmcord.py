@@ -20,11 +20,8 @@ load_dotenv()
 with open("config.json", "r") as file:
     config = {k: v for d in json.load(file).values() for k, v in d.items()}
 
-model = config["model"]
-extra_api_parameters = config["extra_api_parameters"]
-
-LLM_ACCEPTS_IMAGES: bool = any(x in model for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
-LLM_ACCEPTS_NAMES: bool = any(model.startswith(x) for x in ("gpt-", "chatgpt-", "openai/gpt-", "openai/chatgpt-"))
+LLM_ACCEPTS_IMAGES: bool = any(x in config["model"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
+LLM_ACCEPTS_NAMES: bool = any(config["model"].startswith(x) for x in ("gpt-", "chatgpt-", "openai/gpt-", "openai/chatgpt-"))
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
@@ -43,6 +40,9 @@ STREAMING_INDICATOR = " ⚪"
 EDIT_DELAY_SECONDS = 1.3
 MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else (4096 - len(STREAMING_INDICATOR))
 MAX_MESSAGE_NODES = 100
+
+model = config["model"]
+extra_api_parameters = config["extra_api_parameters"]
 
 if model.startswith("local/"):
     model = model.replace("local/", "", 1)

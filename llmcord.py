@@ -8,21 +8,22 @@ import requests
 from typing import Optional
 
 import discord
-from dotenv import load_dotenv
-from litellm import acompletion
+from openai import AsyncOpenAI
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s: %(message)s",
 )
-logging.getLogger("LiteLLM").setLevel(logging.ERROR)
 
-load_dotenv()
 with open("config.json", "r") as file:
     config = {k: v for d in json.load(file).values() for k, v in d.items()}
 
-LLM_ACCEPTS_IMAGES: bool = any(x in config["model"] for x in ("claude-3", "gpt-4-turbo", "gpt-4o", "llava", "vision"))
-LLM_ACCEPTS_NAMES: bool = any(config["model"].startswith(x) for x in ("gpt-", "chatgpt-", "openai/gpt-", "openai/chatgpt-"))
+provider, model = config["model"].split("/", 1)
+base_url = config["providers"][provider]["base_url"]
+api_key = config["providers"][provider]["api_key"] or "None"
+
+LLM_ACCEPTS_IMAGES: bool = any(x in model for x in ("gpt-4-turbo", "gpt-4o", "llava", "vision"))
+LLM_ACCEPTS_NAMES: bool = provider == "openai"
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
@@ -42,15 +43,6 @@ EDIT_DELAY_SECONDS = 1
 MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else (4096 - len(STREAMING_INDICATOR))
 MAX_MESSAGE_NODES = 100
 
-model = config["model"]
-extra_api_parameters = config["extra_api_parameters"]
-
-if model.startswith("local/"):
-    model = model.replace("local/", "", 1)
-    extra_api_parameters["base_url"] = config["local_server_url"]
-    if "api_key" not in extra_api_parameters:
-        extra_api_parameters["api_key"] = "Not used"
-
 if config["client_id"] != 123456789:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={config['client_id']}&permissions=412317273088&scope=bot\n")
 
@@ -58,6 +50,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/discord-llm-chatbot")
 bot = discord.Client(intents=intents, activity=activity)
+client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
 msg_nodes = {}
 last_task_time = None
@@ -189,10 +182,10 @@ async def on_message(new_msg):
     prev_chunk = None
     edit_task = None
     messages = [get_system_prompt()] + reply_chain[::-1]
-    kwargs = dict(model=model, messages=messages, stream=True) | extra_api_parameters
+    kwargs = dict(model=model, messages=messages, stream=True, extra_body=config["extra_api_parameters"])
     try:
         async with new_msg.channel.typing():
-            async for curr_chunk in await acompletion(**kwargs):
+            async for curr_chunk in await client.chat.completions.create(**kwargs):
                 if prev_chunk:
                     prev_content = prev_chunk.choices[0].delta.content or ""
                     curr_content = curr_chunk.choices[0].delta.content or ""

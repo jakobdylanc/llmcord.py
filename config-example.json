@@ -1,7 +1,36 @@
 {
 	"llm_settings": {
+		"providers": {
+			"openai": {
+				"base_url": "https://api.openai.com/v1",
+				"api_key": ""
+			},
+			"mistral": {
+				"base_url": "https://api.mistral.ai/v1",
+				"api_key": ""
+			},
+			"groq": {
+				"base_url": "https://api.groq.com/openai/v1",
+				"api_key": ""
+			},
+			"ollama": {
+				"base_url": "http://localhost:11434/v1",
+				"api_key": ""
+			},
+			"oobabooga": {
+				"base_url": "http://localhost:5000/v1",
+				"api_key": ""
+			},
+			"jan": {
+				"base_url": "http://localhost:1337/v1",
+				"api_key": ""
+			},
+			"lmstudio": {
+				"base_url": "http://localhost:1234/v1",
+				"api_key": ""
+			}
+		},
 		"model": "openai/gpt-4o",
-		"local_server_url": "http://localhost:11434/v1",
 		"extra_api_parameters": {
 			"max_tokens": 4096,
 			"temperature": 1.0

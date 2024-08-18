@@ -1,3 +1,2 @@
 discord.py
-litellm
-python-dotenv
+openai

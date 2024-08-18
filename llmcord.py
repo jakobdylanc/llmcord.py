@@ -15,6 +15,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s: %(message)s",
 )
+logging.getLogger("LiteLLM").setLevel(logging.ERROR)
 
 load_dotenv()
 with open("config.json", "r") as file:

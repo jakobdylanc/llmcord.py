@@ -190,32 +190,33 @@ async def on_message(new_msg):
                     prev_content = prev_chunk.choices[0].delta.content or ""
                     curr_content = curr_chunk.choices[0].delta.content or ""
 
-                    if not response_contents or len(response_contents[-1] + prev_content) > MAX_MESSAGE_LENGTH:
-                        response_contents += [""]
+                    if prev_content:
+                        if not response_contents or len(response_contents[-1] + prev_content) > MAX_MESSAGE_LENGTH:
+                            response_contents += [""]
+
+                            if not USE_PLAIN_RESPONSES:
+                                reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
+                                embed = discord.Embed(description=(prev_content + STREAMING_INDICATOR), color=EMBED_COLOR_INCOMPLETE)
+                                for warning in sorted(user_warnings):
+                                    embed.add_field(name=warning, value="", inline=False)
+                                response_msg = await reply_to_msg.reply(embed=embed, silent=True)
+                                msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
+                                await msg_nodes[response_msg.id].lock.acquire()
+                                last_task_time = dt.now().timestamp()
+                                response_msgs += [response_msg]
+
+                        response_contents[-1] += prev_content
 
                         if not USE_PLAIN_RESPONSES:
-                            reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
-                            embed = discord.Embed(description=(prev_content + STREAMING_INDICATOR), color=EMBED_COLOR_INCOMPLETE)
-                            for warning in sorted(user_warnings):
-                                embed.add_field(name=warning, value="", inline=False)
-                            response_msg = await reply_to_msg.reply(embed=embed, silent=True)
-                            msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
-                            await msg_nodes[response_msg.id].lock.acquire()
-                            last_task_time = dt.now().timestamp()
-                            response_msgs += [response_msg]
+                            is_final_edit: bool = curr_chunk.choices[0].finish_reason != None or len(response_contents[-1] + curr_content) > MAX_MESSAGE_LENGTH
 
-                    response_contents[-1] += prev_content
-
-                    if not USE_PLAIN_RESPONSES:
-                        is_final_edit: bool = curr_chunk.choices[0].finish_reason != None or len(response_contents[-1] + curr_content) > MAX_MESSAGE_LENGTH
-
-                        if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
-                            while edit_task and not edit_task.done():
-                                await asyncio.sleep(0)
-                            embed.description = response_contents[-1] if is_final_edit else (response_contents[-1] + STREAMING_INDICATOR)
-                            embed.color = EMBED_COLOR_COMPLETE if is_final_edit else EMBED_COLOR_INCOMPLETE
-                            edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
-                            last_task_time = dt.now().timestamp()
+                            if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
+                                while edit_task and not edit_task.done():
+                                    await asyncio.sleep(0)
+                                embed.description = response_contents[-1] if is_final_edit else (response_contents[-1] + STREAMING_INDICATOR)
+                                embed.color = EMBED_COLOR_COMPLETE if is_final_edit else EMBED_COLOR_INCOMPLETE
+                                edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
+                                last_task_time = dt.now().timestamp()
 
                 prev_chunk = curr_chunk
 

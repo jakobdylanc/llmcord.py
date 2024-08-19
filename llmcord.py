@@ -48,7 +48,7 @@ if config["client_id"] != 123456789:
 
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/discord-llm-chatbot")
+activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
 bot = discord.Client(intents=intents, activity=activity)
 client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 

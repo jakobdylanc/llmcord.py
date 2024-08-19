@@ -7,7 +7,7 @@
 </i></h3>
 
 <p align="center">
-  <img src="https://github.com/jakobdylanc/discord-llm-chatbot/assets/38699060/789d49fe-ef5c-470e-b60e-48ac03057443" alt="">
+  <img src="https://github.com/jakobdylanc/llmcord.py/assets/38699060/789d49fe-ef5c-470e-b60e-48ac03057443" alt="">
 </p>
 
 llmcord.py lets you (and your friends) chat with LLMs directly in Discord. It works with practically any LLM, remote or locally hosted.
@@ -84,17 +84,17 @@ Before you start, install Python and clone this git repo.
 | **use_plain_responses** | When set to `true` the bot's messages appear more like a regular user message. **This disables embeds, streamed responses and warning messages**.<br />(Default: `false`) |
 
 ## Notes
-- If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/discord-llm-chatbot/issues/19)
+- If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/llmcord.py/issues/19)
 
 - Only models from OpenAI are "user identity aware" because only OpenAI API supports the message "name" property. Hopefully others support this in the future.
 
 - PRs are welcome :)
 
 ## Star History
-<a href="https://star-history.com/#jakobdylanc/discord-llm-chatbot&Date">
+<a href="https://star-history.com/#jakobdylanc/llmcord.py&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/discord-llm-chatbot&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/discord-llm-chatbot&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/discord-llm-chatbot&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date" />
   </picture>
 </a>

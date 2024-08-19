@@ -21,6 +21,15 @@ with open("config.json", "r") as file:
 provider, model = config["model"].split("/", 1)
 base_url = config["providers"][provider]["base_url"]
 api_key = config["providers"][provider]["api_key"] or "None"
+openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
+
+intents = discord.Intents.default()
+intents.message_content = True
+activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
+discord_client = discord.Client(intents=intents, activity=activity)
+
+msg_nodes = {}
+last_task_time = None
 
 LLM_ACCEPTS_IMAGES: bool = any(x in model for x in ("gpt-4-turbo", "gpt-4o", "llava", "vision"))
 LLM_ACCEPTS_NAMES: bool = provider == "openai"
@@ -45,15 +54,6 @@ MAX_MESSAGE_NODES = 100
 
 if config["client_id"] != 123456789:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={config['client_id']}&permissions=412317273088&scope=bot\n")
-
-intents = discord.Intents.default()
-intents.message_content = True
-activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
-bot = discord.Client(intents=intents, activity=activity)
-client = AsyncOpenAI(base_url=base_url, api_key=api_key)
-
-msg_nodes = {}
-last_task_time = None
 
 
 @dataclass
@@ -80,14 +80,14 @@ def get_system_prompt():
     }
 
 
-@bot.event
+@discord_client.event
 async def on_message(new_msg):
     global msg_nodes, last_task_time
 
     # Filter out unwanted messages
     if (
         new_msg.channel.type not in ALLOWED_CHANNEL_TYPES
-        or (new_msg.channel.type != discord.ChannelType.private and bot.user not in new_msg.mentions)
+        or (new_msg.channel.type != discord.ChannelType.private and discord_client.user not in new_msg.mentions)
         or (ALLOWED_CHANNEL_IDS and not any(id in ALLOWED_CHANNEL_IDS for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
         or (ALLOWED_ROLE_IDS and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in ALLOWED_ROLE_IDS for role in new_msg.author.roles)))
         or new_msg.author.bot
@@ -110,8 +110,8 @@ async def on_message(new_msg):
                     + [embed.description for embed in curr_msg.embeds if embed.description]
                     + [requests.get(att.url).text for att in good_attachments["text"]]
                 )
-                if curr_msg.content.startswith(bot.user.mention):
-                    text = text.replace(bot.user.mention, "", 1).lstrip()
+                if curr_msg.content.startswith(discord_client.user.mention):
+                    text = text.replace(discord_client.user.mention, "", 1).lstrip()
 
                 if LLM_ACCEPTS_IMAGES and good_attachments["image"][:MAX_IMAGES]:
                     content = ([{"type": "text", "text": text[:MAX_TEXT]}] if text[:MAX_TEXT] else []) + [
@@ -126,7 +126,7 @@ async def on_message(new_msg):
 
                 data = {
                     "content": content,
-                    "role": "assistant" if curr_msg.author == bot.user else "user",
+                    "role": "assistant" if curr_msg.author == discord_client.user else "user",
                 }
                 if LLM_ACCEPTS_NAMES:
                     data["name"] = str(curr_msg.author.id)
@@ -140,7 +140,7 @@ async def on_message(new_msg):
                     if (
                         not curr_msg.reference
                         and curr_msg.channel.type != discord.ChannelType.private
-                        and bot.user.mention not in curr_msg.content
+                        and discord_client.user.mention not in curr_msg.content
                         and (prev_msg_in_channel := ([m async for m in curr_msg.channel.history(before=curr_msg, limit=1)] or [None])[0])
                         and any(prev_msg_in_channel.type == type for type in (discord.MessageType.default, discord.MessageType.reply))
                         and prev_msg_in_channel.author == curr_msg.author
@@ -185,7 +185,7 @@ async def on_message(new_msg):
     kwargs = dict(model=model, messages=messages, stream=True, extra_body=config["extra_api_parameters"])
     try:
         async with new_msg.channel.typing():
-            async for curr_chunk in await client.chat.completions.create(**kwargs):
+            async for curr_chunk in await openai_client.chat.completions.create(**kwargs):
                 if prev_chunk:
                     prev_content = prev_chunk.choices[0].delta.content or ""
                     curr_content = curr_chunk.choices[0].delta.content or ""
@@ -236,7 +236,7 @@ async def on_message(new_msg):
         "role": "assistant",
     }
     if LLM_ACCEPTS_NAMES:
-        data["name"] = str(bot.user.id)
+        data["name"] = str(discord_client.user.id)
 
     for msg in response_msgs:
         msg_nodes[msg.id].data = data
@@ -250,7 +250,7 @@ async def on_message(new_msg):
 
 
 async def main():
-    await bot.start(config["bot_token"])
+    await discord_client.start(config["bot_token"])
 
 
 asyncio.run(main())

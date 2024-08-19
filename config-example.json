@@ -14,20 +14,16 @@
 				"api_key": ""
 			},
 			"ollama": {
-				"base_url": "http://localhost:11434/v1",
-				"api_key": ""
+				"base_url": "http://localhost:11434/v1"
 			},
 			"oobabooga": {
-				"base_url": "http://localhost:5000/v1",
-				"api_key": ""
+				"base_url": "http://localhost:5000/v1"
 			},
 			"jan": {
-				"base_url": "http://localhost:1337/v1",
-				"api_key": ""
+				"base_url": "http://localhost:1337/v1"
 			},
 			"lmstudio": {
-				"base_url": "http://localhost:1234/v1",
-				"api_key": ""
+				"base_url": "http://localhost:1234/v1"
 			}
 		},
 		"model": "openai/gpt-4o",

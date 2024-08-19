@@ -20,7 +20,7 @@ with open("config.json", "r") as file:
 
 provider, model = config["model"].split("/", 1)
 base_url = config["providers"][provider]["base_url"]
-api_key = config["providers"][provider]["api_key"] or "None"
+api_key = config["providers"][provider].get("api_key", "None")
 openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
 intents = discord.Intents.default()

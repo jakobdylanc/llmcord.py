@@ -64,7 +64,7 @@ Before you start, install Python and clone this git repo.
 
 | Setting | Description |
 | --- | --- |
-| **providers** | Add the LLM providers you want to use, each with a `base_url` and `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
+| **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
 | **model** | Set to `<provider name>/<model name>`, e.g. `openai/gpt-4o` or `ollama/llama3.1`.<br /><br />For some providers the model name doesn't matter, in which case set to `<provider name>/model` or `<provider name>/vision-model` if it's a vision model. |
 | **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=4096, temperature=1.0`) |
 | **system_prompt** | Write anything you want to customize the bot's behavior! |

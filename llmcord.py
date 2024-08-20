@@ -18,19 +18,6 @@ logging.basicConfig(
 with open("config.json", "r") as file:
     config = {k: v for d in json.load(file).values() for k, v in d.items()}
 
-provider, model = config["model"].split("/", 1)
-base_url = config["providers"][provider]["base_url"]
-api_key = config["providers"][provider].get("api_key", "None")
-openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
-
-intents = discord.Intents.default()
-intents.message_content = True
-activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
-discord_client = discord.Client(intents=intents, activity=activity)
-
-msg_nodes = {}
-last_task_time = None
-
 LLM_ACCEPTS_IMAGES: bool = any(x in config["model"] for x in ("gpt-4-turbo", "gpt-4o", "claude-3", "llava", "vision"))
 LLM_ACCEPTS_NAMES: bool = "openai/" in config["model"]
 
@@ -51,6 +38,19 @@ STREAMING_INDICATOR = " ⚪"
 EDIT_DELAY_SECONDS = 1
 MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else (4096 - len(STREAMING_INDICATOR))
 MAX_MESSAGE_NODES = 100
+
+provider, model = config["model"].split("/", 1)
+base_url = config["providers"][provider]["base_url"]
+api_key = config["providers"][provider].get("api_key", "None")
+openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
+
+intents = discord.Intents.default()
+intents.message_content = True
+activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
+discord_client = discord.Client(intents=intents, activity=activity)
+
+msg_nodes = {}
+last_task_time = None
 
 if config["client_id"] != 123456789:
     print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={config['client_id']}&permissions=412317273088&scope=bot\n")

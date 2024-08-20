@@ -13,6 +13,10 @@
 				"base_url": "https://api.groq.com/openai/v1",
 				"api_key": ""
 			},
+			"openrouter": {
+				"base_url": "https://openrouter.ai/api/v1",
+				"api_key": ""
+			},
 			"ollama": {
 				"base_url": "http://localhost:11434/v1"
 			},

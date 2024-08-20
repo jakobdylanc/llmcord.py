@@ -31,8 +31,8 @@ discord_client = discord.Client(intents=intents, activity=activity)
 msg_nodes = {}
 last_task_time = None
 
-LLM_ACCEPTS_IMAGES: bool = any(x in model for x in ("gpt-4-turbo", "gpt-4o", "llava", "vision"))
-LLM_ACCEPTS_NAMES: bool = provider == "openai"
+LLM_ACCEPTS_IMAGES: bool = any(x in config["model"] for x in ("gpt-4-turbo", "gpt-4o", "claude-3", "llava", "vision"))
+LLM_ACCEPTS_NAMES: bool = "openai/" in config["model"]
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)

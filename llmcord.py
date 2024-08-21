@@ -18,7 +18,7 @@ logging.basicConfig(
 with open("config.json", "r") as file:
     config = {k: v for d in json.load(file).values() for k, v in d.items()}
 
-LLM_ACCEPTS_IMAGES: bool = any(x in config["model"] for x in ("gpt-4-turbo", "gpt-4o", "claude-3", "llava", "vision"))
+LLM_ACCEPTS_IMAGES: bool = any(x in config["model"] for x in ("gpt-4-turbo", "gpt-4o", "claude-3", "gemini", "llava", "vision"))
 LLM_ACCEPTS_NAMES: bool = "openai/" in config["model"]
 
 ALLOWED_FILE_TYPES = ("image", "text")

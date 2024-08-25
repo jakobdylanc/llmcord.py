@@ -190,7 +190,7 @@ async def on_message(new_msg):
                     prev_content = prev_chunk.choices[0].delta.content or ""
                     curr_content = curr_chunk.choices[0].delta.content or ""
 
-                    if prev_content:
+                    if response_contents or prev_content:
                         if not response_contents or len(response_contents[-1] + prev_content) > MAX_MESSAGE_LENGTH:
                             response_contents += [""]
 

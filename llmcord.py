@@ -208,13 +208,14 @@ async def on_message(new_msg):
                         response_contents[-1] += prev_content
 
                         if not USE_PLAIN_RESPONSES:
-                            is_final_edit: bool = curr_chunk.choices[0].finish_reason != None or len(response_contents[-1] + curr_content) > MAX_MESSAGE_LENGTH
+                            msg_split_incoming: bool = len(response_contents[-1] + curr_content) > MAX_MESSAGE_LENGTH
+                            is_final_edit: bool = (finish_reason := curr_chunk.choices[0].finish_reason) != None or msg_split_incoming
 
                             if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
                                 while edit_task and not edit_task.done():
                                     await asyncio.sleep(0)
                                 embed.description = response_contents[-1] if is_final_edit else (response_contents[-1] + STREAMING_INDICATOR)
-                                embed.color = EMBED_COLOR_COMPLETE if is_final_edit else EMBED_COLOR_INCOMPLETE
+                                embed.color = EMBED_COLOR_COMPLETE if finish_reason == "stop" or msg_split_incoming else EMBED_COLOR_INCOMPLETE
                                 edit_task = asyncio.create_task(response_msgs[-1].edit(embed=embed))
                                 last_task_time = dt.now().timestamp()
 

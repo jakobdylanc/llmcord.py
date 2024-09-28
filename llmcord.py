@@ -182,7 +182,8 @@ async def on_message(new_msg):
     response_contents = []
     prev_chunk = None
     edit_task = None
-    messages = [get_system_prompt()] + reply_chain[::-1]
+    messages = (reply_chain + [get_system_prompt()] if config["system_prompt"] else reply_chain)[::-1]
+
     kwargs = dict(model=model, messages=messages, stream=True, extra_body=config["extra_api_parameters"])
     try:
         async with new_msg.channel.typing():

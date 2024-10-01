@@ -1,7 +1,7 @@
 *
 
 !.gitignore
-!LICENSE
+!LICENSE.md
 !README.md
 !config-example.json
 !llmcord.py

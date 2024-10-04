@@ -30,13 +30,15 @@ MAX_TEXT = config["max_text"]
 MAX_IMAGES = config["max_images"] if LLM_ACCEPTS_IMAGES else 0
 MAX_MESSAGES = config["max_messages"]
 
+STREAMING_INDICATOR = " ⚪"
+EDIT_DELAY_SECONDS = 1
+
 USE_PLAIN_RESPONSES: bool = config["use_plain_responses"]
+MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else (4096 - len(STREAMING_INDICATOR))
 
 EMBED_COLOR_COMPLETE = discord.Color.dark_green()
 EMBED_COLOR_INCOMPLETE = discord.Color.orange()
-STREAMING_INDICATOR = " ⚪"
-EDIT_DELAY_SECONDS = 1
-MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else (4096 - len(STREAMING_INDICATOR))
+
 MAX_MESSAGE_NODES = 100
 
 provider, model = config["model"].split("/", 1)

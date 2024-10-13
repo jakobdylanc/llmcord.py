@@ -96,11 +96,11 @@ async def on_message(new_msg):
     ):
         return
 
-    # Build message reply chain and set user warnings
-    reply_chain = []
+    # Build message chain and set user warnings
+    messages = []
     user_warnings = set()
     curr_msg = new_msg
-    while curr_msg and len(reply_chain) < MAX_MESSAGES:
+    while curr_msg and len(messages) < MAX_MESSAGES:
         curr_node = msg_nodes.setdefault(curr_msg.id, MsgNode())
 
         async with curr_node.lock:
@@ -164,7 +164,7 @@ async def on_message(new_msg):
                     curr_node.fetch_next_failed = True
 
             if curr_node.data["content"]:
-                reply_chain += [curr_node.data]
+                messages += [curr_node.data]
 
             if curr_node.too_much_text:
                 user_warnings.add(f"⚠️ Max {MAX_TEXT:,} characters per message")
@@ -172,21 +172,23 @@ async def on_message(new_msg):
                 user_warnings.add(f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images")
             if curr_node.has_bad_attachments:
                 user_warnings.add("⚠️ Unsupported attachments")
-            if curr_node.fetch_next_failed or (curr_node.next_msg and len(reply_chain) == MAX_MESSAGES):
-                user_warnings.add(f"⚠️ Only using last {len(reply_chain)} message{'' if len(reply_chain) == 1 else 's'}")
+            if curr_node.fetch_next_failed or (curr_node.next_msg and len(messages) == MAX_MESSAGES):
+                user_warnings.add(f"⚠️ Only using last {len(messages)} message{'' if len(messages) == 1 else 's'}")
 
             curr_msg = curr_node.next_msg
 
-    logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, reply chain length: {len(reply_chain)}):\n{new_msg.content}")
+    logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}")
+
+    if config["system_prompt"]:
+        messages += [get_system_prompt()]
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []
     response_contents = []
     prev_chunk = None
     edit_task = None
-    messages = (reply_chain + [get_system_prompt()] if config["system_prompt"] else reply_chain)[::-1]
 
-    kwargs = dict(model=model, messages=messages, stream=True, extra_body=config["extra_api_parameters"])
+    kwargs = dict(model=model, messages=messages[::-1], stream=True, extra_body=config["extra_api_parameters"])
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await openai_client.chat.completions.create(**kwargs):

@@ -74,7 +74,7 @@ class MsgNode:
 def get_system_prompt():
     system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
     if LLM_ACCEPTS_NAMES:
-        system_prompt_extras += ["User's names are their Discord IDs and should be typed as '<@ID>'."]
+        system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
     return {
         "role": "system",
@@ -164,7 +164,7 @@ async def on_message(new_msg):
                     curr_node.fetch_next_failed = True
 
             if curr_node.data["content"]:
-                messages += [curr_node.data]
+                messages.append(curr_node.data)
 
             if curr_node.too_much_text:
                 user_warnings.add(f"⚠️ Max {MAX_TEXT:,} characters per message")
@@ -180,7 +180,7 @@ async def on_message(new_msg):
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}")
 
     if config["system_prompt"]:
-        messages += [get_system_prompt()]
+        messages.append(get_system_prompt())
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []
@@ -198,7 +198,7 @@ async def on_message(new_msg):
 
                     if response_contents or prev_content:
                         if not response_contents or len(response_contents[-1] + prev_content) > MAX_MESSAGE_LENGTH:
-                            response_contents += [""]
+                            response_contents.append("")
 
                             if not USE_PLAIN_RESPONSES:
                                 reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
@@ -209,7 +209,7 @@ async def on_message(new_msg):
                                 msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
                                 await msg_nodes[response_msg.id].lock.acquire()
                                 last_task_time = dt.now().timestamp()
-                                response_msgs += [response_msg]
+                                response_msgs.append(response_msg)
 
                         response_contents[-1] += prev_content
 
@@ -233,7 +233,7 @@ async def on_message(new_msg):
                 response_msg = await reply_to_msg.reply(content=content)
                 msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
                 await msg_nodes[response_msg.id].lock.acquire()
-                response_msgs += [response_msg]
+                response_msgs.append(response_msg)
     except:
         logging.exception("Error while generating response")
 

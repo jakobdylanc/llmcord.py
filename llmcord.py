@@ -71,17 +71,6 @@ class MsgNode:
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
 
-def get_system_prompt():
-    system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
-    if LLM_ACCEPTS_NAMES:
-        system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
-
-    return {
-        "role": "system",
-        "content": "\n".join([config["system_prompt"]] + system_prompt_extras),
-    }
-
-
 @discord_client.event
 async def on_message(new_msg):
     global msg_nodes, last_task_time
@@ -180,7 +169,11 @@ async def on_message(new_msg):
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}")
 
     if config["system_prompt"]:
-        messages.append(get_system_prompt())
+        system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
+        if LLM_ACCEPTS_NAMES:
+            system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
+
+        messages.append(dict(role="system", content="\n".join([config["system_prompt"]] + system_prompt_extras)))
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []

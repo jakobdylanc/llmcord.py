@@ -60,11 +60,13 @@ if config["client_id"] != 123456789:
 
 @dataclass
 class MsgNode:
-    data: dict = field(default_factory=dict)
+    name: str = ""
+    role: str = ""
+    text: str = ""
+    images: list = field(default_factory=list)
+
     next_msg: Optional[discord.Message] = None
 
-    too_much_text: bool = False
-    too_many_images: bool = False
     has_bad_attachments: bool = False
     fetch_next_failed: bool = False
 
@@ -93,38 +95,26 @@ async def on_message(new_msg):
         curr_node = msg_nodes.setdefault(curr_msg.id, MsgNode())
 
         async with curr_node.lock:
-            if not curr_node.data:
+            if not curr_node.name:
                 good_attachments = {type: [att for att in curr_msg.attachments if att.content_type and type in att.content_type] for type in ALLOWED_FILE_TYPES}
 
-                text = "\n".join(
+                curr_node.name = str(curr_msg.author.id)
+
+                curr_node.role = "assistant" if curr_msg.author == discord_client.user else "user"
+
+                curr_node.text = "\n".join(
                     ([curr_msg.content] if curr_msg.content else [])
                     + [embed.description for embed in curr_msg.embeds if embed.description]
                     + [requests.get(att.url).text for att in good_attachments["text"]]
                 )
-                if curr_msg.content.startswith(discord_client.user.mention):
-                    text = text.replace(discord_client.user.mention, "", 1).lstrip()
+                if curr_node.text.startswith(discord_client.user.mention):
+                    curr_node.text = curr_node.text.replace(discord_client.user.mention, "", 1).lstrip()
 
-                if LLM_ACCEPTS_IMAGES and good_attachments["image"][:MAX_IMAGES]:
-                    content = ([{"type": "text", "text": text[:MAX_TEXT]}] if text[:MAX_TEXT] else []) + [
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"},
-                        }
-                        for att in good_attachments["image"][:MAX_IMAGES]
-                    ]
-                else:
-                    content = text[:MAX_TEXT]
+                curr_node.images = [
+                    dict(type="image_url", image_url=dict(url=f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"))
+                    for att in good_attachments["image"]
+                ]
 
-                data = {
-                    "content": content,
-                    "role": "assistant" if curr_msg.author == discord_client.user else "user",
-                }
-                if LLM_ACCEPTS_NAMES:
-                    data["name"] = str(curr_msg.author.id)
-
-                curr_node.data = data
-                curr_node.too_much_text = len(text) > MAX_TEXT
-                curr_node.too_many_images = len(good_attachments["image"]) > MAX_IMAGES
                 curr_node.has_bad_attachments = len(curr_msg.attachments) > sum(len(att_list) for att_list in good_attachments.values())
 
                 try:
@@ -152,12 +142,21 @@ async def on_message(new_msg):
                     logging.exception("Error fetching next message in the chain")
                     curr_node.fetch_next_failed = True
 
-            if curr_node.data["content"]:
-                messages.append(curr_node.data)
+            if curr_node.text[:MAX_TEXT] or curr_node.images[:MAX_IMAGES]:
+                if LLM_ACCEPTS_IMAGES:
+                    content = ([dict(type="text", text=curr_node.text[:MAX_TEXT])] if curr_node.text[:MAX_TEXT] else []) + curr_node.images[:MAX_IMAGES]
+                else:
+                    content = curr_node.text[:MAX_TEXT]
 
-            if curr_node.too_much_text:
+                message = dict(role=curr_node.role, content=content)
+                if LLM_ACCEPTS_NAMES:
+                    message["name"] = curr_node.name
+
+                messages.append(message)
+
+            if curr_node.text > curr_node.text[:MAX_TEXT]:
                 user_warnings.add(f"⚠️ Max {MAX_TEXT:,} characters per message")
-            if curr_node.too_many_images:
+            if curr_node.images > curr_node.images[:MAX_IMAGES]:
                 user_warnings.add(f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images")
             if curr_node.has_bad_attachments:
                 user_warnings.add("⚠️ Unsupported attachments")
@@ -231,15 +230,11 @@ async def on_message(new_msg):
         logging.exception("Error while generating response")
 
     # Create MsgNode data for response messages
-    data = {
-        "content": "".join(response_contents),
-        "role": "assistant",
-    }
-    if LLM_ACCEPTS_NAMES:
-        data["name"] = str(discord_client.user.id)
-
     for msg in response_msgs:
-        msg_nodes[msg.id].data = data
+        msg_nodes[msg.id].name = str(discord_client.user.id)
+        msg_nodes[msg.id].role = "assistant"
+        msg_nodes[msg.id].text = "".join(response_contents)
+
         msg_nodes[msg.id].lock.release()
 
     # Delete oldest MsgNodes (lowest message IDs) from the cache

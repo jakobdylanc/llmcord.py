@@ -15,47 +15,35 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s: %(message)s",
 )
 
-with open("config.json", "r") as file:
-    config = {k: v for d in json.load(file).values() for k, v in d.items()}
-
-LLM_ACCEPTS_IMAGES: bool = any(x in config["model"] for x in ("gpt-4o", "claude-3", "gemini", "pixtral", "llava", "vision"))
-LLM_ACCEPTS_NAMES: bool = "openai/" in config["model"]
-
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
-ALLOWED_CHANNEL_IDS = config["allowed_channel_ids"]
-ALLOWED_ROLE_IDS = config["allowed_role_ids"]
-
-MAX_TEXT = config["max_text"]
-MAX_IMAGES = config["max_images"] if LLM_ACCEPTS_IMAGES else 0
-MAX_MESSAGES = config["max_messages"]
-
-STREAMING_INDICATOR = " ⚪"
-EDIT_DELAY_SECONDS = 1
-
-USE_PLAIN_RESPONSES: bool = config["use_plain_responses"]
-MAX_MESSAGE_LENGTH = 2000 if USE_PLAIN_RESPONSES else (4096 - len(STREAMING_INDICATOR))
 
 EMBED_COLOR_COMPLETE = discord.Color.dark_green()
 EMBED_COLOR_INCOMPLETE = discord.Color.orange()
 
+STREAMING_INDICATOR = " ⚪"
+EDIT_DELAY_SECONDS = 1
+
 MAX_MESSAGE_NODES = 100
 
-provider, model = config["model"].split("/", 1)
-base_url = config["providers"][provider]["base_url"]
-api_key = config["providers"][provider].get("api_key", "None")
-openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
+
+def get_config(filename="config.json"):
+    with open(filename, "r") as file:
+        return {k: v for d in json.load(file).values() for k, v in d.items()}
+
+
+cfg = get_config()
 
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=config["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
+activity = discord.CustomActivity(name=cfg["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
 discord_client = discord.Client(intents=intents, activity=activity)
 
 msg_nodes = {}
 last_task_time = None
 
-if config["client_id"] != 123456789:
-    print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={config['client_id']}&permissions=412317273088&scope=bot\n")
+if cfg["client_id"] != 123456789:
+    print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={cfg['client_id']}&permissions=412317273088&scope=bot\n")
 
 
 @dataclass
@@ -77,12 +65,28 @@ class MsgNode:
 async def on_message(new_msg):
     global msg_nodes, last_task_time
 
+    cfg = get_config()
+
+    provider, model = cfg["model"].split("/", 1)
+    base_url = cfg["providers"][provider]["base_url"]
+    api_key = cfg["providers"][provider].get("api_key", "None")
+    openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
+
+    model_accepts_images: bool = any(x in model for x in ("gpt-4o", "claude-3", "gemini", "pixtral", "llava", "vision"))
+    model_accepts_names: bool = "openai" in provider
+
+    max_text = cfg["max_text"]
+    max_images = cfg["max_images"] if model_accepts_images else 0
+    max_messages = cfg["max_messages"]
+
+    max_message_length = 2000 if cfg["use_plain_responses"] else (4096 - len(STREAMING_INDICATOR))
+
     # Filter out unwanted messages
     if (
         new_msg.channel.type not in ALLOWED_CHANNEL_TYPES
         or (new_msg.channel.type != discord.ChannelType.private and discord_client.user not in new_msg.mentions)
-        or (ALLOWED_CHANNEL_IDS and not any(id in ALLOWED_CHANNEL_IDS for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
-        or (ALLOWED_ROLE_IDS and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in ALLOWED_ROLE_IDS for role in new_msg.author.roles)))
+        or (cfg["allowed_channel_ids"] and not any(id in cfg["allowed_channel_ids"] for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
+        or (cfg["allowed_role_ids"] and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in cfg["allowed_role_ids"] for role in new_msg.author.roles)))
         or new_msg.author.bot
     ):
         return
@@ -91,7 +95,7 @@ async def on_message(new_msg):
     messages = []
     user_warnings = set()
     curr_msg = new_msg
-    while curr_msg and len(messages) < MAX_MESSAGES:
+    while curr_msg and len(messages) < max_messages:
         curr_node = msg_nodes.setdefault(curr_msg.id, MsgNode())
 
         async with curr_node.lock:
@@ -142,37 +146,37 @@ async def on_message(new_msg):
                     logging.exception("Error fetching next message in the chain")
                     curr_node.fetch_next_failed = True
 
-            if curr_node.text[:MAX_TEXT] or curr_node.images[:MAX_IMAGES]:
-                if LLM_ACCEPTS_IMAGES:
-                    content = ([dict(type="text", text=curr_node.text[:MAX_TEXT])] if curr_node.text[:MAX_TEXT] else []) + curr_node.images[:MAX_IMAGES]
+            if curr_node.text[:max_text] or curr_node.images[:max_images]:
+                if model_accepts_images:
+                    content = ([dict(type="text", text=curr_node.text[:max_text])] if curr_node.text[:max_text] else []) + curr_node.images[:max_images]
                 else:
-                    content = curr_node.text[:MAX_TEXT]
+                    content = curr_node.text[:max_text]
 
                 message = dict(role=curr_node.role, content=content)
-                if LLM_ACCEPTS_NAMES:
+                if model_accepts_names:
                     message["name"] = curr_node.name
 
                 messages.append(message)
 
-            if curr_node.text > curr_node.text[:MAX_TEXT]:
-                user_warnings.add(f"⚠️ Max {MAX_TEXT:,} characters per message")
-            if curr_node.images > curr_node.images[:MAX_IMAGES]:
-                user_warnings.add(f"⚠️ Max {MAX_IMAGES} image{'' if MAX_IMAGES == 1 else 's'} per message" if MAX_IMAGES > 0 else "⚠️ Can't see images")
+            if curr_node.text > curr_node.text[:max_text]:
+                user_warnings.add(f"⚠️ Max {max_text:,} characters per message")
+            if curr_node.images > curr_node.images[:max_images]:
+                user_warnings.add(f"⚠️ Max {max_images} image{'' if max_images == 1 else 's'} per message" if max_images > 0 else "⚠️ Can't see images")
             if curr_node.has_bad_attachments:
                 user_warnings.add("⚠️ Unsupported attachments")
-            if curr_node.fetch_next_failed or (curr_node.next_msg and len(messages) == MAX_MESSAGES):
+            if curr_node.fetch_next_failed or (curr_node.next_msg and len(messages) == max_messages):
                 user_warnings.add(f"⚠️ Only using last {len(messages)} message{'' if len(messages) == 1 else 's'}")
 
             curr_msg = curr_node.next_msg
 
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}")
 
-    if config["system_prompt"]:
+    if cfg["system_prompt"]:
         system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
-        if LLM_ACCEPTS_NAMES:
+        if model_accepts_names:
             system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
-        messages.append(dict(role="system", content="\n".join([config["system_prompt"]] + system_prompt_extras)))
+        messages.append(dict(role="system", content="\n".join([cfg["system_prompt"]] + system_prompt_extras)))
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []
@@ -180,7 +184,7 @@ async def on_message(new_msg):
     prev_chunk = None
     edit_task = None
 
-    kwargs = dict(model=model, messages=messages[::-1], stream=True, extra_body=config["extra_api_parameters"])
+    kwargs = dict(model=model, messages=messages[::-1], stream=True, extra_body=cfg["extra_api_parameters"])
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await openai_client.chat.completions.create(**kwargs):
@@ -189,10 +193,10 @@ async def on_message(new_msg):
                     curr_content = curr_chunk.choices[0].delta.content or ""
 
                     if response_contents or prev_content:
-                        if not response_contents or len(response_contents[-1] + prev_content) > MAX_MESSAGE_LENGTH:
+                        if not response_contents or len(response_contents[-1] + prev_content) > max_message_length:
                             response_contents.append("")
 
-                            if not USE_PLAIN_RESPONSES:
+                            if not cfg["use_plain_responses"]:
                                 reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
                                 embed = discord.Embed(description=(prev_content + STREAMING_INDICATOR), color=EMBED_COLOR_INCOMPLETE)
                                 for warning in sorted(user_warnings):
@@ -205,8 +209,8 @@ async def on_message(new_msg):
 
                         response_contents[-1] += prev_content
 
-                        if not USE_PLAIN_RESPONSES:
-                            msg_split_incoming: bool = len(response_contents[-1] + curr_content) > MAX_MESSAGE_LENGTH
+                        if not cfg["use_plain_responses"]:
+                            msg_split_incoming: bool = len(response_contents[-1] + curr_content) > max_message_length
                             is_final_edit: bool = msg_split_incoming or (finish_reason := curr_chunk.choices[0].finish_reason) != None
 
                             if is_final_edit or ((not edit_task or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS):
@@ -219,7 +223,7 @@ async def on_message(new_msg):
 
                 prev_chunk = curr_chunk
 
-        if USE_PLAIN_RESPONSES:
+        if cfg["use_plain_responses"]:
             for content in response_contents:
                 reply_to_msg = new_msg if not response_msgs else response_msgs[-1]
                 response_msg = await reply_to_msg.reply(content=content)
@@ -245,7 +249,7 @@ async def on_message(new_msg):
 
 
 async def main():
-    await discord_client.start(config["bot_token"])
+    await discord_client.start(cfg["bot_token"])
 
 
 asyncio.run(main())

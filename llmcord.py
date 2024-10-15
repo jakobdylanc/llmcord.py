@@ -149,7 +149,7 @@ async def on_message(new_msg):
                     curr_node.fetch_next_failed = True
 
             if curr_node.text[:max_text] or curr_node.images[:max_images]:
-                if model_accepts_images:
+                if model_accepts_images and curr_node.images[:max_images]:
                     content = ([dict(type="text", text=curr_node.text[:max_text])] if curr_node.text[:max_text] else []) + curr_node.images[:max_images]
                 else:
                     content = curr_node.text[:max_text]

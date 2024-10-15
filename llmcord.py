@@ -65,7 +65,19 @@ class MsgNode:
 async def on_message(new_msg):
     global msg_nodes, last_task_time
 
+    if (
+        new_msg.channel.type not in ALLOWED_CHANNEL_TYPES
+        or (new_msg.channel.type != discord.ChannelType.private and discord_client.user not in new_msg.mentions)
+        or new_msg.author.bot
+    ):
+        return
+
     cfg = get_config()
+
+    if (cfg["allowed_channel_ids"] and not any(id in cfg["allowed_channel_ids"] for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None)))) or (
+        cfg["allowed_role_ids"] and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in cfg["allowed_role_ids"] for role in new_msg.author.roles))
+    ):
+        return
 
     provider, model = cfg["model"].split("/", 1)
     base_url = cfg["providers"][provider]["base_url"]
@@ -80,16 +92,6 @@ async def on_message(new_msg):
     max_messages = cfg["max_messages"]
 
     max_message_length = 2000 if cfg["use_plain_responses"] else (4096 - len(STREAMING_INDICATOR))
-
-    # Filter out unwanted messages
-    if (
-        new_msg.channel.type not in ALLOWED_CHANNEL_TYPES
-        or (new_msg.channel.type != discord.ChannelType.private and discord_client.user not in new_msg.mentions)
-        or (cfg["allowed_channel_ids"] and not any(id in cfg["allowed_channel_ids"] for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
-        or (cfg["allowed_role_ids"] and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in cfg["allowed_role_ids"] for role in new_msg.author.roles)))
-        or new_msg.author.bot
-    ):
-        return
 
     # Build message chain and set user warnings
     messages = []

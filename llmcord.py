@@ -81,7 +81,7 @@ async def on_message(new_msg):
 
     provider, model = cfg["model"].split("/", 1)
     base_url = cfg["providers"][provider]["base_url"]
-    api_key = cfg["providers"][provider].get("api_key", "None")
+    api_key = cfg["providers"][provider].get("api_key", "sk-no-key-required")
     openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
     model_accepts_images: bool = any(x in model for x in ("gpt-4o", "claude-3", "gemini", "pixtral", "llava", "vision"))

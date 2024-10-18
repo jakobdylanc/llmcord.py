@@ -15,6 +15,8 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s: %(message)s",
 )
 
+VISION_MODEL_TAGS = ("gpt-4o", "claude-3", "gemini", "pixtral", "llava", "vision")
+
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
 
@@ -84,7 +86,7 @@ async def on_message(new_msg):
     api_key = cfg["providers"][provider].get("api_key", "sk-no-key-required")
     openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
-    model_accepts_images: bool = any(x in model for x in ("gpt-4o", "claude-3", "gemini", "pixtral", "llava", "vision"))
+    model_accepts_images: bool = any(tag in model for tag in VISION_MODEL_TAGS)
     model_accepts_names: bool = "openai" in provider
 
     max_text = cfg["max_text"]

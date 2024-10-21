@@ -157,7 +157,7 @@ async def on_message(new_msg):
                     content = curr_node.text[:max_text]
 
                 message = dict(role=curr_node.role, content=content)
-                if model_accepts_names:
+                if model_accepts_names and curr_node.role == "user":
                     message["name"] = curr_node.name
 
                 messages.append(message)

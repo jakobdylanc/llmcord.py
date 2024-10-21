@@ -16,6 +16,7 @@ logging.basicConfig(
 )
 
 VISION_MODEL_TAGS = ("gpt-4o", "claude-3", "gemini", "pixtral", "llava", "vision")
+PROVIDERS_SUPPORTING_USERNAMES = ("openai", "x-ai")
 
 ALLOWED_FILE_TYPES = ("image", "text")
 ALLOWED_CHANNEL_TYPES = (discord.ChannelType.text, discord.ChannelType.public_thread, discord.ChannelType.private_thread, discord.ChannelType.private)
@@ -87,7 +88,7 @@ async def on_message(new_msg):
     openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
     model_accepts_images: bool = any(tag in model for tag in VISION_MODEL_TAGS)
-    model_accepts_names: bool = "openai" in provider
+    model_accepts_names: bool = any(x in provider for x in PROVIDERS_SUPPORTING_USERNAMES)
 
     max_text = cfg["max_text"]
     max_images = cfg["max_images"] if model_accepts_images else 0

@@ -28,6 +28,7 @@ Additionally:
 ### Choose any LLM
 llmcord.py supports remote models from:
 - [OpenAI API](https://platform.openai.com/docs/models)
+- [xAI API](https://docs.x.ai/docs#models) (**New!**)
 - [Mistral API](https://docs.mistral.ai/platform/endpoints)
 - [Groq API](https://console.groq.com/docs/models)
 - [OpenRouter API](https://openrouter.ai/docs/models)

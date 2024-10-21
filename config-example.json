@@ -5,6 +5,10 @@
 				"base_url": "https://api.openai.com/v1",
 				"api_key": ""
 			},
+			"x-ai": {
+				"base_url": "https://api.x.ai/v1",
+				"api_key": ""
+			},
 			"mistral": {
 				"base_url": "https://api.mistral.ai/v1",
 				"api_key": ""

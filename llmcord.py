@@ -87,11 +87,11 @@ async def on_message(new_msg):
     api_key = cfg["providers"][provider].get("api_key", "sk-no-key-required")
     openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
-    model_accepts_images: bool = any(tag in model for tag in VISION_MODEL_TAGS)
-    model_accepts_names: bool = any(x in provider for x in PROVIDERS_SUPPORTING_USERNAMES)
+    accept_images: bool = any(x in model for x in VISION_MODEL_TAGS)
+    accept_usernames: bool = any(x in provider for x in PROVIDERS_SUPPORTING_USERNAMES)
 
     max_text = cfg["max_text"]
-    max_images = cfg["max_images"] if model_accepts_images else 0
+    max_images = cfg["max_images"] if accept_images else 0
     max_messages = cfg["max_messages"]
 
     max_message_length = 2000 if cfg["use_plain_responses"] else (4096 - len(STREAMING_INDICATOR))
@@ -152,13 +152,13 @@ async def on_message(new_msg):
                     curr_node.fetch_next_failed = True
 
             if curr_node.text[:max_text] or curr_node.images[:max_images]:
-                if model_accepts_images and curr_node.images[:max_images]:
+                if accept_images and curr_node.images[:max_images]:
                     content = ([dict(type="text", text=curr_node.text[:max_text])] if curr_node.text[:max_text] else []) + curr_node.images[:max_images]
                 else:
                     content = curr_node.text[:max_text]
 
                 message = dict(role=curr_node.role, content=content)
-                if model_accepts_names and curr_node.role == "user":
+                if accept_usernames and curr_node.role == "user":
                     message["name"] = curr_node.name
 
                 messages.append(message)
@@ -178,7 +178,7 @@ async def on_message(new_msg):
 
     if cfg["system_prompt"]:
         system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
-        if model_accepts_names:
+        if accept_usernames:
             system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
         messages.append(dict(role="system", content="\n".join([cfg["system_prompt"]] + system_prompt_extras)))

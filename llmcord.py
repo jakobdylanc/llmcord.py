@@ -181,7 +181,8 @@ async def on_message(new_msg):
         if accept_usernames:
             system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
-        messages.append(dict(role="system", content="\n".join([cfg["system_prompt"]] + system_prompt_extras)))
+        system_prompt = dict(role="system", content="\n".join([cfg["system_prompt"]] + system_prompt_extras))
+        messages.append(system_prompt)
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []

@@ -252,7 +252,7 @@ async def on_message(new_msg):
     if (num_nodes := len(msg_nodes)) > MAX_MESSAGE_NODES:
         for msg_id in sorted(msg_nodes.keys())[: num_nodes - MAX_MESSAGE_NODES]:
             async with msg_nodes.setdefault(msg_id, MsgNode()).lock:
-                del msg_nodes[msg_id]
+                msg_nodes.pop(msg_id, None)
 
 
 async def main():

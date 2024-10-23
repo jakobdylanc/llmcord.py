@@ -5,7 +5,7 @@ from datetime import datetime as dt
 import json
 import logging
 import requests
-from typing import Optional
+from typing import Literal, Optional
 
 import discord
 from openai import AsyncOpenAI
@@ -54,7 +54,7 @@ class MsgNode:
     text: Optional[str] = None
     images: list = field(default_factory=list)
 
-    role: Optional[str] = None
+    role: Literal["user", "assistant"] = "assistant"
     user_id: Optional[int] = None
 
     next_msg: Optional[discord.Message] = None
@@ -160,7 +160,7 @@ async def on_message(new_msg):
                     content = curr_node.text[:max_text]
 
                 message = dict(role=curr_node.role, content=content)
-                if accept_usernames and curr_node.user_id:
+                if accept_usernames and curr_node.user_id != None:
                     message["name"] = str(curr_node.user_id)
 
                 messages.append(message)
@@ -244,11 +244,8 @@ async def on_message(new_msg):
     except:
         logging.exception("Error while generating response")
 
-    # Create MsgNode data for response messages
     for msg in response_msgs:
         msg_nodes[msg.id].text = "".join(response_contents)
-        msg_nodes[msg.id].role = "assistant"
-
         msg_nodes[msg.id].lock.release()
 
     # Delete oldest MsgNodes (lowest message IDs) from the cache

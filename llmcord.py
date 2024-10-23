@@ -217,12 +217,12 @@ async def on_message(new_msg):
                     response_contents[-1] += prev_content
 
                     if not use_plain_responses:
-                        finish_reason = curr_chunk.choices[0].finish_reason or ""
+                        finish_reason = curr_chunk.choices[0].finish_reason
 
                         ready_to_edit: bool = (edit_task == None or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS
                         msg_split_incoming: bool = len(response_contents[-1] + curr_content) > max_message_length
-                        is_final_edit: bool = finish_reason or msg_split_incoming
-                        is_good_finish: bool = any(finish_reason.lower() == x for x in ("stop", "end_turn"))
+                        is_final_edit: bool = finish_reason != None or msg_split_incoming
+                        is_good_finish: bool = finish_reason != None and any(finish_reason.lower() == x for x in ("stop", "end_turn"))
 
                         if ready_to_edit or is_final_edit:
                             while edit_task and not edit_task.done():

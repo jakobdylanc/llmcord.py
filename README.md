@@ -46,7 +46,7 @@ Or use any other OpenAI compatible API server.
 - Supports text file attachments (.txt, .py, .c, etc.)
 - Customizable system prompt
 - DM for private access (no @ required)
-- User identity aware (OpenAI API only)
+- User identity aware (OpenAI API and xAI API only)
 - Streamed responses (turns green when complete, automatically splits into separate messages when too long)
 - Displays helpful warning messages when appropriate (like "⚠️ Only using last 25 messages" when the customizable message limit is exceeded)
 - Caches message data in a size-managed (no memory leaks) and mutex-protected (no race conditions) global dictionary to maximize efficiency and minimize Discord API calls
@@ -88,7 +88,7 @@ Before you start, install Python and clone this git repo.
 ## Notes
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/llmcord.py/issues/19)
 
-- Only models from OpenAI are "user identity aware" because only OpenAI API supports the message "name" property. Hopefully others support this in the future.
+- Only models from OpenAI API and xAI API are "user identity aware" because only they support the "name" parameter in the message object. Hopefully more providers support this in the future.
 
 - PRs are welcome :)
 

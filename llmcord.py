@@ -51,10 +51,11 @@ if cfg["client_id"] != 123456789:
 
 @dataclass
 class MsgNode:
-    name: str = ""
-    role: str = ""
-    text: str = ""
+    text: Optional[str] = None
     images: list = field(default_factory=list)
+
+    role: Optional[str] = None
+    user_id: Optional[int] = None
 
     next_msg: Optional[discord.Message] = None
 
@@ -105,12 +106,8 @@ async def on_message(new_msg):
         curr_node = msg_nodes.setdefault(curr_msg.id, MsgNode())
 
         async with curr_node.lock:
-            if not curr_node.name:
+            if curr_node.text == None:
                 good_attachments = {type: [att for att in curr_msg.attachments if att.content_type and type in att.content_type] for type in ALLOWED_FILE_TYPES}
-
-                curr_node.name = str(curr_msg.author.id)
-
-                curr_node.role = "assistant" if curr_msg.author == discord_client.user else "user"
 
                 curr_node.text = "\n".join(
                     ([curr_msg.content] if curr_msg.content else [])
@@ -124,6 +121,10 @@ async def on_message(new_msg):
                     dict(type="image_url", image_url=dict(url=f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"))
                     for att in good_attachments["image"]
                 ]
+
+                curr_node.role = "assistant" if curr_msg.author == discord_client.user else "user"
+
+                curr_node.user_id = curr_msg.author.id if curr_node.role == "user" else None
 
                 curr_node.has_bad_attachments = len(curr_msg.attachments) > sum(len(att_list) for att_list in good_attachments.values())
 
@@ -159,8 +160,8 @@ async def on_message(new_msg):
                     content = curr_node.text[:max_text]
 
                 message = dict(role=curr_node.role, content=content)
-                if accept_usernames and curr_node.role == "user":
-                    message["name"] = curr_node.name
+                if accept_usernames and curr_node.user_id:
+                    message["name"] = str(curr_node.user_id)
 
                 messages.append(message)
 
@@ -245,9 +246,8 @@ async def on_message(new_msg):
 
     # Create MsgNode data for response messages
     for msg in response_msgs:
-        msg_nodes[msg.id].name = str(discord_client.user.id)
-        msg_nodes[msg.id].role = "assistant"
         msg_nodes[msg.id].text = "".join(response_contents)
+        msg_nodes[msg.id].role = "assistant"
 
         msg_nodes[msg.id].lock.release()
 

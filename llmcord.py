@@ -166,9 +166,9 @@ async def on_message(new_msg):
 
                 messages.append(message)
 
-            if curr_node.text > curr_node.text[:max_text]:
+            if len(curr_node.text) > max_text:
                 user_warnings.add(f"⚠️ Max {max_text:,} characters per message")
-            if curr_node.images > curr_node.images[:max_images]:
+            if len(curr_node.images) > max_images:
                 user_warnings.add(f"⚠️ Max {max_images} image{'' if max_images == 1 else 's'} per message" if max_images > 0 else "⚠️ Can't see images")
             if curr_node.has_bad_attachments:
                 user_warnings.add("⚠️ Unsupported attachments")
@@ -197,7 +197,7 @@ async def on_message(new_msg):
     try:
         async with new_msg.channel.typing():
             async for curr_chunk in await openai_client.chat.completions.create(**kwargs):
-                prev_content = prev_chunk.choices[0].delta.content if prev_chunk and prev_chunk.choices[0].delta.content else ""
+                prev_content = prev_chunk.choices[0].delta.content if prev_chunk != None and prev_chunk.choices[0].delta.content else ""
                 curr_content = curr_chunk.choices[0].delta.content or ""
 
                 if response_contents or prev_content:
@@ -227,7 +227,7 @@ async def on_message(new_msg):
                         is_good_finish: bool = finish_reason != None and any(finish_reason.lower() == x for x in ("stop", "end_turn"))
 
                         if ready_to_edit or is_final_edit:
-                            while edit_task and not edit_task.done():
+                            while edit_task != None and not edit_task.done():
                                 await asyncio.sleep(0)
 
                             embed.description = response_contents[-1] if is_final_edit else (response_contents[-1] + STREAMING_INDICATOR)

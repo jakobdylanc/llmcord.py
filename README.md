@@ -56,7 +56,7 @@ Or use any other OpenAI compatible API server.
 ## Instructions
 Before you start, install Python and clone this git repo.
 
-1. Install Python requirements: `pip install -U discord.py openai`
+1. Install Python requirements: `pip install -U discord.py httpx openai`
 
 2. Create a copy of "config-example.json" named "config.json" and set it up (see below)
 

@@ -1,13 +1,13 @@
 import asyncio
-import base64
+from base64 import b64encode
 from dataclasses import dataclass, field
 from datetime import datetime as dt
 import json
 import logging
-import requests
 from typing import Literal, Optional
 
 import discord
+import httpx
 from openai import AsyncOpenAI
 
 logging.basicConfig(
@@ -41,6 +41,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 activity = discord.CustomActivity(name=cfg["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
 discord_client = discord.Client(intents=intents, activity=activity)
+
+httpx_client = httpx.AsyncClient()
 
 msg_nodes = {}
 last_task_time = None
@@ -112,13 +114,13 @@ async def on_message(new_msg):
                 curr_node.text = "\n".join(
                     ([curr_msg.content] if curr_msg.content else [])
                     + [embed.description for embed in curr_msg.embeds if embed.description]
-                    + [requests.get(att.url).text for att in good_attachments["text"]]
+                    + [(await httpx_client.get(att.url)).text for att in good_attachments["text"]]
                 )
                 if curr_node.text.startswith(discord_client.user.mention):
                     curr_node.text = curr_node.text.replace(discord_client.user.mention, "", 1).lstrip()
 
                 curr_node.images = [
-                    dict(type="image_url", image_url=dict(url=f"data:{att.content_type};base64,{base64.b64encode(requests.get(att.url).content).decode('utf-8')}"))
+                    dict(type="image_url", image_url=dict(url=f"data:{att.content_type};base64,{b64encode((await httpx_client.get(att.url)).content).decode('utf-8')}"))
                     for att in good_attachments["image"]
                 ]
 

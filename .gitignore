@@ -1,3 +1,11 @@
-config.json
-venv/
-.venv/
+*
+
+!.gitignore
+
+!*.md
+!*.py
+
+!Dockerfile
+!docker-compose.yml
+!config-example.json
+!requirements.txt

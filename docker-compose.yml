@@ -1,0 +1,5 @@
+services:
+  llmcord:
+    build: .
+    container_name: llmcord
+    restart: unless-stopped

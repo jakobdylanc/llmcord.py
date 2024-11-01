@@ -106,6 +106,8 @@ Or use any other OpenAI compatible API server.
 
 - Only models from OpenAI API and xAI API are "user identity aware" because only they support the "name" parameter in the message object. Hopefully more providers support this in the future.
 
+- If you're using Docker Compose to run llmcord.py, note that changes made to `config.json` while the bot is running may require a restart. (See [this comment](https://github.com/jakobdylanc/llmcord.py/pull/61#issuecomment-2443970825))
+
 - PRs are welcome :)
 
 ## Star History

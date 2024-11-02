@@ -4,4 +4,4 @@ services:
     container_name: llmcord
     restart: unless-stopped
     volumes:
-      - ./config.json:/usr/src/app/config.json:ro
+      - ./:/usr/src/app:ro

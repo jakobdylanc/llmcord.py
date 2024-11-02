@@ -48,7 +48,7 @@ msg_nodes = {}
 last_task_time = None
 
 if cfg["client_id"] != 123456789:
-    print(f"\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={cfg['client_id']}&permissions=412317273088&scope=bot\n")
+    logging.info(f"\n\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={cfg['client_id']}&permissions=412317273088&scope=bot\n")
 
 
 @dataclass

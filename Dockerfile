@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.12
 ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /usr/src/app

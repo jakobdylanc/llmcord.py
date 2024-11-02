@@ -44,11 +44,12 @@ Or use any other OpenAI compatible API server.
 ### And more:
 - Supports image attachments when using a vision model (like gpt-4o, claude-3, llava, etc.)
 - Supports text file attachments (.txt, .py, .c, etc.)
-- Customizable system prompt
+- Customizable personality (aka system prompt)
 - DM for private access (no @ required)
 - User identity aware (OpenAI API and xAI API only)
 - Streamed responses (turns green when complete, automatically splits into separate messages when too long)
-- Displays helpful warning messages when appropriate (like "⚠️ Only using last 25 messages" when the customizable message limit is exceeded)
+- Hot-reloadable config (you can change settings without restarting the bot)
+- Displays helpful warnings when appropriate (like "⚠️ Only using last 25 messages" when the customizable message limit is exceeded)
 - Caches message data in a size-managed (no memory leaks) and mutex-protected (no race conditions) global dictionary to maximize efficiency and minimize Discord API calls
 - Fully asynchronous
 - 1 Python file, ~200 lines of code

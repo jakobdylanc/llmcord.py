@@ -2,6 +2,7 @@ services:
   llmcord:
     build: .
     container_name: llmcord
+    network_mode: host
     restart: unless-stopped
     volumes:
       - ./:/usr/src/app:ro

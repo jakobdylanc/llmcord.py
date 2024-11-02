@@ -5,4 +5,4 @@ WORKDIR /usr/src/app
 
 RUN pip install --no-cache-dir discord.py httpx openai
 
-CMD [ "python", "main.py" ]
+CMD [ "python", "llmcord.py" ]

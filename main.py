@@ -39,7 +39,7 @@ cfg = get_config()
 
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=cfg["status_message"][:128] or "github.com/jakobdylanc/llmcord.py")
+activity = discord.CustomActivity(name=cfg["status_message"][:128] or "github.com/jakobdylanc/llmcord")
 discord_client = discord.Client(intents=intents, activity=activity)
 
 httpx_client = httpx.AsyncClient()

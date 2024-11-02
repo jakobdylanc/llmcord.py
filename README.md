@@ -1,5 +1,5 @@
 <h1 align="center">
-  llmcord.py
+  llmcord
 </h1>
 
 <h3 align="center"><i>
@@ -7,10 +7,10 @@
 </i></h3>
 
 <p align="center">
-  <img src="https://github.com/jakobdylanc/llmcord.py/assets/38699060/789d49fe-ef5c-470e-b60e-48ac03057443" alt="">
+  <img src="https://github.com/jakobdylanc/llmcord/assets/38699060/789d49fe-ef5c-470e-b60e-48ac03057443" alt="">
 </p>
 
-llmcord.py lets you (and your friends) chat with LLMs directly in Discord. It works with practically any LLM, remote or locally hosted.
+llmcord lets you (and your friends) chat with LLMs directly in Discord. It works with practically any LLM, remote or locally hosted.
 
 ## Features
 
@@ -27,7 +27,7 @@ Additionally:
 - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
 
 ### Choose any LLM
-llmcord.py supports remote models from:
+llmcord supports remote models from:
 - [OpenAI API](https://platform.openai.com/docs/models)
 - [xAI API](https://docs.x.ai/docs#models) (**New!**)
 - [Mistral API](https://docs.mistral.ai/platform/endpoints)
@@ -59,7 +59,7 @@ Or use any other OpenAI compatible API server.
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/jakobdylanc/llmcord.py
+   git clone https://github.com/jakobdylanc/llmcord
    ```
 
 2. Create a copy of "config-example.json" named "config.json" and set it up:
@@ -102,7 +102,7 @@ Or use any other OpenAI compatible API server.
 
 ## Notes
 
-- If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/llmcord.py/issues/19)
+- If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/llmcord/issues/19)
 
 - Only models from OpenAI API and xAI API are "user identity aware" because only they support the "name" parameter in the message object. Hopefully more providers support this in the future.
 
@@ -110,10 +110,10 @@ Or use any other OpenAI compatible API server.
 
 ## Star History
 
-<a href="https://star-history.com/#jakobdylanc/llmcord.py&Date">
+<a href="https://star-history.com/#jakobdylanc/llmcord&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jakobdylanc/llmcord&type=Date" />
   </picture>
 </a>

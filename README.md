@@ -13,6 +13,7 @@
 llmcord.py lets you (and your friends) chat with LLMs directly in Discord. It works with practically any LLM, remote or locally hosted.
 
 ## Features
+
 ### Reply-based chat system
 Just @ the bot to start a conversation and reply to continue. Build conversations with reply chains!
 
@@ -55,13 +56,23 @@ Or use any other OpenAI compatible API server.
 - 1 Python file, ~200 lines of code
 
 ## Instructions
-Before you start, install Python and clone this git repo.
 
-1. Install Python requirements: `pip install -U discord.py httpx openai`
+1. Clone the repo: `git clone https://github.com/jakobdylanc/llmcord.py`
 
-2. Create a copy of "config-example.json" named "config.json" and set it up (see below)
+2. Create a copy of "config-example.json" named "config.json" and set it up
 
-3. Run the bot: `python llmcord.py` (the invite URL will print to the console)
+3. Run the bot:
+
+   **Basic:**
+   ```bash
+   python -m pip install -U discord.py httpx openai
+   python llmcord.py
+   ```
+
+   **With Docker:**
+   ```bash
+   docker compose up
+   ```
 
 ### LLM settings:
 
@@ -87,6 +98,7 @@ Before you start, install Python and clone this git repo.
 | **use_plain_responses** | When set to `true` the bot will use plaintext responses instead of embeds. Also, streamed responses and warning messages will be disabled.<br />(Default: `false`) |
 
 ## Notes
+
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/llmcord.py/issues/19)
 
 - Only models from OpenAI API and xAI API are "user identity aware" because only they support the "name" parameter in the message object. Hopefully more providers support this in the future.
@@ -94,6 +106,7 @@ Before you start, install Python and clone this git repo.
 - PRs are welcome :)
 
 ## Star History
+
 <a href="https://star-history.com/#jakobdylanc/llmcord.py&Date">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date&theme=dark" />

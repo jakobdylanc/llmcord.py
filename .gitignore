@@ -4,4 +4,8 @@
 
 !*.md
 !*.py
+
 !config-example.json
+
+!Dockerfile
+!docker-compose.yml

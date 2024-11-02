@@ -13,6 +13,7 @@
 llmcord.py lets you (and your friends) chat with LLMs directly in Discord. It works with practically any LLM, remote or locally hosted.
 
 ## Features
+
 ### Reply-based chat system
 Just @ the bot to start a conversation and reply to continue. Build conversations with reply chains!
 
@@ -54,64 +55,58 @@ Or use any other OpenAI compatible API server.
 - Fully asynchronous
 - 1 Python file, ~200 lines of code
 
-## Installation
+## Instructions
 
-1. Clone the repository:
+1. Clone the repo: `git clone https://github.com/jakobdylanc/llmcord.py`
+
+2. Create a copy of "config-example.json" named "config.json" and set it up
+
+3. Run the bot:
+
+   **Basic:**
    ```bash
-   git clone https://github.com/jakobdylanc/llmcord.py
-   ```
-
-2. Configure the Bot:
-   - Duplicate the `config-example.json` file and rename it to `config.json`.
-   - Edit `config.json` with your desired settings.
-
-3. Run the Bot:
-
-   **Bare metal:**
-   ```bash
-   python -m venv .venv && source .venv/bin/activate
-   pip install -r requirements.txt
+   python -m pip install -U discord.py httpx openai
    python llmcord.py
    ```
 
-   **Using Docker:**
+   **With Docker:**
    ```bash
-   docker compose up -d
+   docker compose up
    ```
 
 ### LLM settings:
 
-| Setting                  | Description                                                                                                                                                                                             |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **providers**            | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
-| **model**                | Set to `<provider name>/<model name>`, e.g:<br /><br />-`openai/gpt-4o`<br />-`ollama/llama3.2`<br />-`openrouter/anthropic/claude-3.5-sonnet`                                                          |
-| **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=4096, temperature=1.0`)                                                                                       |
-| **system_prompt**        | Write anything you want to customize the bot's behavior! **Leave blank for no system prompt.**                                                                                                          |
+| Setting | Description |
+| --- | --- |
+| **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
+| **model** | Set to `<provider name>/<model name>`, e.g:<br /><br />-`openai/gpt-4o`<br />-`ollama/llama3.2`<br />-`openrouter/anthropic/claude-3.5-sonnet` |
+| **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=4096, temperature=1.0`) |
+| **system_prompt** | Write anything you want to customize the bot's behavior! **Leave blank for no system prompt.** |
 
 ### Discord settings:
 
-| Setting                 | Description                                                                                                                                                                                    |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **bot_token**           | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
-| **client_id**           | Found under the "OAuth2" tab of the Discord bot you just made.                                                                                                                                 |
-| **status_message**      | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.**                                                                                                       |
-| **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Leave empty to allow all channels.**                                                                                                |
-| **allowed_role_ids**    | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. Specifying at least one role also disables DMs.**                                                            |
-| **max_text**            | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`)                                                                        |
-| **max_images**          | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`)                                                        |
-| **max_messages**        | The maximum number of messages allowed in a reply chain.<br />(Default: `25`)                                                                                                                  |
-| **use_plain_responses** | When set to `true` the bot will use plaintext responses instead of embeds. Also, streamed responses and warning messages will be disabled.<br />(Default: `false`)                             |
+| Setting | Description |
+| --- | --- |
+| **bot_token** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
+| **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
+| **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
+| **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Leave empty to allow all channels.** |
+| **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. Specifying at least one role also disables DMs.** |
+| **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
+| **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
+| **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `25`) |
+| **use_plain_responses** | When set to `true` the bot will use plaintext responses instead of embeds. Also, streamed responses and warning messages will be disabled.<br />(Default: `false`) |
 
 ## Notes
+
 - If you're having issues, try my suggestions [here](https://github.com/jakobdylanc/llmcord.py/issues/19)
 
 - Only models from OpenAI API and xAI API are "user identity aware" because only they support the "name" parameter in the message object. Hopefully more providers support this in the future.
 
-- If you're using Docker Compose to run llmcord.py, note that changes made to `config.json` while the bot is running may require a restart. (See [this comment](https://github.com/jakobdylanc/llmcord.py/pull/61#issuecomment-2443970825))
-
 - PRs are welcome :)
 
 ## Star History
+
 <a href="https://star-history.com/#jakobdylanc/llmcord.py&Date">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jakobdylanc/llmcord.py&type=Date&theme=dark" />

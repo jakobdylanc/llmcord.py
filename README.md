@@ -57,22 +57,12 @@ Or use any other OpenAI compatible API server.
 
 ## Instructions
 
-1. Clone the repo: `git clone https://github.com/jakobdylanc/llmcord.py`
-
-2. Create a copy of "config-example.json" named "config.json" and set it up
-
-3. Run the bot:
-
-   **Basic:**
+1. Clone the repo:
    ```bash
-   python -m pip install -U discord.py httpx openai
-   python llmcord.py
+   git clone https://github.com/jakobdylanc/llmcord.py
    ```
 
-   **With Docker:**
-   ```bash
-   docker compose up
-   ```
+2. Create a copy of "config-example.json" named "config.json" and set it up:
 
 ### LLM settings:
 
@@ -96,6 +86,19 @@ Or use any other OpenAI compatible API server.
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `25`) |
 | **use_plain_responses** | When set to `true` the bot will use plaintext responses instead of embeds. Also, streamed responses and warning messages will be disabled.<br />(Default: `false`) |
+
+3. Run the bot:
+
+   **No Docker:**
+   ```bash
+   python -m pip install -U discord.py httpx openai
+   python llmcord.py
+   ```
+
+   **With Docker:**
+   ```bash
+   docker compose up
+   ```
 
 ## Notes
 

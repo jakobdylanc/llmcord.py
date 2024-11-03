@@ -5,6 +5,7 @@
 !*.md
 !*.py
 
-!Dockerfile
-!compose.yaml
 !config-example.yaml
+
+!Dockerfile
+!docker-compose.yaml

@@ -33,7 +33,7 @@ MAX_MESSAGE_NODES = 100
 
 def get_config(filename="config.yaml"):
     with open(filename, "r") as file:
-        return {k: v for d in yaml.safe_load(file).values() for k, v in d.items()}
+        return yaml.safe_load(file)
 
 
 cfg = get_config()

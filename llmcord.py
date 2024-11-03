@@ -2,7 +2,6 @@ import asyncio
 from base64 import b64encode
 from dataclasses import dataclass, field
 from datetime import datetime as dt
-import json
 import logging
 from typing import Literal, Optional
 

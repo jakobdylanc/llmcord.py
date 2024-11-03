@@ -62,16 +62,7 @@ Or use any other OpenAI compatible API server.
    git clone https://github.com/jakobdylanc/llmcord
    ```
 
-2. Create a copy of "config-example.json" named "config.json" and set it up:
-
-### LLM settings:
-
-| Setting | Description |
-| --- | --- |
-| **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
-| **model** | Set to `<provider name>/<model name>`, e.g:<br /><br />-`openai/gpt-4o`<br />-`ollama/llama3.2`<br />-`openrouter/anthropic/claude-3.5-sonnet` |
-| **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=4096, temperature=1.0`) |
-| **system_prompt** | Write anything you want to customize the bot's behavior! **Leave blank for no system prompt.** |
+2. Create a copy of "config-example.yaml" named "config.yaml" and set it up:
 
 ### Discord settings:
 
@@ -87,11 +78,20 @@ Or use any other OpenAI compatible API server.
 | **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `25`) |
 | **use_plain_responses** | When set to `true` the bot will use plaintext responses instead of embeds. Also, streamed responses and warning messages will be disabled.<br />(Default: `false`) |
 
+### LLM settings:
+
+| Setting | Description |
+| --- | --- |
+| **model** | Set to `<provider name>/<model name>`, e.g:<br /><br />-`openai/gpt-4o`<br />-`ollama/llama3.2`<br />-`openrouter/anthropic/claude-3.5-sonnet` |
+| **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
+| **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=4096, temperature=1.0`) |
+| **system_prompt** | Write anything you want to customize the bot's behavior! **Leave blank for no system prompt.** |
+
 3. Run the bot:
 
    **No Docker:**
    ```bash
-   python -m pip install -U discord.py httpx openai
+   python -m pip install -U discord.py httpx openai pyyaml
    python llmcord.py
    ```
 

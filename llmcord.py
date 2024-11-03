@@ -9,6 +9,7 @@ from typing import Literal, Optional
 import discord
 import httpx
 from openai import AsyncOpenAI
+import yaml
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,16 +31,16 @@ EDIT_DELAY_SECONDS = 1
 MAX_MESSAGE_NODES = 100
 
 
-def get_config(filename="config.json"):
+def get_config(filename="config.yaml"):
     with open(filename, "r") as file:
-        return {k: v for d in json.load(file).values() for k, v in d.items()}
+        return {k: v for d in yaml.safe_load(file).values() for k, v in d.items()}
 
 
 cfg = get_config()
 
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=cfg["status_message"][:128] or "github.com/jakobdylanc/llmcord")
+activity = discord.CustomActivity(name=cfg["status_message"][:128] if cfg["status_message"] else "github.com/jakobdylanc/llmcord")
 discord_client = discord.Client(intents=intents, activity=activity)
 
 httpx_client = httpx.AsyncClient()
@@ -47,7 +48,7 @@ httpx_client = httpx.AsyncClient()
 msg_nodes = {}
 last_task_time = None
 
-if cfg["client_id"] != 123456789:
+if cfg["client_id"]:
     logging.info(f"\n\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={cfg['client_id']}&permissions=412317273088&scope=bot\n")
 
 

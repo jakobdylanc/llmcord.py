@@ -242,7 +242,7 @@ async def on_message(new_msg):
         if use_plain_responses:
             for content in response_contents:
                 reply_to_msg = new_msg if response_msgs == [] else response_msgs[-1]
-                response_msg = await reply_to_msg.reply(content=content)
+                response_msg = await reply_to_msg.reply(content=content, suppress_embeds=True)
                 msg_nodes[response_msg.id] = MsgNode(next_msg=new_msg)
                 await msg_nodes[response_msg.id].lock.acquire()
                 response_msgs.append(response_msg)

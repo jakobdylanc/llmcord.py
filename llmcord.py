@@ -162,7 +162,7 @@ async def on_message(new_msg):
                 else:
                     content = curr_node.text[:max_text]
 
-                message = dict(role=curr_node.role, content=content)
+                message = dict(content=content, role=curr_node.role)
                 if accept_usernames and curr_node.user_id != None:
                     message["name"] = str(curr_node.user_id)
 

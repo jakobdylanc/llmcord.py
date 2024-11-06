@@ -1,3 +1,5 @@
+# This gitignore is a whitelist. Inspired by https://rgbcu.be/blog/gitignore
+
 *
 
 !.gitignore

@@ -25,6 +25,7 @@ You can do things like:
 Additionally:
 - Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
 - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
+- When you DM the bot, conversations will continue automatically. Just @ the bot to start a new conversation. You can still reply to continue from anywhere.
 
 ### Choose any LLM
 llmcord supports remote models from:
@@ -46,7 +47,6 @@ Or use any other OpenAI compatible API server.
 - Supports image attachments when using a vision model (like gpt-4o, claude-3, llava, etc.)
 - Supports text file attachments (.txt, .py, .c, etc.)
 - Customizable personality (aka system prompt)
-- DM for private access (no @ required)
 - User identity aware (OpenAI API and xAI API only)
 - Streamed responses (turns green when complete, automatically splits into separate messages when too long)
 - Hot-reloadable config (you can change settings without restarting the bot)

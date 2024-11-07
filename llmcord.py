@@ -142,10 +142,6 @@ async def on_message(new_msg):
                     else:
                         next_is_thread_parent: bool = curr_msg.reference == None and curr_msg.channel.type == discord.ChannelType.public_thread
                         if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
-                            next_node = msg_nodes.setdefault(next_msg_id, MsgNode())
-                            while next_node.lock.locked():
-                                await asyncio.sleep(0)
-
                             curr_node.next_msg = (
                                 (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
                                 if next_is_thread_parent

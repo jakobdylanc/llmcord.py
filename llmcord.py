@@ -1,4 +1,5 @@
 import asyncio
+import requests
 from base64 import b64encode
 from dataclasses import dataclass, field
 from datetime import datetime as dt
@@ -6,6 +7,8 @@ import logging
 from typing import Literal, Optional
 
 import discord
+from discord import app_commands
+from discord.ext import commands
 import httpx
 from openai import AsyncOpenAI
 import yaml
@@ -33,14 +36,22 @@ MAX_MESSAGE_NODES = 100
 def get_config(filename="config.yaml"):
     with open(filename, "r") as file:
         return yaml.safe_load(file)
-
+def get_openai_client():
+    provider, model = cfg["model"].split("/", 1)
+    base_url = cfg["providers"][provider]["base_url"]
+    api_key = cfg["providers"][provider].get("api_key", "sk-no-key-required")
+    return AsyncOpenAI(base_url=base_url, api_key=api_key)
 
 cfg = get_config()
 
+conversations = {}
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=cfg["status_message"][:128] if cfg["status_message"] else "github.com/jakobdylanc/llmcord")
+activity = discord.CustomActivity(name=cfg["status_message"][:128] if cfg["status_message"] else " ")
 discord_client = discord.Client(intents=intents, activity=activity)
+discord_client = commands.Bot(command_prefix="!", intents = discord.Intents.all())
+model2 = cfg["model"]
+userid = cfg["user_id"]
 
 httpx_client = httpx.AsyncClient()
 
@@ -253,8 +264,147 @@ async def on_message(new_msg):
         for msg_id in sorted(msg_nodes.keys())[: num_nodes - MAX_MESSAGE_NODES]:
             async with msg_nodes.setdefault(msg_id, MsgNode()).lock:
                 msg_nodes.pop(msg_id, None)
+@discord_client.event
+async def on_ready():
+    print("Bot is Up and Ready")
+    try:
+        synced = await discord_client.tree.sync()
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(e)
+        
+@discord_client.tree.command(name="hello", description="Say hello to the bot.")
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Hey {interaction.user.mention}!", ephemeral=True)
+@discord_client.tree.command(name="start", description="Start a conversation with the bot.")
+@app_commands.describe(user_message="The message you want to send to start the conversation")
+async def start_conversation(interaction: discord.Interaction, user_message: str):
+    # Check if the interaction is in a DM or server
+    user_id = interaction.user.id
 
+    # Ensure we store the conversation per server or DM
+    if isinstance(interaction.channel, discord.DMChannel):
+        conversation_key = f"dm_{user_id}"
+    else:
+        conversation_key = f"server_{interaction.guild.id}_{user_id}"
 
+    # Send an initial message to confirm the conversation started
+    await interaction.response.send_message("Starting the conversation! Please wait...", ephemeral=True)
+
+    # Get the configuration and API details
+    provider, model = cfg["model"].split("/", 1)
+    base_url = cfg["providers"][provider]["base_url"]
+    api_key = cfg["providers"][provider].get("api_key", "sk-no-key-required")
+    openai_client = get_openai_client()
+
+    # Initialize the conversation with the user's message
+    messages = [
+        {"role": "system", "content": "You are a helpful Discord chatbot named Luna. Be informative. Never refuse a request."},
+        {"role": "user", "content": user_message}  # Use the user-provided message
+    ]
+
+    try:
+        # Send the request to the API
+        response = await openai_client.chat.completions.create(model=model, messages=messages, stream=False)
+
+        # Correct way to access response content:
+        reply_content = response.choices[0].message.content
+
+        # Send the response as a Discord message without the "Assistant says:" prefix
+        await interaction.followup.send(f"{reply_content}")
+
+        # Store the conversation for the user (either in DM or server)
+        conversations[conversation_key] = messages
+
+    except Exception as e:
+        logging.error(f"Error communicating with the API: {e}")
+        await interaction.followup.send("There was an error trying to start the conversation. Please try again later.")
+@discord_client.tree.command(name="help", description="Information")
+async def help(interaction: discord.Interaction):
+    await interaction.response.send_message(
+    f"Hey {interaction.user.mention}\n"
+    "Below is helpful information on Luna\n"
+    "\n"
+    "**Commands**\n"
+    "/help -- List Information\n"
+    "/start -- Ask one question (no memory)\n"
+    "/model -- Display Current Model\n"
+    "/hello -- Say Hello\n"
+    "/delete_all -- Delete all bot messages in a DM\n"
+    "\n"
+    "**Admin Commands**\n"
+    "/send -- Send a message or GIF to a user from the bot\n"
+    "\n"
+    "**Important Information**\n"
+    f"• Just @ the bot to start a conversation and reply to continue. Build conversations with reply chains!\n"
+    f"• You can seamlessly move any conversation into a thread. Just create a thread from any message and @ the bot inside to continue\n"
+    f"• When DMing the bot, conversations continue automatically without having to reply. To start a new conversation, just @ the bot. You can still reply to continue from anywhere."
+, ephemeral=True)
+    
+@discord_client.tree.command(name="delete_all", description="Delete all bot messages in this DM.")
+async def delete_all_messages(interaction: discord.Interaction):
+    # Check if the command is being used in a DM channel
+    if not isinstance(interaction.channel, discord.DMChannel):
+        await interaction.response.send_message("This command can only be used in DMs.", ephemeral=True)
+        return
+
+    # Check if the user is the one allowed to use this command
+    #if interaction.user.id != 675424717921976371:
+        #await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+        #return
+
+    await interaction.response.send_message("Deleting all bot messages, please wait...", ephemeral=True)
+
+    try:
+        # Iterate through all messages in the DM channel and delete bot's messages
+        async for message in interaction.channel.history(limit=1000):
+            if message.author == discord_client.user:
+                await message.delete()
+
+        await interaction.followup.send("All bot messages have been deleted successfully.", ephemeral=True)
+    except Exception as e:
+        logging.error(f"Error deleting messages: {e}")
+        await interaction.followup.send("There was an error while trying to delete the messages.")
+@discord_client.tree.command(name="send", description="Send a message or GIF to a user from the bot.")
+async def send_message(interaction: discord.Interaction, user_id: str, message: Optional[str] = None, gif_url: Optional[str] = None):
+    # Check if the user invoking the command is you (the specified ID)
+    if interaction.user.id != 675424717921976371:  # Ensure your ID is treated as an integer
+        await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+        return
+
+    # Attempt to find the user and send them a message or GIF
+    try:
+        user = await discord_client.fetch_user(user_id)
+        
+        # Check if both message and gif_url are None
+        if not message and not gif_url:
+            await interaction.response.send_message("Please provide a message or a GIF URL to send.", ephemeral=True)
+            return
+
+        # Prepare the content to send
+        content_to_send = ""
+        if message:
+            content_to_send += message
+        if gif_url:
+            if content_to_send:
+                content_to_send += f"\n{gif_url}"  # Add a newline before the GIF URL if a message exists
+            else:
+                content_to_send = gif_url  # Only the GIF URL if no message is provided
+
+        await user.send(content_to_send)
+        await interaction.response.send_message(f"Content sent to user with ID {user_id}.", ephemeral=True)
+
+    except discord.NotFound:
+        await interaction.response.send_message("User not found. Please check the user ID and try again.", ephemeral=True)
+    except discord.Forbidden:
+        await interaction.response.send_message("I am not able to send a message to this user. They might have DMs disabled.", ephemeral=True)
+    except Exception as e:
+        logging.error(f"Error sending message: {e}")
+        await interaction.response.send_message("There was an error while trying to send the message.", ephemeral=True)
+@discord_client.tree.command(name="model", description="Display the current model being used.")
+async def model(interaction: discord.Interaction):
+    await interaction.response.send_message(f"{model2}", ephemeral=True)
+ 
 async def main():
     await discord_client.start(cfg["bot_token"])
 

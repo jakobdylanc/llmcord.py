@@ -50,9 +50,10 @@ intents.message_content = True
 activity = discord.CustomActivity(name=cfg["status_message"][:128] if cfg["status_message"] else " ")
 discord_client = discord.Client(intents=intents, activity=activity)
 discord_client = commands.Bot(command_prefix="!", intents = discord.Intents.all())
-model2 = cfg["model"]
+model_name = cfg["model"]
 userid = cfg["user_id"]
 bot_name = cfg["bot_name"]
+
 httpx_client = httpx.AsyncClient()
 
 msg_nodes = {}
@@ -364,7 +365,7 @@ async def delete_all_messages(interaction: discord.Interaction):
         await interaction.followup.send("There was an error while trying to delete the messages.")
 @discord_client.tree.command(name="model", description="Display the current model being used.")
 async def model(interaction: discord.Interaction):
-    await interaction.response.send_message(f"{model2}", ephemeral=True)
+    await interaction.response.send_message(f"{model_name}", ephemeral=True)
  
 async def main():
     await discord_client.start(cfg["bot_token"])

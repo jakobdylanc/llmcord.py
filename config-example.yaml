@@ -4,7 +4,6 @@ bot_token:
 client_id: 
 status_message: 
 user_id: 
-bot_name: 
 
 allowed_channel_ids: []
 allowed_role_ids: []

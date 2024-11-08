@@ -52,7 +52,7 @@ discord_client = discord.Client(intents=intents, activity=activity)
 discord_client = commands.Bot(command_prefix="!", intents = discord.Intents.all())
 model2 = cfg["model"]
 userid = cfg["user_id"]
-
+bot_name = cfg["bot_name"]
 httpx_client = httpx.AsyncClient()
 
 msg_nodes = {}
@@ -323,7 +323,7 @@ async def start_conversation(interaction: discord.Interaction, user_message: str
 async def help(interaction: discord.Interaction):
     await interaction.response.send_message(
     f"Hey {interaction.user.mention}\n"
-    "Below is helpful information on Luna\n"
+    "Below is helpful information on {bot_name}\n"
     "\n"
     "**Commands**\n"
     "/help -- List Information\n"
@@ -331,9 +331,6 @@ async def help(interaction: discord.Interaction):
     "/model -- Display Current Model\n"
     "/hello -- Say Hello\n"
     "/delete_all -- Delete all bot messages in a DM\n"
-    "\n"
-    "**Admin Commands**\n"
-    "/send -- Send a message or GIF to a user from the bot\n"
     "\n"
     "**Important Information**\n"
     f"• Just @ the bot to start a conversation and reply to continue. Build conversations with reply chains!\n"
@@ -365,42 +362,6 @@ async def delete_all_messages(interaction: discord.Interaction):
     except Exception as e:
         logging.error(f"Error deleting messages: {e}")
         await interaction.followup.send("There was an error while trying to delete the messages.")
-@discord_client.tree.command(name="send", description="Send a message or GIF to a user from the bot.")
-async def send_message(interaction: discord.Interaction, user_id: str, message: Optional[str] = None, gif_url: Optional[str] = None):
-    # Check if the user invoking the command is you (the specified ID)
-    if interaction.user.id != 675424717921976371:  # Ensure your ID is treated as an integer
-        await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
-        return
-
-    # Attempt to find the user and send them a message or GIF
-    try:
-        user = await discord_client.fetch_user(user_id)
-        
-        # Check if both message and gif_url are None
-        if not message and not gif_url:
-            await interaction.response.send_message("Please provide a message or a GIF URL to send.", ephemeral=True)
-            return
-
-        # Prepare the content to send
-        content_to_send = ""
-        if message:
-            content_to_send += message
-        if gif_url:
-            if content_to_send:
-                content_to_send += f"\n{gif_url}"  # Add a newline before the GIF URL if a message exists
-            else:
-                content_to_send = gif_url  # Only the GIF URL if no message is provided
-
-        await user.send(content_to_send)
-        await interaction.response.send_message(f"Content sent to user with ID {user_id}.", ephemeral=True)
-
-    except discord.NotFound:
-        await interaction.response.send_message("User not found. Please check the user ID and try again.", ephemeral=True)
-    except discord.Forbidden:
-        await interaction.response.send_message("I am not able to send a message to this user. They might have DMs disabled.", ephemeral=True)
-    except Exception as e:
-        logging.error(f"Error sending message: {e}")
-        await interaction.response.send_message("There was an error while trying to send the message.", ephemeral=True)
 @discord_client.tree.command(name="model", description="Display the current model being used.")
 async def model(interaction: discord.Interaction):
     await interaction.response.send_message(f"{model2}", ephemeral=True)

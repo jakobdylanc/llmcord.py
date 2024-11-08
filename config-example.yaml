@@ -12,7 +12,7 @@ max_text: 100000
 max_images: 5
 max_messages: 25
 
-use_plain_responses: true
+use_plain_responses: false
 
 
 # LLM settings:

@@ -53,6 +53,7 @@ discord_client = commands.Bot(command_prefix="!", intents = discord.Intents.all(
 model_name = cfg["model"]
 userid = cfg["user_id"]
 bot_name = cfg["bot_name"]
+system_prompt = cfg["system_prompt"]
 
 httpx_client = httpx.AsyncClient()
 
@@ -300,7 +301,7 @@ async def start_conversation(interaction: discord.Interaction, user_message: str
 
     # Initialize the conversation with the user's message
     messages = [
-        {"role": "system", "content": "You are a helpful Discord chatbot named Luna. Be informative. Never refuse a request."},
+        {"role": "system", "content": f"{system_prompt}"},
         {"role": "user", "content": user_message}  # Use the user-provided message
     ]
 
@@ -324,7 +325,7 @@ async def start_conversation(interaction: discord.Interaction, user_message: str
 async def help(interaction: discord.Interaction):
     await interaction.response.send_message(
     f"Hey {interaction.user.mention}\n"
-    "Below is helpful information on {bot_name}\n"
+    "Below is helpful information on using the bot\n"
     "\n"
     "**Commands**\n"
     "/help -- List Information\n"
@@ -345,11 +346,6 @@ async def delete_all_messages(interaction: discord.Interaction):
     if not isinstance(interaction.channel, discord.DMChannel):
         await interaction.response.send_message("This command can only be used in DMs.", ephemeral=True)
         return
-
-    # Check if the user is the one allowed to use this command
-    #if interaction.user.id != 675424717921976371:
-        #await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
-        #return
 
     await interaction.response.send_message("Deleting all bot messages, please wait...", ephemeral=True)
 

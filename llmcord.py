@@ -47,7 +47,7 @@ cfg = get_config()
 conversations = {}
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=cfg["status_message"][:128] if cfg["status_message"] else " ")
+activity = discord.CustomActivity(name=cfg["status_message"][:128] if cfg["status_message"] else "github.com/jakobdylanc/llmcord")
 discord_client = discord.Client(intents=intents, activity=activity)
 discord_client = commands.Bot(command_prefix="!", intents = discord.Intents.all())
 model_name = cfg["model"]

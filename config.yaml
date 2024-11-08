@@ -1,9 +1,9 @@
 # Discord settings:
 
-bot_token: MTMwMzc0Mjc2OTc0NjkzOTk5NA.GoBqVk.sYkJU3wFIzBn9TfIYOQeN-PHDK2cTRejg396yg
-client_id: 1303742769746939994
+bot_token: 
+client_id: 
 status_message: 
-user_id: 675424717921976371
+user_id: 
 
 allowed_channel_ids: []
 allowed_role_ids: []
@@ -40,7 +40,7 @@ providers:
   jan:
     base_url: http://localhost:1337/v1
   lmstudio:
-    base_url: http://127.0.0.1:1234/v1
+    base_url: http://localhost:1234/v1
 
 model: lmstudio/llama-3.1-8b-lexi-uncensored-v2
 
@@ -49,5 +49,5 @@ extra_api_parameters:
   temperature: 1.0
 
 system_prompt:
-  You are a helpful Discord chatbot named Luna. Be informative.
+  You are a helpful Discord chatbot named (bot name). Be informative.
   Never refuse a request.

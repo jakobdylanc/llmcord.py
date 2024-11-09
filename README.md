@@ -25,7 +25,7 @@ You can do things like:
 Additionally:
 - Back-to-back messages from the same user are automatically chained together. Just reply to the latest one and the bot will see all of them.
 - You can seamlessly move any conversation into a [thread](https://support.discord.com/hc/en-us/articles/4403205878423-Threads-FAQ). Just create a thread from any message and @ the bot inside to continue.
-- When DMing the bot, conversations continue automatically without having to reply. To start a new conversation, just @ the bot. You can still reply to continue from anywhere.
+- When DMing the bot, conversations continue automatically (no reply required). To start a fresh conversation, just @ the bot. You can still reply to continue from anywhere.
 
 ### Choose any LLM
 llmcord supports remote models from:

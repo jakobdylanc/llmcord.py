@@ -36,7 +36,7 @@ llmcord supports remote models from:
 - [OpenRouter API](https://openrouter.ai/docs/models)
 
 Or run a local model with:
-- [ollama](https://ollama.com)
+- [Ollama](https://ollama.com)
 - [oobabooga](https://github.com/oobabooga/text-generation-webui)
 - [Jan](https://jan.ai)
 - [LM Studio](https://lmstudio.ai)

@@ -37,18 +37,18 @@ def get_config(filename="config.yaml"):
 
 cfg = get_config()
 
+if client_id := cfg["client_id"]:
+    logging.info(f"\n\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={client_id}&permissions=412317273088&scope=bot\n")
+
 intents = discord.Intents.default()
 intents.message_content = True
-activity = discord.CustomActivity(name=cfg["status_message"][:128] if cfg["status_message"] else "github.com/jakobdylanc/llmcord")
+activity = discord.CustomActivity(name=(cfg["status_message"] or "github.com/jakobdylanc/llmcord")[:128])
 discord_client = discord.Client(intents=intents, activity=activity)
 
 httpx_client = httpx.AsyncClient()
 
 msg_nodes = {}
 last_task_time = None
-
-if cfg["client_id"]:
-    logging.info(f"\n\nBOT INVITE URL:\nhttps://discord.com/api/oauth2/authorize?client_id={cfg['client_id']}&permissions=412317273088&scope=bot\n")
 
 
 @dataclass
@@ -80,8 +80,11 @@ async def on_message(new_msg):
 
     cfg = get_config()
 
-    if (cfg["allowed_channel_ids"] and not any(id in cfg["allowed_channel_ids"] for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None)))) or (
-        cfg["allowed_role_ids"] and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in cfg["allowed_role_ids"] for role in new_msg.author.roles))
+    allowed_channel_ids = cfg["allowed_channel_ids"]
+    allowed_role_ids = cfg["allowed_role_ids"]
+
+    if (allowed_channel_ids and not any(id in allowed_channel_ids for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None)))) or (
+        allowed_role_ids and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in allowed_role_ids for role in new_msg.author.roles))
     ):
         return
 
@@ -176,13 +179,13 @@ async def on_message(new_msg):
 
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}")
 
-    if cfg["system_prompt"]:
+    if system_prompt := cfg["system_prompt"]:
         system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
         if accept_usernames:
             system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")
 
-        system_prompt = dict(role="system", content="\n".join([cfg["system_prompt"]] + system_prompt_extras))
-        messages.append(system_prompt)
+        full_system_prompt = dict(role="system", content="\n".join([system_prompt] + system_prompt_extras))
+        messages.append(full_system_prompt)
 
     # Generate and send response message(s) (can be multiple if response is long)
     response_msgs = []

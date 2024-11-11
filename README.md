@@ -91,7 +91,7 @@ Or use any other OpenAI compatible API server.
 
    **No Docker:**
    ```bash
-   python -m pip install -U discord.py httpx openai pyyaml
+   python -m pip install -U -r requirements.txt
    python llmcord.py
    ```
 

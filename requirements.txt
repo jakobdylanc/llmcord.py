@@ -2,3 +2,4 @@ discord.py
 httpx
 openai
 pyyaml
+audioop-lts; python_version>='3.13'

@@ -84,7 +84,7 @@ async def on_message(new_msg):
     allowed_role_ids = cfg["allowed_role_ids"]
 
     if (allowed_channel_ids and not any(id in allowed_channel_ids for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None)))) or (
-        allowed_role_ids and (new_msg.channel.type == discord.ChannelType.private or not any(role.id in allowed_role_ids for role in new_msg.author.roles))
+        allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", []))
     ):
         return
 

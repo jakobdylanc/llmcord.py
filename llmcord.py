@@ -145,11 +145,11 @@ async def on_message(new_msg):
                     else:
                         next_is_thread_parent: bool = curr_msg.reference == None and curr_msg.channel.type == discord.ChannelType.public_thread
                         if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
-                            curr_node.next_msg = (
-                                (curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id))
-                                if next_is_thread_parent
-                                else (curr_msg.reference.cached_message or await curr_msg.channel.fetch_message(next_msg_id))
-                            )
+                            if next_is_thread_parent:
+                                curr_node.next_msg = curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id)
+                            else:
+                                curr_node.next_msg = curr_msg.reference.cached_message or await curr_msg.channel.fetch_message(next_msg_id)
+
                 except (discord.NotFound, discord.HTTPException, AttributeError):
                     logging.exception("Error fetching next message in the chain")
                     curr_node.fetch_next_failed = True

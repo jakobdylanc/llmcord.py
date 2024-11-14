@@ -154,12 +154,12 @@ async def on_message(new_msg):
                     logging.exception("Error fetching next message in the chain")
                     curr_node.fetch_next_failed = True
 
-            if curr_node.text[:max_text] or curr_node.images[:max_images]:
-                if accept_images and curr_node.images[:max_images]:
-                    content = ([dict(type="text", text=curr_node.text[:max_text])] if curr_node.text[:max_text] else []) + curr_node.images[:max_images]
-                else:
-                    content = curr_node.text[:max_text]
+            if curr_node.images[:max_images]:
+                content = ([dict(type="text", text=curr_node.text[:max_text])] if curr_node.text[:max_text] else []) + curr_node.images[:max_images]
+            else:
+                content = curr_node.text[:max_text]
 
+            if content:
                 message = dict(content=content, role=curr_node.role)
                 if accept_usernames and curr_node.user_id != None:
                     message["name"] = str(curr_node.user_id)

@@ -49,7 +49,7 @@ Or use any other OpenAI compatible API server.
 - Customizable personality (aka system prompt)
 - User identity aware (OpenAI API and xAI API only)
 - Streamed responses (turns green when complete, automatically splits into separate messages when too long)
-- Hot-reloadable config (you can change settings without restarting the bot)
+- Hot reloading config (you can change settings without restarting the bot)
 - Displays helpful warnings when appropriate (like "⚠️ Only using last 25 messages" when the customizable message limit is exceeded)
 - Caches message data in a size-managed (no memory leaks) and mutex-protected (no race conditions) global dictionary to maximize efficiency and minimize Discord API calls
 - Fully asynchronous
@@ -84,7 +84,7 @@ Or use any other OpenAI compatible API server.
 | --- | --- |
 | **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
 | **model** | Set to `<provider name>/<model name>`, e.g:<br /><br />-`openai/gpt-4o`<br />-`ollama/llama3.2`<br />-`openrouter/anthropic/claude-3.5-sonnet` |
-| **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed.<br />(Default: `max_tokens=4096, temperature=1.0`) |
+| **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed. **Refer to your provider's documentation for supported API parameters.**<br />(Default: `max_tokens=4096, temperature=1.0`) |
 | **system_prompt** | Write anything you want to customize the bot's behavior! **Leave blank for no system prompt.** |
 
 3. Run the bot:

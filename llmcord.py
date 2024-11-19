@@ -159,7 +159,7 @@ async def on_message(new_msg):
             else:
                 content = curr_node.text[:max_text]
 
-            if content:
+            if content != "":
                 message = dict(content=content, role=curr_node.role)
                 if accept_usernames and curr_node.user_id != None:
                     message["name"] = str(curr_node.user_id)
@@ -172,7 +172,7 @@ async def on_message(new_msg):
                 user_warnings.add(f"⚠️ Max {max_images} image{'' if max_images == 1 else 's'} per message" if max_images > 0 else "⚠️ Can't see images")
             if curr_node.has_bad_attachments:
                 user_warnings.add("⚠️ Unsupported attachments")
-            if curr_node.fetch_next_failed or (curr_node.next_msg and len(messages) == max_messages):
+            if curr_node.fetch_next_failed or (curr_node.next_msg != None and len(messages) == max_messages):
                 user_warnings.add(f"⚠️ Only using last {len(messages)} message{'' if len(messages) == 1 else 's'}")
 
             curr_msg = curr_node.next_msg

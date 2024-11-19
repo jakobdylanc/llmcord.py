@@ -227,8 +227,8 @@ async def on_message(new_msg):
                         is_good_finish: bool = finish_reason != None and any(finish_reason.lower() == x for x in ("stop", "end_turn"))
 
                         if ready_to_edit or is_final_edit:
-                            while edit_task != None and not edit_task.done():
-                                await asyncio.sleep(0)
+                            if edit_task != None:
+                                await edit_task
 
                             embed.description = response_contents[-1] if is_final_edit else (response_contents[-1] + STREAMING_INDICATOR)
                             embed.color = EMBED_COLOR_COMPLETE if msg_split_incoming or is_good_finish else EMBED_COLOR_INCOMPLETE

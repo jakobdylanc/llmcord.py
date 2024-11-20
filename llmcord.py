@@ -107,7 +107,7 @@ async def on_message(new_msg):
     messages = []
     user_warnings = set()
     curr_msg = new_msg
-    while curr_msg and len(messages) < max_messages:
+    while curr_msg != None and len(messages) < max_messages:
         curr_node = msg_nodes.setdefault(curr_msg.id, MsgNode())
 
         async with curr_node.lock:

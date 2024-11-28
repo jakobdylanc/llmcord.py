@@ -93,8 +93,8 @@ async def on_message(new_msg):
     api_key = cfg["providers"][provider].get("api_key", "sk-no-key-required")
     openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
-    accept_images: bool = any(x in model for x in VISION_MODEL_TAGS)
-    accept_usernames: bool = any(x in provider for x in PROVIDERS_SUPPORTING_USERNAMES)
+    accept_images: bool = any(x in model.lower() for x in VISION_MODEL_TAGS)
+    accept_usernames: bool = any(x in provider.lower() for x in PROVIDERS_SUPPORTING_USERNAMES)
 
     max_text = cfg["max_text"]
     max_images = cfg["max_images"] if accept_images else 0

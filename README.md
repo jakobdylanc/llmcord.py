@@ -71,7 +71,7 @@ Or use any other OpenAI compatible API server.
 | **bot_token** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
 | **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
 | **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
-| **allow_dms** | Set to `false` to disable DMs.<br />(Default: `true`) |
+| **allow_dms** | Set to `false` to disable direct message access.<br />(Default: `true`) |
 | **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Leave empty to allow all channels. Does not affect DMs.** |
 | **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. DMs are force-disabled when at least one role is specified.** |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
@@ -83,7 +83,7 @@ Or use any other OpenAI compatible API server.
 
 | Setting | Description |
 | --- | --- |
-| **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Common providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
+| **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Popular providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
 | **model** | Set to `<provider name>/<model name>`, e.g:<br /><br />-`openai/gpt-4o`<br />-`ollama/llama3.2`<br />-`openrouter/anthropic/claude-3.5-sonnet` |
 | **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed. **Refer to your provider's documentation for supported API parameters.**<br />(Default: `max_tokens=4096, temperature=1.0`) |
 | **system_prompt** | Write anything you want to customize the bot's behavior! **Leave blank for no system prompt.** |

@@ -71,20 +71,21 @@ class MsgNode:
 async def on_message(new_msg):
     global msg_nodes, last_task_time
 
-    if (
-        new_msg.channel.type not in ALLOWED_CHANNEL_TYPES
-        or (new_msg.channel.type != discord.ChannelType.private and discord_client.user not in new_msg.mentions)
-        or new_msg.author.bot
-    ):
+    is_dm: bool = new_msg.channel.type == discord.ChannelType.private
+
+    if new_msg.author.bot or new_msg.channel.type not in ALLOWED_CHANNEL_TYPES or (not is_dm and discord_client.user not in new_msg.mentions):
         return
 
     cfg = get_config()
 
+    allow_dms: bool = cfg["allow_dms"]
     allowed_channel_ids = cfg["allowed_channel_ids"]
     allowed_role_ids = cfg["allowed_role_ids"]
 
-    if (allowed_channel_ids and not any(id in allowed_channel_ids for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None)))) or (
-        allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", []))
+    if (
+        (is_dm and not allow_dms)
+        or (allowed_channel_ids and not is_dm and not any(id in allowed_channel_ids for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
+        or (allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", [])))
     ):
         return
 

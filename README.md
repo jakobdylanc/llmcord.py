@@ -71,8 +71,9 @@ Or use any other OpenAI compatible API server.
 | **bot_token** | Create a new Discord bot at [discord.com/developers/applications](https://discord.com/developers/applications) and generate a token under the "Bot" tab. Also enable "MESSAGE CONTENT INTENT". |
 | **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
 | **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
-| **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Leave empty to allow all channels.** |
-| **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. Specifying at least one role also disables DMs.** |
+| **allow_dms** | Set to `false` to disable DMs.<br />(Default: `true`) |
+| **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Leave empty to allow all channels. Does not affect DMs.** |
+| **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. DMs are force-disabled when at least one role is specified.** |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `25`) |

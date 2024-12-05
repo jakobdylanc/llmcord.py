@@ -76,8 +76,8 @@ Or use any other OpenAI compatible API server.
 | **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. DMs are force-disabled when at least one role is specified.** |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
-| **max_messages** | The maximum number of messages allowed in a reply chain.<br />(Default: `25`) |
-| **use_plain_responses** | When set to `true` the bot will use plaintext responses instead of embeds. Also, streamed responses and warning messages will be disabled.<br />(Default: `false`) |
+| **max_messages** | The maximum number of messages allowed in a reply chain. When exceeded, the oldest messages in the reply chain are dropped.<br />(Default: `25`) |
+| **use_plain_responses** | When set to `true` the bot will use plaintext responses instead of embeds. **Also disables streamed responses and warning messages. Plaintext responses have a shorter character limit so the bot's messages may split more often.**<br />(Default: `false`) |
 
 ### LLM settings:
 

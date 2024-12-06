@@ -248,9 +248,9 @@ async def on_message(new_msg):
     except:
         logging.exception("Error while generating response")
 
-    for msg in response_msgs:
-        msg_nodes[msg.id].text = "".join(response_contents)
-        msg_nodes[msg.id].lock.release()
+    for response_msg in response_msgs:
+        msg_nodes[response_msg.id].text = "".join(response_contents)
+        msg_nodes[response_msg.id].lock.release()
 
     # Delete oldest MsgNodes (lowest message IDs) from the cache
     if (num_nodes := len(msg_nodes)) > MAX_MESSAGE_NODES:

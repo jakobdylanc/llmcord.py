@@ -37,11 +37,10 @@ llmcord supports remote models from:
 
 Or run a local model with:
 - [Ollama](https://ollama.com)
-- [oobabooga](https://github.com/oobabooga/text-generation-webui)
-- [Jan](https://jan.ai)
 - [LM Studio](https://lmstudio.ai)
+- [vLLM](https://github.com/vllm-project/vllm)
 
-Or use any other OpenAI compatible API server.
+...Or use any other OpenAI compatible API server.
 
 ### And more:
 - Supports image attachments when using a vision model (like gpt-4o, claude-3, llava, etc.)

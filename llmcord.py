@@ -182,13 +182,16 @@ async def on_message(new_msg):
 
 
     # if the channel has a channel-specific prompt, then use that, otherwise use the category-specific prompt if it exists, otherwise use the default system prompt
-    channel = new_msg.channel.id
+    # note: If the user creates a thread in the channel, then new_msg.channel.parent_id will reflect the overall channel ID 
+    channel = new_msg.channel
     channel_id = channel.id
+    parent_channel_id = getattr(new_msg.channel,'parent_id',None)
     category_id = getattr(new_msg.channel, 'category_id', None)
     channel_prompts = cfg.get('channel_prompts',{})
     category_prompts = cfg.get('category_prompts',{})
     system_prompt = (
             channel_prompts.get(channel_id) or
+            channel_prompts.get(parent_channel_id) or
             category_prompts.get(category_id) or
             cfg.get('system_prompt')
             )

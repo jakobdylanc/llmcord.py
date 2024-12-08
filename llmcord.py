@@ -180,7 +180,20 @@ async def on_message(new_msg):
 
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}")
 
-    if system_prompt := cfg["system_prompt"]:
+
+    # if the channel has a channel-specific prompt, then use that, otherwise use the category-specific prompt if it exists, otherwise use the default system prompt
+    channel = new_msg.channel.id
+    channel_id = channel.id
+    category_id = getattr(new_msg.channel, 'category_id', None)
+    channel_prompts = cfg.get('channel_prompts',{})
+    category_prompts = cfg.get('category_prompts',{})
+    system_prompt = (
+            channel_prompts.get(channel_id) or
+            category_prompts.get(category_id) or
+            cfg.get('system_prompt')
+            )
+
+    if system_prompt:
         system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
         if accept_usernames:
             system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")

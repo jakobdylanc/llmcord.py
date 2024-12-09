@@ -187,13 +187,12 @@ async def on_message(new_msg):
     channel_id = channel.id
     parent_channel_id = getattr(new_msg.channel,'parent_id',None)
     category_id = getattr(new_msg.channel, 'category_id', None)
-    channel_prompts = cfg.get('channel_prompts',{})
-    category_prompts = cfg.get('category_prompts',{})
+    system_prompts = cfg.get('system_prompts',{})
     system_prompt = (
-            channel_prompts.get(channel_id) or
-            channel_prompts.get(parent_channel_id) or
-            category_prompts.get(category_id) or
-            cfg.get('system_prompt')
+            system_prompts.get(channel_id) or
+            system_prompts.get(parent_channel_id) or
+            system_prompts.get(category_id) or
+            system_prompts.get('default')
             )
 
     if system_prompt:

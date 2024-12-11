@@ -71,7 +71,7 @@ Or run a local model with:
 | **client_id** | Found under the "OAuth2" tab of the Discord bot you just made. |
 | **status_message** | Set a custom message that displays on the bot's Discord profile. **Max 128 characters.** |
 | **allow_dms** | Set to `false` to disable direct message access.<br />(Default: `true`) |
-| **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Leave empty to allow all channels. Does not affect DMs.** |
+| **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. **Also accepts [category](https://support.discord.com/hc/en-us/articles/115001580171-Channel-Categories-101) IDs. Leave empty to allow all channels. Does not affect DMs.** |
 | **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. DMs are force-disabled when at least one role is specified.** |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |

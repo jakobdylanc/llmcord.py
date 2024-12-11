@@ -82,9 +82,11 @@ async def on_message(new_msg):
     allowed_channel_ids = cfg["allowed_channel_ids"]
     allowed_role_ids = cfg["allowed_role_ids"]
 
+    channel_ids = (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None), getattr(new_msg.channel, "category_id", None))
+
     if (
         (is_dm and not allow_dms)
-        or (allowed_channel_ids and not is_dm and not any(id in allowed_channel_ids for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None))))
+        or (allowed_channel_ids and not is_dm and not any(id in allowed_channel_ids for id in channel_ids))
         or (allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", [])))
     ):
         return

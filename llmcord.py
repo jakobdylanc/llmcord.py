@@ -82,7 +82,7 @@ async def on_message(new_msg):
     allowed_channel_ids = cfg["allowed_channel_ids"]
     allowed_role_ids = cfg["allowed_role_ids"]
 
-    channel_ids = (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None), getattr(new_msg.channel, "category_id", None))
+    channel_ids = tuple(id for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None), getattr(new_msg.channel, "category_id", None)) if id)
 
     is_allowed_channel: bool = not allowed_channel_ids or is_dm or any(id in allowed_channel_ids for id in channel_ids)
     is_allowed_user: bool = not allowed_role_ids or any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", []))

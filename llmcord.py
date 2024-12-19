@@ -137,7 +137,7 @@ async def on_message(new_msg):
 
                 try:
                     if (
-                        curr_msg.reference == None
+                        not curr_msg.reference
                         and discord_client.user.mention not in curr_msg.content
                         and (prev_msg_in_channel := ([m async for m in curr_msg.channel.history(before=curr_msg, limit=1)] or [None])[0])
                         and any(prev_msg_in_channel.type == type for type in (discord.MessageType.default, discord.MessageType.reply))
@@ -147,7 +147,7 @@ async def on_message(new_msg):
                     else:
                         parent_channel = getattr(curr_msg.channel, "parent", None)
                         is_public_thread: bool = curr_msg.channel.type == discord.ChannelType.public_thread
-                        next_is_parent_msg: bool = curr_msg.reference == None and is_public_thread and parent_channel and parent_channel.type == discord.ChannelType.text
+                        next_is_parent_msg: bool = not curr_msg.reference and is_public_thread and parent_channel and parent_channel.type == discord.ChannelType.text
 
                         if next_msg_id := curr_msg.channel.id if next_is_parent_msg else getattr(curr_msg.reference, "message_id", None):
                             if next_is_parent_msg:

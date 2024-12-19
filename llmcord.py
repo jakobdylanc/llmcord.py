@@ -84,10 +84,10 @@ async def on_message(new_msg):
 
     channel_ids = tuple(id for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None), getattr(new_msg.channel, "category_id", None)) if id)
 
-    is_allowed_channel: bool = not allowed_channel_ids or is_dm or any(id in allowed_channel_ids for id in channel_ids)
-    is_allowed_user: bool = not allowed_role_ids or any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", []))
+    is_bad_channel: bool = (is_dm and not allow_dms) or (not is_dm and allowed_channel_ids and not any(id in allowed_channel_ids for id in channel_ids))
+    is_bad_user: bool = allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", []))
 
-    if (is_dm and not allow_dms) or not is_allowed_channel or not is_allowed_user:
+    if is_bad_channel or is_bad_user:
         return
 
     provider, model = cfg["model"].split("/", 1)

@@ -145,10 +145,13 @@ async def on_message(new_msg):
                     ):
                         curr_node.next_msg = prev_msg_in_channel
                     else:
-                        next_is_thread_parent: bool = curr_msg.reference == None and curr_msg.channel.type == discord.ChannelType.public_thread
-                        if next_msg_id := curr_msg.channel.id if next_is_thread_parent else getattr(curr_msg.reference, "message_id", None):
-                            if next_is_thread_parent:
-                                curr_node.next_msg = curr_msg.channel.starter_message or await curr_msg.channel.parent.fetch_message(next_msg_id)
+                        parent_channel = getattr(curr_msg.channel, "parent", None)
+                        is_public_thread: bool = curr_msg.channel.type == discord.ChannelType.public_thread
+                        next_is_parent_msg: bool = curr_msg.reference == None and is_public_thread and parent_channel and parent_channel.type == discord.ChannelType.text
+
+                        if next_msg_id := curr_msg.channel.id if next_is_parent_msg else getattr(curr_msg.reference, "message_id", None):
+                            if next_is_parent_msg:
+                                curr_node.next_msg = curr_msg.channel.starter_message or await parent_channel.fetch_message(next_msg_id)
                             else:
                                 curr_node.next_msg = curr_msg.reference.cached_message or await curr_msg.channel.fetch_message(next_msg_id)
 

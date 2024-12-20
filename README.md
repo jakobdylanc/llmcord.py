@@ -73,6 +73,7 @@ Or run a local model with:
 | **allow_dms** | Set to `false` to disable direct message access.<br />(Default: `true`) |
 | **allowed_channel_ids** | A list of Discord channel IDs where the bot can be used. Also accepts [category](https://support.discord.com/hc/en-us/articles/115001580171-Channel-Categories-101) IDs. **Leave empty to allow all channels. Does not affect DMs.** |
 | **allowed_role_ids** | A list of Discord role IDs that can use the bot. **Leave empty to allow everyone. DMs are force-disabled when at least one role is specified.** |
+| **blocked_user_ids** | A list of Discord user IDs that are blocked from using the bot. |
 | **max_text** | The maximum amount of text allowed in a single message, including text from file attachments.<br />(Default: `100,000`) |
 | **max_images** | The maximum number of image attachments allowed in a single message. **Only applicable when using a vision model.**<br />(Default: `5`) |
 | **max_messages** | The maximum number of messages allowed in a reply chain. When exceeded, the oldest messages in the reply chain are dropped.<br />(Default: `25`) |

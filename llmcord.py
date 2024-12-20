@@ -81,11 +81,12 @@ async def on_message(new_msg):
     allow_dms: bool = cfg["allow_dms"]
     allowed_channel_ids = cfg["allowed_channel_ids"]
     allowed_role_ids = cfg["allowed_role_ids"]
+    blocked_user_ids = cfg["blocked_user_ids"]
 
     channel_ids = tuple(id for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None), getattr(new_msg.channel, "category_id", None)) if id)
 
     is_bad_channel: bool = (is_dm and not allow_dms) or (not is_dm and allowed_channel_ids and not any(id in allowed_channel_ids for id in channel_ids))
-    is_bad_user: bool = allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", []))
+    is_bad_user: bool = new_msg.author.id in blocked_user_ids or (allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", [])))
 
     if is_bad_channel or is_bad_user:
         return

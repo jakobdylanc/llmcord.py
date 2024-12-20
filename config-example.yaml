@@ -7,6 +7,7 @@ status_message:
 allow_dms: true
 allowed_channel_ids: []
 allowed_role_ids: []
+blocked_user_ids: []
 
 max_text: 100000
 max_images: 5

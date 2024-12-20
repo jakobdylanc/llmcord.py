@@ -71,22 +71,22 @@ class MsgNode:
 async def on_message(new_msg):
     global msg_nodes, last_task_time
 
-    is_dm: bool = new_msg.channel.type == discord.ChannelType.private
+    is_dm = new_msg.channel.type == discord.ChannelType.private
 
     if (not is_dm and discord_client.user not in new_msg.mentions) or new_msg.author.bot or str(new_msg.channel.type) not in ALLOWED_CHANNEL_TYPES:
         return
 
     cfg = get_config()
 
-    allow_dms: bool = cfg["allow_dms"]
+    allow_dms = cfg["allow_dms"]
     allowed_channel_ids = cfg["allowed_channel_ids"]
     allowed_role_ids = cfg["allowed_role_ids"]
     blocked_user_ids = cfg["blocked_user_ids"]
 
     channel_ids = tuple(id for id in (new_msg.channel.id, getattr(new_msg.channel, "parent_id", None), getattr(new_msg.channel, "category_id", None)) if id)
 
-    is_bad_channel: bool = (is_dm and not allow_dms) or (not is_dm and allowed_channel_ids and not any(id in allowed_channel_ids for id in channel_ids))
-    is_bad_user: bool = new_msg.author.id in blocked_user_ids or (allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", [])))
+    is_bad_channel = (is_dm and not allow_dms) or (not is_dm and allowed_channel_ids and not any(id in allowed_channel_ids for id in channel_ids))
+    is_bad_user = new_msg.author.id in blocked_user_ids or (allowed_role_ids and not any(role.id in allowed_role_ids for role in getattr(new_msg.author, "roles", [])))
 
     if is_bad_channel or is_bad_user:
         return
@@ -96,14 +96,14 @@ async def on_message(new_msg):
     api_key = cfg["providers"][provider].get("api_key", "sk-no-key-required")
     openai_client = AsyncOpenAI(base_url=base_url, api_key=api_key)
 
-    accept_images: bool = any(x in model.lower() for x in VISION_MODEL_TAGS)
-    accept_usernames: bool = any(x in provider.lower() for x in PROVIDERS_SUPPORTING_USERNAMES)
+    accept_images = any(x in model.lower() for x in VISION_MODEL_TAGS)
+    accept_usernames = any(x in provider.lower() for x in PROVIDERS_SUPPORTING_USERNAMES)
 
     max_text = cfg["max_text"]
     max_images = cfg["max_images"] if accept_images else 0
     max_messages = cfg["max_messages"]
 
-    use_plain_responses: bool = cfg["use_plain_responses"]
+    use_plain_responses = cfg["use_plain_responses"]
     max_message_length = 2000 if use_plain_responses else (4096 - len(STREAMING_INDICATOR))
 
     # Build message chain and set user warnings
@@ -146,8 +146,8 @@ async def on_message(new_msg):
                     ):
                         curr_node.next_msg = prev_msg_in_channel
                     else:
-                        is_public_thread: bool = curr_msg.channel.type == discord.ChannelType.public_thread
-                        next_is_parent_msg: bool = not curr_msg.reference and is_public_thread and curr_msg.channel.parent.type == discord.ChannelType.text
+                        is_public_thread = curr_msg.channel.type == discord.ChannelType.public_thread
+                        next_is_parent_msg = not curr_msg.reference and is_public_thread and curr_msg.channel.parent.type == discord.ChannelType.text
 
                         if next_msg_id := curr_msg.channel.id if next_is_parent_msg else getattr(curr_msg.reference, "message_id", None):
                             if next_is_parent_msg:
@@ -226,10 +226,10 @@ async def on_message(new_msg):
                     if not use_plain_responses:
                         finish_reason = curr_chunk.choices[0].finish_reason
 
-                        ready_to_edit: bool = (edit_task == None or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS
-                        msg_split_incoming: bool = len(response_contents[-1] + curr_content) > max_message_length
-                        is_final_edit: bool = finish_reason != None or msg_split_incoming
-                        is_good_finish: bool = finish_reason != None and any(finish_reason.lower() == x for x in ("stop", "end_turn"))
+                        ready_to_edit = (edit_task == None or edit_task.done()) and dt.now().timestamp() - last_task_time >= EDIT_DELAY_SECONDS
+                        msg_split_incoming = len(response_contents[-1] + curr_content) > max_message_length
+                        is_final_edit = finish_reason != None or msg_split_incoming
+                        is_good_finish = finish_reason != None and any(finish_reason.lower() == x for x in ("stop", "end_turn"))
 
                         if ready_to_edit or is_final_edit:
                             if edit_task != None:

@@ -86,7 +86,7 @@ Or run a local model with:
 | **providers** | Add the LLM providers you want to use, each with a `base_url` and optional `api_key` entry. Popular providers (`openai`, `ollama`, etc.) are already included. **Only supports OpenAI compatible APIs.** |
 | **model** | Set to `<provider name>/<model name>`, e.g:<br /><br />-`openai/gpt-4o`<br />-`ollama/llama3.3`<br />-`openrouter/anthropic/claude-3.5-sonnet` |
 | **extra_api_parameters** | Extra API parameters for your LLM. Add more entries as needed. **Refer to your provider's documentation for supported API parameters.**<br />(Default: `max_tokens=4096, temperature=1.0`) |
-| **system_prompt** | Write anything you want to customize the bot's behavior! **Leave blank for no system prompt.** |
+| **system_prompts** | Configure the default system prompt and different system prompts per channel/category. First entry is `default`, other entries are channel or category IDs. Channel-specific prompts take priority over category prompts. Example with custom behavior for channel 123456789: `{"default": "You are a helpful chatbot.", "123456789": "You are a chatbot who speaks like a Medieval peasant."}` |
 
 3. Run the bot:
 

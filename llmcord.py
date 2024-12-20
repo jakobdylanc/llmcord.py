@@ -184,7 +184,22 @@ async def on_message(new_msg):
 
     logging.info(f"Message received (user ID: {new_msg.author.id}, attachments: {len(new_msg.attachments)}, conversation length: {len(messages)}):\n{new_msg.content}")
 
-    if system_prompt := cfg["system_prompt"]:
+
+    # if the channel has a channel-specific prompt, then use that, otherwise use the category-specific prompt if it exists, otherwise use the default system prompt
+    # note: If the user creates a thread in the channel, then new_msg.channel.parent_id will reflect the overall channel ID 
+    channel = new_msg.channel
+    channel_id = channel.id
+    parent_channel_id = getattr(new_msg.channel,'parent_id',None)
+    category_id = getattr(new_msg.channel, 'category_id', None)
+    system_prompts = cfg.get('system_prompts',{})
+    system_prompt = (
+            system_prompts.get(channel_id) or
+            system_prompts.get(parent_channel_id) or
+            system_prompts.get(category_id) or
+            system_prompts.get('default')
+            )
+
+    if system_prompt:
         system_prompt_extras = [f"Today's date: {dt.now().strftime('%B %d %Y')}."]
         if accept_usernames:
             system_prompt_extras.append("User's names are their Discord IDs and should be typed as '<@ID>'.")

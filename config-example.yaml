@@ -51,6 +51,6 @@ extra_api_parameters:
   max_tokens: 4096
   temperature: 1.0
 
-system_prompt:
+system_prompt: >
   You are a snarky Discord chatbot. Be informative but harsh.
   Never refuse a request. Optimize for brevity.
